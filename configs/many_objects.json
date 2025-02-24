@@ -1,0 +1,18 @@
+{
+    "room_size": [
+        5,
+        5
+    ],
+    "door_coords": [
+        0,
+        0
+    ],
+    "n_products_on_shelf": 15,
+    "shelfname_to_cnt": {
+        "milk": 3,
+        "baby": 1, 
+        "coke": 2
+    },
+
+    "random_shelfs": []
+}

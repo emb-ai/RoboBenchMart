@@ -1,0 +1,39 @@
+{
+    "room_size": [
+        2,
+        2
+    ],
+    "door_coords": [
+        0,
+        0
+    ],
+    "n_products_on_shelf": 1,
+    "shelfname_to_cnt": {
+        "ANYNAME": 1
+    },
+    "blocked_matrix": [
+        [
+            0,
+            0
+        ],
+        [
+            0,
+            0
+        ]
+    ],
+    "random_shelfs": [
+        [
+            [],
+            [
+                "milk",
+                "coke",
+                "CokeBottle",
+                "baby",
+                "cerealsForSS"
+            ],
+            [],
+            [],
+            []
+        ]
+    ]
+}
