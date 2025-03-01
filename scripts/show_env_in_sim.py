@@ -55,7 +55,7 @@ def main(args):
 
     n = data['meta']['n']
     m = data['meta']['m']
-    arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
+    arena_data = get_arena_data(x_cells=n, y_cells=m)
 
     env = gym.make('PickToCartEnv', 
                    robot_uids='panda_wristcam', 
@@ -65,6 +65,7 @@ def main(args):
                    style_ids = [style_id], 
                    num_envs=1, 
                    viewer_camera_configs={'shader_pack': args.shader}, 
+                    human_render_camera_configs={'shader_pack': args.shader},
                 #    render_mode="human" if gui else "rgb_array", 
                    render_mode="rgb_array", 
                    enable_shadow=True,
@@ -109,6 +110,8 @@ def main(args):
     if gui:
         viewer = env.render_human()
         while True:
+            if viewer.closed:
+                exit()
             if viewer.window.key_down("c"):
                 break
             env.render_human()

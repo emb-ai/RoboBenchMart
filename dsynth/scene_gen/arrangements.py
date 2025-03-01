@@ -15,6 +15,7 @@ import trimesh
 import os
 
 CELL_SIZE = 1.55
+DEFAULT_ROOM_HEIGHT = 2.7
 
 def get_assets_dict(assets_path):
     with open(f"{assets_path}/assets.json", "r") as f:

@@ -1,4 +1,5 @@
 from typing import Dict
+import itertools
 import os
 import json
 import torch
@@ -11,15 +12,18 @@ from mani_skill.utils import sapien_utils
 from mani_skill.sensors.camera import CameraConfig
 from mani_skill.envs.sapien_env import BaseEnv
 from dsynth.envs.fixtures.robocasaroom import RoomFromRobocasa
-from dsynth.scene_gen.arrangements import CELL_SIZE
+from dsynth.scene_gen.arrangements import CELL_SIZE, DEFAULT_ROOM_HEIGHT
+from dsynth.assets.common import ceiling_lamp, CEILING_LAMP_HEIGHT
 
 DEFAULT_ASSETS_DIR = 'assets'
 
-def get_arena_data(x_cells=4, y_cells=5, height = 3):
+def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
     x_size = x_cells * CELL_SIZE
     y_size = y_cells * CELL_SIZE
     return {
         'meta': {
+            'x_cells': x_cells,
+            'y_cells': y_cells,
             'x_size': x_size,
             'y_size': y_size,
             'height': height
@@ -41,7 +45,9 @@ def get_arena_data(x_cells=4, y_cells=5, height = 3):
                 ], 
                 'floor': [
                     {'name': 'floor', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, 0.0]}, 
-                    {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.1], 'pos': [x_size / 2, y_size / 2, 0.0]}
+                    {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.1], 'pos': [x_size / 2, y_size / 2, 0.0]},
+                    # {'name': 'ceiling', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height]}, 
+                    {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height + 4 * 0.02]}
                 ]
             }
         }
@@ -70,9 +76,14 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.json_file_path = scene_json
         self.mapping_file = mapping_file
         self.assets_dir = assets_dir
+        self.x_cells = meta['x_cells']
+        self.y_cells = meta['y_cells']
         self.x_size = meta['x_size']
         self.y_size = meta['y_size']
         self.height = meta['height']
+
+        self.lamps_coords = self._get_lamps_coords()
+
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property
@@ -96,6 +107,34 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.scene_builder.build(self.style_ids)
         self._load_scene_from_json(options)
 
+        self._load_lamps(options)
+
+    def _get_lamps_coords(self):
+        lamps_coords = []
+
+        # TODO: max number of light sources can be reached
+        for i, j in itertools.product(range(self.x_cells // 2), range(self.y_cells)):
+            x = CELL_SIZE / 2 + 2 * CELL_SIZE * i
+            y = CELL_SIZE / 2 + CELL_SIZE * j
+            lamps_coords.append((x, y))
+        
+        return lamps_coords
+
+    def _load_lighting(self, options: dict):
+        """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
+
+        shadow = self.enable_shadow
+        self.scene.set_ambient_light([0.4, 0.4, 0.4])
+
+        for x, y in self.lamps_coords:
+            # I have no idea what inner_fov and outer_fov mean :/
+            self.scene.add_spot_light([x, y, self.height - CEILING_LAMP_HEIGHT], [0, 0, -1], inner_fov=10, outer_fov=20, color=[20, 20, 20], shadow=shadow)
+
+    def _load_lamps(self, options: dict):
+        self.lamps = []
+        for n, (x, y) in enumerate(self.lamps_coords):
+            self.lamps.append(ceiling_lamp(f'lamp_{n}', self.scene, sapien.Pose(p=[x, y, self.height], q=[1, 0, 0, 0]), self.assets_dir))
+    
     def _process_string(self, s):
         if '_' in s:
             return s.split('_',1)[0] + '.obj'
