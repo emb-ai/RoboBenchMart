@@ -1,0 +1,6 @@
+mani_skill
+torch
+torchvision
+scene-synthesizer[recommend]
+usd-core
+pyglet<2
