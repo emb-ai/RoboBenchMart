@@ -90,5 +90,10 @@ if __name__ == "__main__":
 
     scene_meta = shelf_placement(product_names, BOARDS, n_products_on_shelf, room, is_rotate, data['random_shelfs'], args.show, args.pi)
 
+    print(f"Writing to {str(output_dir / 'scene_config.json')}...")
+    
     with open(output_dir / "scene_config.json", "w") as f:
         json.dump(scene_meta, f, indent=4)
+
+    print("DONE")
+

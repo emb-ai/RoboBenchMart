@@ -72,14 +72,18 @@ def main(args):
                    **arena_data)
 
     new_traj_name = time.strftime("%Y%m%d_%H%M%S")
+    video_path = scene_dir / f"./videos_style={style_id}_shader={args.shader}"
     env = RecordEpisode(
         env,
-        output_dir=scene_dir / f"./videos_style={style_id}_shader={args.shader}",
+        output_dir=video_path,
         trajectory_name=new_traj_name,
         save_video=True,
         video_fps=30,
         avoid_overwriting_video=True
     )
+
+    print("Video path:", video_path)
+    print("Trajectoty name:", new_traj_name)
 
     # step through the environment with random actions
     obs, _ = env.reset()
