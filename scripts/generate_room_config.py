@@ -81,14 +81,14 @@ if __name__ == "__main__":
 
     mat = data.get("blocked_matrix", [[0] * m for _ in range(n)])
     shelfname_to_cnt = data.get("shelfname_to_cnt", {'milk': 1, 'baby': 0, 'cereal': 0})
-    n_products_on_shelf = data.get("n_products_on_shelf", COUNT_OF_PRODUCT_ON_BOARD)
+    n_products_on_board = data.get("n_products_on_board", COUNT_OF_PRODUCT_ON_BOARD)
     is_gen, room = add_many_products((x, y), mat, shelfname_to_cnt)
     is_rotate = get_orientation((x, y), room)
 
     if not is_gen:
         raise UserError("retry to generate a scene")
 
-    scene_meta = shelf_placement(product_names, BOARDS, n_products_on_shelf, room, is_rotate, data['random_shelfs'], args.show, args.pi)
+    scene_meta = shelf_placement(product_names, BOARDS, n_products_on_board, room, is_rotate, data['random_shelfs'], args.show, args.pi)
 
     print(f"Writing to {str(output_dir / 'scene_config.json')}...")
     

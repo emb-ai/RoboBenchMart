@@ -7,7 +7,7 @@
         0,
         0
     ],
-    "n_products_on_shelf": 1,
+    "n_products_on_board": 1,
     "shelfname_to_cnt": {
         "ANYNAME": 1
     },
