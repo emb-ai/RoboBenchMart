@@ -1,5 +1,9 @@
 # darkstore_synthesizer
 
+## Quickstart
+
+You can open [example notebook](notebooks/dsynth_scengen.ipynb) in [Google Colab](https://colab.research.google.com/) to test basic usage.
+
 ## Installation
 
 ### Prerequisites 
