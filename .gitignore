@@ -3,3 +3,4 @@ __pycache__
 assets
 !dsynth/assets
 generated_envs
+.ipynb_checkpoints
