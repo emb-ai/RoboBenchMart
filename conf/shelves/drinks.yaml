@@ -1,0 +1,8 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: drinks
+filling_type: BLOCKWISE_AUTO_INFINITE
+queries:
+- food/drinks

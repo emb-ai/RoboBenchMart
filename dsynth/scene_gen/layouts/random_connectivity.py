@@ -123,6 +123,69 @@ def add_many_products(
     return (True, mat)
 
 
+
+def add_one_zone(
+    st: tuple[int, int],
+    door: tuple[int, int],
+    mat: list[list[int]],
+    zone_name: str, 
+    zone_shelves: list[str],
+    all_reached: bool = False,
+) -> bool:
+    n: int = len(mat)
+    m: int = len(mat[0])
+    placed: list[int] = []
+    for j, shelf_name in enumerate(zone_shelves):
+        my_nei: list[int] = find_neibours(st, n, m)
+        if j == 0:
+            my_nei = [st]
+        random.shuffle(my_nei)
+        good_try: bool = False
+        for el in my_nei:
+            if mat[el[0]][el[1]] == 0:
+                mat[el[0]][el[1]] = f'{zone_name}/{shelf_name}'
+                if check_table(mat, door, all_reached=all_reached):
+                    st = el
+                    placed.append(el)
+                    good_try = True
+                    break
+                mat[el[0]][el[1]] = 0
+        if not (good_try):
+            for el in placed:
+                mat[el[0]][el[1]] = 0
+            return False
+    return True
+
+
+
+def add_many_zones(
+    door: tuple[int, int],
+    mat: list[list[int]],
+    # shelfname_to_cnt: dict,
+    zones_list: dict[str, list[str]],
+    all_reached: bool = False,
+) -> tuple[bool, list[list]]:
+    n: int = len(mat)
+    m: int = len(mat[0])
+    id_to_name: list[str] = []
+    id: int = 0
+
+    for zone_name, zone_shelves in zones_list.items():
+        # id_to_name.append(el)
+        goodpr = False
+        id += 1
+        for j in range(2 * n * m):
+            s = get_rd_point(n, m)
+            if add_one_zone(s, door, mat, zone_name, zone_shelves, all_reached):
+                goodpr = True
+                break
+        if not (goodpr):
+            return (False, mat)
+
+    return (True, mat)
+
+
+
 def get_orientation(door: tuple[int, int], mat: list[list[int]]) -> list[list[bool]]:
     n: int = len(mat)
     m: int = len(mat[0])

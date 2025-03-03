@@ -4,3 +4,5 @@ assets
 !dsynth/assets
 generated_envs
 .ipynb_checkpoints
+.hydra
+outputs

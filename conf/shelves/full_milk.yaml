@@ -1,0 +1,8 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: 'full_milk'
+filling_type: FULL_AUTO
+queries:
+- 'food/dairy_products'

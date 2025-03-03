@@ -1,0 +1,8 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+filling_type: BOARDWISE_AUTO_INFINITE
+queries:
+- 'food/grocery/cereal'
+- 'food/grocery/baby'

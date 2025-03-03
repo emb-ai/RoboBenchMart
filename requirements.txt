@@ -4,3 +4,4 @@ torchvision
 scene-synthesizer[recommend]
 usd-core
 pyglet<2
+hydra-core

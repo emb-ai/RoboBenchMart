@@ -1,7 +1,9 @@
+from itertools import cycle
+import re
 import numpy as np
 from scene_synthesizer.utils import PositionIterator2D
-from dsynth.assets.ss_assets import WIDTH, DEPTH
 from shapely.geometry import Point
+from dsynth.assets.ss_assets import WIDTH, DEPTH
 
 class PositionIteratorPI(PositionIterator2D):
     def __init__(
@@ -69,3 +71,42 @@ class PositionIteratorPI(PositionIterator2D):
             self.new_line = False
 
         return self
+
+
+def flatten_dict(d, sep: str = None, parent_key: str = ''):
+    items = {}
+    for k, v in d.items():
+        if sep is None:
+            new_key = (*parent_key, k) if parent_key else (k,)
+        else:
+            new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, dict) and len(v) > 0:
+            items.update(flatten_dict(v, parent_key=new_key, sep=sep).items())
+        else:
+            items[new_key] = v
+    return items
+
+def get_needed_names(regexp, all_products):
+    return list(filter(lambda x: re.match(regexp, x), all_products))
+
+class ProductnameIterator:
+    def __init__(self, queries, all_products, shuffle=True):
+        self.queries = queries
+        # self.shuffle = shuffle
+        products = []
+        for query in self.queries:
+            products.extend(get_needed_names(rf'{query}', all_products))
+        # if self.shuffle:
+        #     random.shuffle(products)
+        self.products_iterator = iter(products)
+
+    def __iter__(self):
+        return self
+    
+    def __next__(self,):
+        return next(self.products_iterator)
+
+class ProductnameIteratorInfinite(ProductnameIterator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.products_iterator = cycle(self.products_iterator)
