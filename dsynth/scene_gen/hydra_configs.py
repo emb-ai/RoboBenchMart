@@ -10,7 +10,6 @@ import hydra
 from hydra.core.config_store import ConfigStore
 
 from dsynth.scene_gen.utils import ProductnameIterator, ProductnameIteratorInfinite, flatten_dict
-from dsynth.assets import ALL_ASSETS
 
 class FillingType(Enum):
     BLOCKWISE_AUTO = 'BLOCKWISE_AUTO'
@@ -20,7 +19,6 @@ class FillingType(Enum):
     FULL_AUTO = 'FULL_AUTO'
     LISTED = 'LISTED'
 
-ALL_PRODUCTS_FLATTENED = flatten_dict(ALL_ASSETS['products_hierarchy'], sep='/')
 
 @dataclass
 class ShelfConfig:
@@ -37,15 +35,15 @@ class ShelfConfig:
 
     num_boards: int = 5
 
-def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_products):
+def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_names):
     assert 0 <= shelf_config.start_filling_board <= shelf_config.end_filling_from_board <= shelf_config.num_boards
 
     filling = [[] for _ in range(shelf_config.start_filling_board)]
 
     if '_INFINITE' in str(shelf_config.filling_type):
-        product_iterator = ProductnameIteratorInfinite(shelf_config.queries, all_products)
+        product_iterator = ProductnameIteratorInfinite(shelf_config.queries, all_product_names)
     else:
-        product_iterator = ProductnameIterator(shelf_config.queries, all_products)
+        product_iterator = ProductnameIterator(shelf_config.queries, all_product_names)
 
 
     if shelf_config.filling_type == FillingType.FULL_AUTO:
@@ -93,10 +91,10 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_products):
         filling.append([])
     return filling
 
-def product_filling_from_zone_config(zone_config, all_products):
+def product_filling_from_zone_config(zone_config, all_product_names):
     filling = {}
     for shelf_name, shelf_config in zone_config.items():
-        filling[shelf_name] = product_filling_from_shelf_config(shelf_config, all_products)
+        filling[shelf_name] = product_filling_from_shelf_config(shelf_config, all_product_names)
     return filling
 
 @dataclass    
@@ -111,10 +109,11 @@ class Config:
     output_dir: Any = None
     rewrite: bool = False
     show: bool = False
+    layout_gen: str = 'random_connectivity'
 
-def product_filling_from_darkstore_config(darkstore_config: Config, all_products):
+def product_filling_from_darkstore_config(darkstore_config: Config, all_product_names):
     filling = {}
     for zone_name, zone_config in darkstore_config.zones.items():
-        filling[zone_name] = product_filling_from_zone_config(zone_config, all_products)
+        filling[zone_name] = product_filling_from_zone_config(zone_config, all_product_names)
     return filling
 

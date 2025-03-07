@@ -5,10 +5,10 @@ from scene_synthesizer import procedural_scenes as ps
 from scene_synthesizer.assets import TrimeshSceneAsset
 from dsynth.assets.ss_assets import DefaultShelf
 from dsynth.scene_gen.utils import PositionIteratorPI
-from dsynth.assets import ASSETS_PATH
 from scene_synthesizer import utils
 from shapely.geometry import Point
 import trimesh.transformations as tra
+import dataclasses
 import json
 import sys
 import argparse
@@ -17,53 +17,6 @@ import os
 
 CELL_SIZE = 1.55
 DEFAULT_ROOM_HEIGHT = 2.7
-
-def get_assets_dict(assets_path):
-    with open(f"{assets_path}/assets.json", "r") as f:
-        assets_config = json.load(f)
-
-    asset_type_mapping = {
-        "MeshAsset": synth.assets.MeshAsset,
-        "USDAsset": synth.assets.USDAsset,
-    }
-
-    assets_dict = {}
-
-    for name, params in assets_config.items():
-        asset_type_str = params.pop("asset_type")
-        asset_constructor = asset_type_mapping.get(asset_type_str)
-        if asset_constructor is None:
-            raise ValueError(f"Unknown asset type: {asset_type_str}")
-
-        file_path = os.path.join(assets_path, params.pop("filename"))
-
-        asset_obj = asset_constructor(file_path, **params)
-
-        assets_dict[name] = asset_obj
-
-    return assets_dict
-
-def load_assets(all_products_flattened):
-    asset_type_mapping = {
-        "MeshAsset": synth.assets.MeshAsset,
-        "USDAsset": synth.assets.USDAsset,
-    }
-
-    assets_dict = {}
-
-    for name, meta in all_products_flattened.items():
-        asset_type_str = meta.asset_type
-        asset_constructor = asset_type_mapping.get(asset_type_str)
-        if asset_constructor is None:
-            raise ValueError(f"Unknown asset type: {asset_type_str}")
-
-        file_path = os.path.join(ASSETS_PATH, meta.filename)
-        params = {'origin': meta.origin, 'scale': meta.scale}
-        asset_obj = asset_constructor(file_path, **params)
-
-        assets_dict[name] = asset_obj
-
-    return assets_dict
 
 
 def set_shelf(
@@ -81,10 +34,12 @@ def set_shelf(
     else:
         scene.add_object(shelf, name, transform=tra.translation_matrix((x, y, 0.0)))
     support_data = scene.label_support(
+        erosion_distance=0.05,
         label=support_name,
         obj_ids=[name],
         min_area=0.05,
         gravity=np.array([0, 0, -1]),
+
     )
     return support_data
 
@@ -182,29 +137,29 @@ def shelf_placement(
 
 def add_objects_to_shelf_v2(
     scene,
-    shelf_name,
+    shelf_cnt,
     product_placement: dict,
-    product_models,
+    product_assets_lib,
     support_data,
 ):
     for num_board, board in enumerate(product_placement):
         pos_iter = utils.PositionIteratorGrid(
-                    step_x=0.2,
-                    step_y=0.1,
-                    noise_std_x=0.01,
-                    noise_std_y=0.01,
-                    direction="x",
+                    step_x=0.02,
+                    step_y=0.02,
+                    noise_std_x=0.001,
+                    noise_std_y=0.001,
+                    direction="y",
                 )
         for cnt, elem_name in enumerate(board):
             scene.place_objects(
                 obj_id_iterator=utils.object_id_generator(
-                    f"{shelf_name}_{elem_name}_" + f"_{num_board}_{cnt}"
+                    f"{elem_name}:" + f"{shelf_cnt}:{num_board}:{cnt}:"
                 ),
-                obj_asset_iterator=tuple([product_models[elem_name]]),
+                obj_asset_iterator=tuple([product_assets_lib[elem_name].ss_asset]),
                 # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
                 obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
                 obj_position_iterator=pos_iter,
-                obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+                obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0, upper= 3.14 / 20),
             )
 
 
@@ -213,7 +168,7 @@ def shelf_placement_v2(
         product_filling_flattened,
         darkstore: list[list],
         is_rotate: list[list],
-        product_models,
+        product_assets_lib,
         is_showed: bool = False,
     ):
     n, m = len(darkstore), len(darkstore[0])
@@ -238,28 +193,28 @@ def shelf_placement_v2(
                 x * 1.55,
                 y * 1.55,
                 is_rotate[x][y],
-                shelf_name,
-                f"support_{shelf_name}",
+                f'SHELF_{cnt}_{shelf_name}',
+                f'support_SHELF_{cnt}_{shelf_name}',
             )
             add_objects_to_shelf_v2(
                 scene,
-                shelf_name,
+                cnt,
                 product_filling_flattened[shelf_name],
-                product_models,
+                product_assets_lib,
                 support_data,
             )
             cnt += 1
             it += 1
 
     if is_showed:
-        scene.colorize()
+        # scene.colorize()
         # scene.colorize(specific_objects={f"shelf{i}": [123, 123, 123] for i in cells})
         scene.show()
     json_str = synth.exchange.export.export_json(scene, include_metadata=False)
 
     data = json.loads(json_str)
     del data["geometry"]
-    data["meta"] = {"n": n, "m": m, "room": darkstore}
+    data["meta"] = {"n": n, "m": m, "room": darkstore, "filling": product_filling_flattened}
 
     return data
 

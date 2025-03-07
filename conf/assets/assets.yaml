@@ -1,0 +1,103 @@
+assets_dir_path: assets
+products_hierarchy:
+  food:
+    grocery:
+      baby:
+        ss_asset_type: MeshAsset
+        asset_file_path: ${assets.assets_dir_path}/baby.glb
+        ss_params:
+          scale : 1
+          origin : ['com', 'com', 'bottom']
+      cerealsForSS:
+        ss_asset_type: MeshAsset
+        asset_file_path: ${assets.assets_dir_path}/cerealsForSS.glb
+        ss_params:
+          scale : 1
+          origin : ['com', 'com', 'bottom']
+      cerealescornflakescora:
+        asset_file_path: ${assets.assets_dir_path}/cerealescornflakescora.glb
+        ss_params:
+          height: 0.25 
+          up: [0, 1, 0] 
+          front: [0, 0, -1] 
+          origin: ["left", "bottom", "com"]
+      cornFlakesRetroEditionSmall:
+        asset_file_path: ${assets.assets_dir_path}/cornFlakesRetroEditionSmall.glb
+        ss_params:
+          height: 0.3 
+          up: [0, 1, 0] 
+          front: [1, 0, 0] 
+          origin: ["com", "bottom", "left"]
+      nestleFitnessChocolateCerealBox:
+        asset_file_path: ${assets.assets_dir_path}/nestleFitnessChocolateCerealBox.glb
+        ss_params:
+          height: 0.3 
+          up: [0, 1, 0] 
+          front: [-1, 0, 0] 
+          origin: ["com", "bottom", "com"]
+    dairy_products:
+      milk:
+        asset_file_path: ${assets.assets_dir_path}/milk.glb
+        ss_params:
+          height: 0.25
+          up: [0, 0, 1] 
+          front: [-1, 0, 0] 
+          origin: ["com", "left", "bottom"]
+      milkHandle:
+        asset_file_path: ${assets.assets_dir_path}/milkHandle.glb
+        ss_params:
+          height: 0.25
+          up: [0, 1, 0] 
+          front: [0, 0, -1] 
+          origin: ["left", "bottom", "com"]
+      milkCarton:
+        asset_file_path: ${assets.assets_dir_path}/milkCarton.glb
+        ss_params:
+          height: 0.25
+          up: [0, 1, 0] 
+          front: [-1, 0, 0] 
+          origin: ["com", "bottom", "com"]
+    drinks:
+      # CokeBottle:
+      #   ss_asset_type: USDAsset
+      #   asset_file_path: ${assets.assets_dir_path}/CokeBottle.usdc
+      #   ss_params:
+      #     scale: 0.9
+      #     origin: ["com", "com", "bottom"]
+      cocaColaCan:
+        asset_file_path: ${assets.assets_dir_path}/cocaColaCan.glb
+        ss_params:
+          height: 0.15
+          up: [0, 1, 0] 
+          front: [0, 0, -1]
+          origin: ["left", "bottom", "com"]
+      # coke:
+      #   ss_asset_type: USDAsset
+      #   asset_file_path: ${assets.assets_dir_path}/coke.usdc
+      #   ss_params:
+      #     scale: 1
+      #     origin: ["com", "com", "bottom"]
+    fruits:
+      banana:
+        ss_asset_type: USDAsset
+        asset_file_path: ${assets.assets_dir_path}/banana.usdc
+        ss_params:
+          scale: 1.5
+          origin: ["com", "com", "bottom"]
+fixtures:
+  shelf: 
+    asset_file_path: ${assets.assets_dir_path}/shelf_woodenglb.glb
+    ms_is_static: true
+    ms_is_nonconvex_collision: true
+  lamp: 
+    asset_file_path: ${assets.assets_dir_path}/lamp1.glb
+    ms_is_static: true
+scene_assets:
+  shoppingCart: 
+    asset_file_path: ${assets.assets_dir_path}/shoppingCart.glb
+    ms_is_static: true
+
+            
+           
+          
+

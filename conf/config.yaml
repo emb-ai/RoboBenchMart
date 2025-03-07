@@ -1,13 +1,7 @@
 defaults:
-  - main_config_base
-  - /.@zones: zones_list
+  - ds: config
+  - assets: assets
   - _self_
-  - override hydra/hydra_logging: disabled  
-  - override hydra/job_logging: disabled  
-
-name: ds
-size_n: 5
-size_m: 5
 
 hydra:  
   output_subdir: null 

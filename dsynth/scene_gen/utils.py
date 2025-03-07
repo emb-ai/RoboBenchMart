@@ -90,12 +90,12 @@ def get_needed_names(regexp, all_products):
     return list(filter(lambda x: re.match(regexp, x), all_products))
 
 class ProductnameIterator:
-    def __init__(self, queries, all_products, shuffle=True):
+    def __init__(self, queries, all_product_names, shuffle=True):
         self.queries = queries
         # self.shuffle = shuffle
         products = []
         for query in self.queries:
-            products.extend(get_needed_names(rf'{query}', all_products))
+            products.extend(get_needed_names(rf'{query}', all_product_names))
         # if self.shuffle:
         #     random.shuffle(products)
         self.products_iterator = iter(products)

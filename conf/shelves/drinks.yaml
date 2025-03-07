@@ -3,6 +3,7 @@ defaults:
   - _self_
   
 name: drinks
-filling_type: BLOCKWISE_AUTO_INFINITE
+filling_type: FULL_AUTO
 queries:
-- food/drinks
+- food.drinks
+num_products_per_board: 40

@@ -38,7 +38,7 @@ class PickToCartEnv(DarkstoreCellBaseEnv):
         
     def _load_scene(self, options: dict):
         super()._load_scene(options)
-        self._load_shopping_cart(options)
+        # self._load_shopping_cart(options)
     
     # def _get_obs_extra(self, info: Dict):
     #     """Get task-relevant extra observations. Usually defined on a task by task basis"""
@@ -108,9 +108,9 @@ class PickToCartEnv(DarkstoreCellBaseEnv):
         robot_pose = self.agent.robot.get_pose()
         cart_shift = np.array([0.4, -0.2, 0.])
         cube_shift_up = np.array([0, 0, 0.4])
-        new_cart_pose_p = robot_pose.p[0].numpy() + cart_shift 
+        new_cart_pose_p = robot_pose.p[0].cpu().numpy() + cart_shift 
         
-        self.shopping_cart.set_pose(sapien.Pose(p=new_cart_pose_p, q=robot_pose.q[0].numpy()))
+        # self.shopping_cart.set_pose(sapien.Pose(p=new_cart_pose_p, q=robot_pose.q[0].numpy()))
         # self.target_volume.set_pose(sapien.Pose(p=new_cart_pose_p + cube_shift_up, q=robot_pose.q[0].numpy()))
 
 

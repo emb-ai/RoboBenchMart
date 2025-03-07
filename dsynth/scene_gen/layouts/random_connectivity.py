@@ -143,7 +143,7 @@ def add_one_zone(
         good_try: bool = False
         for el in my_nei:
             if mat[el[0]][el[1]] == 0:
-                mat[el[0]][el[1]] = f'{zone_name}/{shelf_name}'
+                mat[el[0]][el[1]] = f'{zone_name}.{shelf_name}'
                 if check_table(mat, door, all_reached=all_reached):
                     st = el
                     placed.append(el)

@@ -4,5 +4,6 @@ defaults:
   
 filling_type: BOARDWISE_AUTO_INFINITE
 queries:
-- 'food/grocery/cereal'
-- 'food/grocery/baby'
+- 'food.grocery'
+num_products_per_block: 20
+num_products_per_board: 30

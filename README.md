@@ -45,13 +45,13 @@ Also assets available via GDrive https://drive.google.com/file/d/1RhBw9HfoHm6uvx
 
 ## Scene generation and environment visualization
 
-To generate layout and object arrangement use input configurations from `config/` or make your own:
+To generate layout and object arrangement use input configurations from `conf/` or make your own:
 
 ```bash
-python scripts/generate_room_config.py --input configs/many_objects.json --output_dir my_save_path
+python scripts/generate_scene.py ds=config
 ```
 
-Add `--show` flag to visualize generated arrangement.
+Add `ds.show=true` flag to visualize generated arrangement.
 
 To show generated scene in ManiSkill:
 ```bash
@@ -60,4 +60,3 @@ python scripts/show_env_in_sim.py my_save_path
 
 Rendered video and trajectory are stored in the same directory `my_save_path`.
 To open SAPIEN GUI window use `--gui` flag.
-Press `c` button to close GUI and store the recorded trajectory.
