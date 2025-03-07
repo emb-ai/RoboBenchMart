@@ -7,13 +7,16 @@ import numpy as np
 from transforms3d import quaternions
 import random
 import sapien
+from pathlib import Path
+import hydra
 from mani_skill.utils.registration import register_env
 from mani_skill.utils import sapien_utils
 from mani_skill.sensors.camera import CameraConfig
 from mani_skill.envs.sapien_env import BaseEnv
 from dsynth.envs.fixtures.robocasaroom import RoomFromRobocasa
 from dsynth.scene_gen.arrangements import CELL_SIZE, DEFAULT_ROOM_HEIGHT
-
+from dsynth.assets.asset import load_assets_lib
+from dsynth.scene_gen.utils import flatten_dict
 
 def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
     x_size = x_cells * CELL_SIZE
@@ -61,23 +64,32 @@ class DarkstoreCellBaseEnv(BaseEnv):
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
 
     def __init__(self, *args, 
-                 assets_lib,
-                 robot_uids="panda_wristcam", 
-                 scene_json=None, 
-                 arena_config = None, 
-                 meta = None, 
+                 config_dir_path,
+                 robot_uids="panda_wristcam",  
                  style_ids = 0, 
                 #  mapping_file=None,
                  **kwargs):
+        config_dir_path = Path(config_dir_path)
+        self.json_file_path = config_dir_path / 'scene_config.json'
+        with hydra.initialize_config_dir(config_dir=str(config_dir_path.absolute()), version_base=None):
+            cfg = hydra.compose(config_name='input_config')
+
+        with open(self.json_file_path, "r") as f:
+            scene_data = json.load(f)
+
+        n = scene_data['meta']['n']
+        m = scene_data['meta']['m']
+        arena_data = get_arena_data(x_cells=n, y_cells=m)
+
+        
         self.style_ids = style_ids
-        self.arena_config = arena_config
-        self.json_file_path = scene_json
-        self.assets_lib = assets_lib
-        self.x_cells = meta['x_cells']
-        self.y_cells = meta['y_cells']
-        self.x_size = meta['x_size']
-        self.y_size = meta['y_size']
-        self.height = meta['height']
+        self.arena_config = arena_data['arena_config']
+        self.assets_lib = flatten_dict(load_assets_lib(cfg.assets), sep='.')
+        self.x_cells = arena_data['meta']['x_cells']
+        self.y_cells = arena_data['meta']['y_cells']
+        self.x_size = arena_data['meta']['x_size']
+        self.y_size = arena_data['meta']['y_size']
+        self.height = arena_data['meta']['height']
 
         self.lamps_coords = self._get_lamps_coords()
         self.actors = {
