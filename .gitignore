@@ -1,6 +1,7 @@
 .vscode
 __pycache__
-assets
+assets*/
+!conf/assets
 !dsynth/assets
 generated_envs
 .ipynb_checkpoints
