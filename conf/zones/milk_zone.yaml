@@ -1,5 +1,4 @@
 defaults:
-  # - base_zone_config
   - /shelves@shelf1: full_milk
 
 

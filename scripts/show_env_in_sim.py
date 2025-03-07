@@ -15,7 +15,6 @@ from mani_skill.utils.wrappers import RecordEpisode
 
 import sys 
 sys.path.append('.')
-from dsynth.envs.darkstore_cell_base import get_arena_data
 from dsynth.envs.pick_to_cart import PickToCartEnv
 
 def parse_args():
