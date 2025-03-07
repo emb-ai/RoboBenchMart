@@ -1,0 +1,10 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: 'full_milk'
+filling_type: BOARDWISE_AUTO_INFINITE
+queries:
+- food.dairy_products
+num_products_per_block: 20
+num_products_per_board: 30

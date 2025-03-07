@@ -1,0 +1,4 @@
+defaults:
+  - /shelves@shelf1: grocery
+  - /shelves@shelf2: drinks
+

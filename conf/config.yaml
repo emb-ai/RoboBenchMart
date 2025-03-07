@@ -1,0 +1,9 @@
+defaults:
+  - ds: config
+  - assets: assets
+  - _self_
+
+hydra:  
+  output_subdir: null 
+  run:  
+    dir: .

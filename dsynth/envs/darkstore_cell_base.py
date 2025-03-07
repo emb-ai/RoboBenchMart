@@ -7,15 +7,16 @@ import numpy as np
 from transforms3d import quaternions
 import random
 import sapien
+from pathlib import Path
+import hydra
 from mani_skill.utils.registration import register_env
 from mani_skill.utils import sapien_utils
 from mani_skill.sensors.camera import CameraConfig
 from mani_skill.envs.sapien_env import BaseEnv
 from dsynth.envs.fixtures.robocasaroom import RoomFromRobocasa
 from dsynth.scene_gen.arrangements import CELL_SIZE, DEFAULT_ROOM_HEIGHT
-from dsynth.assets.common import ceiling_lamp, CEILING_LAMP_HEIGHT
-
-DEFAULT_ASSETS_DIR = 'assets'
+from dsynth.assets.asset import load_assets_lib
+from dsynth.scene_gen.utils import flatten_dict
 
 def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
     x_size = x_cells * CELL_SIZE
@@ -63,26 +64,41 @@ class DarkstoreCellBaseEnv(BaseEnv):
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
 
     def __init__(self, *args, 
-                 robot_uids="panda_wristcam", 
-                 scene_json=None, 
-                 arena_config = None, 
-                 meta = None, 
+                 config_dir_path,
+                 robot_uids="panda_wristcam",  
                  style_ids = 0, 
-                 mapping_file=None,
-                 assets_dir = DEFAULT_ASSETS_DIR,
+                #  mapping_file=None,
                  **kwargs):
+        config_dir_path = Path(config_dir_path)
+        self.json_file_path = config_dir_path / 'scene_config.json'
+        with hydra.initialize_config_dir(config_dir=str(config_dir_path.absolute()), version_base=None):
+            cfg = hydra.compose(config_name='input_config')
+
+        with open(self.json_file_path, "r") as f:
+            scene_data = json.load(f)
+
+        n = scene_data['meta']['n']
+        m = scene_data['meta']['m']
+        arena_data = get_arena_data(x_cells=n, y_cells=m)
+
+        
         self.style_ids = style_ids
-        self.arena_config = arena_config
-        self.json_file_path = scene_json
-        self.mapping_file = mapping_file
-        self.assets_dir = assets_dir
-        self.x_cells = meta['x_cells']
-        self.y_cells = meta['y_cells']
-        self.x_size = meta['x_size']
-        self.y_size = meta['y_size']
-        self.height = meta['height']
+        self.arena_config = arena_data['arena_config']
+        self.assets_lib = flatten_dict(load_assets_lib(cfg.assets), sep='.')
+        self.x_cells = arena_data['meta']['x_cells']
+        self.y_cells = arena_data['meta']['y_cells']
+        self.x_size = arena_data['meta']['x_size']
+        self.y_size = arena_data['meta']['y_size']
+        self.height = arena_data['meta']['height']
 
         self.lamps_coords = self._get_lamps_coords()
+        self.actors = {
+            "fixtures": {
+                "shelves" : {},
+                "lamps": {}
+            },
+            "products": {}
+        }
 
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
@@ -113,8 +129,8 @@ class DarkstoreCellBaseEnv(BaseEnv):
         lamps_coords = []
 
         # TODO: max number of light sources can be reached
-        for i, j in itertools.product(range(self.x_cells // 2), range(self.y_cells)):
-            x = CELL_SIZE / 2 + 2 * CELL_SIZE * i
+        for i, j in itertools.product(range(self.x_cells), range(self.y_cells)):
+            x = CELL_SIZE / 2 + CELL_SIZE * i
             y = CELL_SIZE / 2 + CELL_SIZE * j
             lamps_coords.append((x, y))
         
@@ -125,15 +141,17 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
         shadow = self.enable_shadow
         self.scene.set_ambient_light([0.4, 0.4, 0.4])
-
+        lamp_height = self.assets_lib['fixtures.lamp'].extents[2]
         for x, y in self.lamps_coords:
             # I have no idea what inner_fov and outer_fov mean :/
-            self.scene.add_spot_light([x, y, self.height - CEILING_LAMP_HEIGHT], [0, 0, -1], inner_fov=10, outer_fov=20, color=[20, 20, 20], shadow=shadow)
+            self.scene.add_spot_light([x, y, self.height - lamp_height], [0, 0, -1], inner_fov=10, outer_fov=20, color=[20, 20, 20], shadow=shadow)
 
     def _load_lamps(self, options: dict):
-        self.lamps = []
+        self.actors["fixtures"]["lamps"] = {}
         for n, (x, y) in enumerate(self.lamps_coords):
-            self.lamps.append(ceiling_lamp(f'lamp_{n}', self.scene, sapien.Pose(p=[x, y, self.height], q=[1, 0, 0, 0]), self.assets_dir))
+            pose = sapien.Pose(p=[x, y, self.height], q=[1, 0, 0, 0])
+            lamp = self.assets_lib['fixtures.lamp'].ms_build_actor(f'lamp_{n}', self.scene, pose=pose)
+            self.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
     
     def _process_string(self, s):
         if '_' in s:
@@ -173,18 +191,8 @@ class DarkstoreCellBaseEnv(BaseEnv):
     
     def _load_scene_from_json(self, options: dict):
         super()._load_scene(options)
-        self.actors = {
-            "fixtures": {
-                "shelf" : [
 
-                ]
-            },
-            "objects": {
-
-            }
-        }
-
-        scale = np.array(options.get("scale", [1.0, 1.0, 1.0]))
+        # scale = np.array(options.get("scale", [0.3, 0.3, 0.3]))
         origin = - self.IMPORTED_SS_SCENE_SHIFT#np.array(options.get("origin", [0.0, 1.0, 0.0]))
 
         with open(self.json_file_path, "r") as f:
@@ -194,52 +202,20 @@ class DarkstoreCellBaseEnv(BaseEnv):
         for node in data["graph"]:
             nodes_dict[node[1]] = node
 
-        asset_mapping = {}
-        if self.mapping_file is not None:
-            with open(self.mapping_file, "r") as f:
-                asset_mapping = json.load(f)
-
         for node in data["graph"]:
             parent_name, obj_name, props = node
-            if ('/' not in obj_name):
+            if '/' not in obj_name:
                 abs_matrix = self._get_absolute_matrix(node, nodes_dict)
-
                 p, q = self._get_pq(abs_matrix, origin)
+                pose = sapien.Pose(p=p, q=q)
+                if 'SHELF' in obj_name:
+                    actor = self.assets_lib['fixtures.shelf'].ms_build_actor(obj_name, self.scene, pose=pose)
+                    self.actors["fixtures"]["shelves"][obj_name] = {"actor" : actor, "p" : p, "q" : q}
+                    continue
 
-                obj_name_to_check = self._temp_process_string(obj_name)[:-4]
-
-                if obj_name_to_check in asset_mapping:
-                    asset_file = os.path.join(self.assets_dir, asset_mapping[obj_name_to_check])
-                else:
-                    asset_file = ""
-
-
-                if not os.path.exists(asset_file):
-                    asset_file = os.path.join(self.assets_dir, self._temp_process_string(obj_name))
-
-                if not os.path.exists(asset_file):
-                    asset_file = os.path.splitext(asset_file)[0] + ".glb"
-
-                if not os.path.exists(asset_file):
-                    print("Not found file for " + obj_name + " =(" + " ( " + asset_file + " )")
-                else:
-                    # print("Found file for " + obj_name + " =)" + " ( " + asset_file + " )")
-                    builder = self.scene.create_actor_builder()
-                    builder.add_visual_from_file(filename=asset_file, scale=scale)
-                    builder.set_initial_pose(sapien.Pose(p=p, q=q))
-
-
-
-                    if obj_name.startswith('shelf'):
-                        builder.add_nonconvex_collision_from_file(filename=asset_file, scale=scale)
-                        actor = builder.build_static(name=obj_name)
-                        self.actors["fixtures"]["shelf"].append({"actor" : actor, "p" : p, "q" : q})
-                    else:
-                        builder.add_convex_collision_from_file(filename=asset_file, scale=scale)
-                        actor = builder.build(name=obj_name)
-                        if self.actors["objects"].get(obj_name, -1) == -1:
-                            self.actors["objects"][obj_name] = []
-                        self.actors["objects"][obj_name].append({"actor" : actor, "p" : p, "q" : q})
+                asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
+                actor = self.assets_lib[asset_name].ms_build_actor(obj_name, self.scene, pose=pose)
+                self.actors["products"][obj_name] = {"actor" : actor, "p" : p, "q" : q}
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         

@@ -1,0 +1,9 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+filling_type: BOARDWISE_AUTO_INFINITE
+queries:
+- 'food.grocery'
+num_products_per_block: 20
+num_products_per_board: 30

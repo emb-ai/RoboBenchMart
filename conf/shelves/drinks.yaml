@@ -1,0 +1,9 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: drinks
+filling_type: FULL_AUTO
+queries:
+- food.drinks
+num_products_per_board: 40
