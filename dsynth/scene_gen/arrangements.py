@@ -142,25 +142,28 @@ def add_objects_to_shelf_v2(
     product_assets_lib,
     support_data,
 ):
-    for num_board, board in enumerate(product_placement):
-        pos_iter = utils.PositionIteratorGrid(
-                    step_x=0.02,
-                    step_y=0.02,
-                    noise_std_x=0.001,
-                    noise_std_y=0.001,
-                    direction="y",
+    if type(product_placement) == list:
+        for num_board, board in enumerate(product_placement):
+            pos_iter = utils.PositionIteratorGrid(
+                        step_x=0.02,
+                        step_y=0.02,
+                        noise_std_x=0.001,
+                        noise_std_y=0.001,
+                        direction="y",
+                    )
+            for cnt, elem_name in enumerate(board):
+                scene.place_objects(
+                    obj_id_iterator=utils.object_id_generator(
+                        f"{elem_name}:" + f"{shelf_cnt}:{num_board}:{cnt}:"
+                    ),
+                    obj_asset_iterator=tuple([product_assets_lib[elem_name].ss_asset]),
+                    # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
+                    obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
+                    obj_position_iterator=pos_iter,
+                    obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0, upper= 3.14 / 20),
                 )
-        for cnt, elem_name in enumerate(board):
-            scene.place_objects(
-                obj_id_iterator=utils.object_id_generator(
-                    f"{elem_name}:" + f"{shelf_cnt}:{num_board}:{cnt}:"
-                ),
-                obj_asset_iterator=tuple([product_assets_lib[elem_name].ss_asset]),
-                # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
-                obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
-                obj_position_iterator=pos_iter,
-                obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0, upper= 3.14 / 20),
-            )
+    else:
+        print("test")
 
 
 

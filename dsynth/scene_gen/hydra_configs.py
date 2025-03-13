@@ -18,6 +18,7 @@ class FillingType(Enum):
     BOARDWISE_AUTO_INFINITE = 'BOARDWISE_AUTO_INFINITE'
     FULL_AUTO = 'FULL_AUTO'
     LISTED = 'LISTED'
+    COLUMNWISE = 'COLUMNWISE'
 
 
 @dataclass
@@ -34,6 +35,8 @@ class ShelfConfig:
     is_dynamic: bool = True
 
     num_boards: int = 5
+
+    board_product_numcol: Dict[int, Dict[str, int]] = field(default_factory=lambda: {})
 
 def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_names):
     assert 0 <= shelf_config.start_filling_board <= shelf_config.end_filling_from_board <= shelf_config.num_boards
@@ -85,6 +88,8 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
             
             if cur_board >= shelf_config.end_filling_from_board:
                 break
+    elif shelf_config.filling_type == FillingType.COLUMNWISE:
+        filling = shelf_config['board_product_numcol']
             
 
     for _ in range(shelf_config.end_filling_from_board, shelf_config.num_boards):
