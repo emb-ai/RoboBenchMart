@@ -130,22 +130,29 @@ class PositionIteratorGridColumns(PositionIterator2D):
         self.end_point = None
         self.current_point = current_point
         self.num_cols = num_cols
+        self.stop_iter = False
 
     def __next__(self):
-        while True:
+        while not self.stop_iter:
             if self.num_cols <= 0:
+                self.current_point[0] -= self.obj_w/2
+                self.current_point[1] -= self.obj_d/2
+                self.stop_iter = True
                 break
-            if self.current_point[0] + self.obj_w < self.end_point[0]:
+            if self.current_point[0] + self.obj_w/2 < self.end_point[0]:
                 x = self.current_point[0]
                 y = self.current_point[1]
                 self.current_point[1] += self.obj_d + self.y_gap
-                if self.current_point[1] + self.obj_d >= self.end_point[1]:
+                if self.current_point[1] + self.obj_d/2 >= self.end_point[1]:
                     self.current_point[0] += self.obj_w + self.x_gap
-                    self.current_point[1] = self.start_point[1]
+                    self.current_point[1] = self.start_point[1] + self.obj_d/2
                     self.num_cols -= 1
 
                 return np.array([x, y])
-            elif self.current_point[0] + self.obj_w >= self.end_point[0]:
+            elif self.current_point[0] + self.obj_w/2 >= self.end_point[0]:
+                self.current_point[0] -= self.obj_w/2
+                self.current_point[1] -= self.obj_d/2
+                self.stop_iter = True
                 break
 
         raise StopIteration
@@ -157,8 +164,11 @@ class PositionIteratorGridColumns(PositionIterator2D):
             self.start_point = np.array([minx, miny])
             self.end_point = np.array([maxx, maxy])
             if self.current_point[0] == -1 and self.current_point[0] == -1:
-                self.current_point[0] = minx
-                self.current_point[1] = miny
+                self.current_point[0] = minx + self.obj_w/2
+                self.current_point[1] = miny + self.obj_d/2
+            else:
+                self.current_point[0] += self.obj_w/2
+                self.current_point[1] += self.obj_d/2
         return self
 
     def update(self, *args, **kwargs):

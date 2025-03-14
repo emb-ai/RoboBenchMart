@@ -1,0 +1,10 @@
+defaults:
+  - main_darkstore_config_base
+  - /ds@zones: zones_mix
+  - _self_
+
+
+name: ds
+size_n: 3
+size_m: 2
+
