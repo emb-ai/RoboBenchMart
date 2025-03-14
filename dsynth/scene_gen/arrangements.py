@@ -4,7 +4,7 @@ from scene_synthesizer import procedural_assets as pa
 from scene_synthesizer import procedural_scenes as ps
 from scene_synthesizer.assets import TrimeshSceneAsset
 from dsynth.assets.ss_assets import DefaultShelf
-from dsynth.scene_gen.utils import PositionIteratorPI
+from dsynth.scene_gen.utils import PositionIteratorPI, PositionIteratorGridColumns
 from scene_synthesizer import utils
 from shapely.geometry import Point
 import trimesh.transformations as tra
@@ -14,6 +14,7 @@ import sys
 import argparse
 import trimesh
 import os
+import time
 
 CELL_SIZE = 1.55
 DEFAULT_ROOM_HEIGHT = 2.7
@@ -163,7 +164,22 @@ def add_objects_to_shelf_v2(
                     obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0, upper= 3.14 / 20),
                 )
     else:
-        print("test")
+        start_time = time.time()
+        gap = 0.02
+        for board_idx, board_arrangement in product_placement.items():
+            current_point = np.array([-1.0, -1.0])
+            for product, num_col in board_arrangement.items():
+                print(board_idx, product, num_col)
+                obj = product_assets_lib[product].ss_asset
+                dims = obj.get_extents()
+                scene.place_objects(
+                    obj_id_iterator=utils.object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:"),
+                    obj_asset_iterator=(obj for _ in range(int(np.ceil(support_data[0].polygon.bounds[3]/min(dims[0], dims[1]))*num_col))), #upperbound on how many objects can fit
+                    obj_support_id_iterator=utils.cycle_list(support_data, [board_idx]),
+                    obj_position_iterator=PositionIteratorGridColumns(obj_width=dims[0], obj_depth=dims[1], x_gap=gap, y_gap=gap, current_point=current_point, num_cols = num_col),
+                    obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0,0),
+                )
+        print("DONE", time.time() - start_time)
 
 
 
@@ -217,8 +233,11 @@ def shelf_placement_v2(
 
     data = json.loads(json_str)
     del data["geometry"]
-    data["meta"] = {"n": n, "m": m, "room": darkstore, "filling": product_filling_flattened}
-
+    if type(product_filling_flattened) == list:
+        data["meta"] = {"n": n, "m": m, "room": darkstore, "filling": product_filling_flattened}
+    else:
+        data["meta"] = {"n": n, "m": m, "room": darkstore, "filling": product_filling_flattened}
+    data["meta"] = {"n": n, "m": m, "room": darkstore}
     return data
 
 def one_shelf_placement_with(
