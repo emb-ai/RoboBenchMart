@@ -227,7 +227,7 @@ def shelf_placement_v2(
             cnt += 1
             it += 1
 
-    if is_showed:
+    if is_show:
         # scene.colorize()
         # scene.colorize(specific_objects={f"shelf{i}": [123, 123, 123] for i in cells})
         scene.show()

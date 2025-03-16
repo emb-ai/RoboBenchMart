@@ -7,4 +7,9 @@ defaults:
 name: ds
 size_n: 3
 size_m: 2
-
+num_scenes: 4
+num_workers: 1
+layout_gen_type: CONNECTED_ZONES
+randomize_layout: false
+randomize_arrangements: true
+random_seed: 42
