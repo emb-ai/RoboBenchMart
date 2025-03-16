@@ -2,9 +2,10 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 import logging
-from typing import Dict, Any, IO, BinaryIO, Union, Literal, Optional
+from typing import Dict, Any, IO, BinaryIO, Union, Literal, Optional, List, Sequence
 from omegaconf import DictConfig, OmegaConf
 from transforms3d import quaternions
+import torch
 import numpy as np
 
 import scene_synthesizer as synth
@@ -95,7 +96,8 @@ class Asset:
         obj_name: str,
         scene: ManiSkillScene,
         pose: Optional[sapien.Pose] = None,
-        T: Optional[np.ndarray[tuple[Literal[4], Literal[4]], np.dtype[np.float32]]] = None
+        T: Optional[np.ndarray[tuple[Literal[4], Literal[4]], np.dtype[np.float32]]] = None,
+        scene_idxs: Optional[Union[List[int], Sequence[int], torch.Tensor, np.ndarray]] = None
     ):
         assert (pose is not None) != (T is not None), "Actor pose or (exclusive) transform must be specified"
         
@@ -112,6 +114,7 @@ class Asset:
         scale = np.array([self.ms_scale, self.ms_scale, self.ms_scale])
 
         builder = scene.create_actor_builder()
+        builder.set_scene_idxs(scene_idxs)
         builder.add_visual_from_file(filename=self.asset_file_path, scale=scale)
         builder.set_initial_pose(pose)
 

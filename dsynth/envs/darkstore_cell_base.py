@@ -13,85 +13,31 @@ from mani_skill.utils.registration import register_env
 from mani_skill.utils import sapien_utils
 from mani_skill.sensors.camera import CameraConfig
 from mani_skill.envs.sapien_env import BaseEnv
-from dsynth.envs.fixtures.robocasaroom import RoomFromRobocasa
+from dsynth.envs.fixtures.robocasaroom import DarkstoreScene
 from dsynth.scene_gen.arrangements import CELL_SIZE, DEFAULT_ROOM_HEIGHT
 from dsynth.assets.asset import load_assets_lib
 from dsynth.scene_gen.utils import flatten_dict
-
-def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
-    x_size = x_cells * CELL_SIZE
-    y_size = y_cells * CELL_SIZE
-    return {
-        'meta': {
-            'x_cells': x_cells,
-            'y_cells': y_cells,
-            'x_size': x_size,
-            'y_size': y_size,
-            'height': height
-        },
-        'arena_config': {
-            'room': {
-                'walls': [
-                    {'name': 'wall', 'type': 'wall', 'size': [x_size / 2, height / 2, 0.02], 'pos': [x_size / 2, y_size, height / 2]}, 
-                    {'name': 'wall_backing', 'type': 'wall', 'backing': True, 'backing_extended': [True, False], 'size': [x_size / 2, height / 2, 0.1], 'pos': [x_size / 2, y_size, height / 2]}, 
-                    
-                    {'name': 'wall_front', 'type': 'wall', 'wall_side' : 'front', 'size': [x_size / 2, height / 2, 0.02], 'pos': [x_size / 2, 0, height / 2]}, 
-                    {'name': 'wall_front_backing', 'type': 'wall', 'wall_side' : 'front', 'backing': True, 'size': [x_size / 2, height / 2, 0.1], 'pos': [x_size / 2, 0, height / 2]}, 
-                    
-                    {'name': 'wall_left', 'type': 'wall', 'wall_side': 'left', 'size': [y_size / 2, height / 2, 0.02], 'pos': [0, y_size / 2, height / 2]}, 
-                    {'name': 'wall_left_backing', 'type': 'wall', 'wall_side': 'left', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [0, y_size / 2, height / 2]}, 
-                    
-                    {'name': 'wall_right', 'type': 'wall', 'wall_side': 'right', 'size': [y_size / 2, height / 2, 0.02], 'pos': [x_size, y_size / 2, height / 2]}, 
-                    {'name': 'wall_right_backing', 'type': 'wall', 'wall_side': 'right', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [x_size, y_size / 2, height / 2]}
-                ], 
-                'floor': [
-                    {'name': 'floor', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, 0.0]}, 
-                    {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.1], 'pos': [x_size / 2, y_size / 2, 0.0]},
-                    # {'name': 'ceiling', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height]}, 
-                    {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height + 4 * 0.02]}
-                ]
-            }
-        }
-    }
+from mani_skill.utils.structs.pose import Pose
 
 
 @register_env('DarkstoreCellBaseEnv', max_episode_steps=200000)
 class DarkstoreCellBaseEnv(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
-    """
-    This is just a very smart environment for goida transformation from ss
-    """
-    IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
+
 
     def __init__(self, *args, 
                  config_dir_path,
                  robot_uids="panda_wristcam",  
-                 style_ids = 0, 
+                #  style_ids = 0, 
                 #  mapping_file=None,
                  **kwargs):
-        config_dir_path = Path(config_dir_path)
-        self.json_file_path = config_dir_path / 'scene_config.json'
-        with hydra.initialize_config_dir(config_dir=str(config_dir_path.absolute()), version_base=None):
+        self.config_dir_path = Path(config_dir_path)
+
+        with hydra.initialize_config_dir(config_dir=str(self.config_dir_path.absolute()), version_base=None):
             cfg = hydra.compose(config_name='input_config')
 
-        with open(self.json_file_path, "r") as f:
-            scene_data = json.load(f)
-
-        n = scene_data['meta']['n']
-        m = scene_data['meta']['m']
-        arena_data = get_arena_data(x_cells=n, y_cells=m)
-
-        
-        self.style_ids = style_ids
-        self.arena_config = arena_data['arena_config']
         self.assets_lib = flatten_dict(load_assets_lib(cfg.assets), sep='.')
-        self.x_cells = arena_data['meta']['x_cells']
-        self.y_cells = arena_data['meta']['y_cells']
-        self.x_size = arena_data['meta']['x_size']
-        self.y_size = arena_data['meta']['y_size']
-        self.height = arena_data['meta']['height']
 
-        self.lamps_coords = self._get_lamps_coords()
         self.actors = {
             "fixtures": {
                 "shelves" : {},
@@ -116,42 +62,55 @@ class DarkstoreCellBaseEnv(BaseEnv):
         )
 
     def _load_agent(self, options: dict):
-        super()._load_agent(options, sapien.Pose(p=[-0.615, 0, 0]))
+        ps = torch.zeros((self.num_envs, 3), device=self.device)
+        ps[:, 0] = -0.615
+        super()._load_agent(options, Pose.create_from_pq(p=ps))
 
     def _load_scene(self, options: dict):
-        self.scene_builder = RoomFromRobocasa(self, arena_config=self.arena_config)
-        self.scene_builder.build(self.style_ids)
-        self._load_scene_from_json(options)
+        super()._load_scene(options)
+        self.scene_builder = DarkstoreScene(self, config_dir_path=self.config_dir_path)
+        self.scene_builder.build()
+        # self.scene_builder.load_scene_from_json(self.json_file_path)
 
-        self._load_lamps(options)
+        # self._load_lamps(options)
 
-    def _get_lamps_coords(self):
-        lamps_coords = []
+    # def _get_lamps_coords(self):
+    #     lamps_coords = []
 
-        # TODO: max number of light sources can be reached
-        for i, j in itertools.product(range(self.x_cells), range(self.y_cells)):
-            x = CELL_SIZE / 2 + CELL_SIZE * i
-            y = CELL_SIZE / 2 + CELL_SIZE * j
-            lamps_coords.append((x, y))
+    #     # TODO: max number of light sources can be reached
+    #     for i, j in itertools.product(range(self.x_cells), range(self.y_cells // 2)):
+    #         x = CELL_SIZE / 2 + 2 * CELL_SIZE * i
+    #         y = CELL_SIZE / 2 + 2 * CELL_SIZE * j
+    #         lamps_coords.append((x, y))
         
-        return lamps_coords
+    #     return lamps_coords
+
+    # def _load_lighting(self, options: dict):
+    #     """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
+
+    #     shadow = self.enable_shadow
+    #     self.scene.set_ambient_light([0.4, 0.4, 0.4])
+    #     lamp_height = self.assets_lib['fixtures.lamp'].extents[2]
+    #     for x, y in self.lamps_coords:
+    #         # I have no idea what inner_fov and outer_fov mean :/
+    #         self.scene.add_spot_light([x, y, self.height - lamp_height], [0, 0, -1], inner_fov=10, outer_fov=20, color=[20, 20, 20], shadow=shadow)
 
     def _load_lighting(self, options: dict):
         """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
-
+        # pass
         shadow = self.enable_shadow
-        self.scene.set_ambient_light([0.4, 0.4, 0.4])
-        lamp_height = self.assets_lib['fixtures.lamp'].extents[2]
-        for x, y in self.lamps_coords:
-            # I have no idea what inner_fov and outer_fov mean :/
-            self.scene.add_spot_light([x, y, self.height - lamp_height], [0, 0, -1], inner_fov=10, outer_fov=20, color=[20, 20, 20], shadow=shadow)
+        self.scene.set_ambient_light([0.3, 0.3, 0.3])
+        # self.scene.add_directional_light(
+        #     [1, 1, -1], [1, 1, 1], shadow=shadow, shadow_scale=5, shadow_map_size=2048
+        # )
+        # self.scene.add_directional_light([0, 0, -1], [1, 1, 1])
 
-    def _load_lamps(self, options: dict):
-        self.actors["fixtures"]["lamps"] = {}
-        for n, (x, y) in enumerate(self.lamps_coords):
-            pose = sapien.Pose(p=[x, y, self.height], q=[1, 0, 0, 0])
-            lamp = self.assets_lib['fixtures.lamp'].ms_build_actor(f'lamp_{n}', self.scene, pose=pose)
-            self.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
+    # def _load_lamps(self, options: dict):
+    #     self.actors["fixtures"]["lamps"] = {}
+    #     for n, (x, y) in enumerate(self.lamps_coords):
+    #         pose = sapien.Pose(p=[x, y, self.height], q=[1, 0, 0, 0])
+    #         lamp = self.assets_lib['fixtures.lamp'].ms_build_actor(f'lamp_{n}', self.scene, pose=pose)
+    #         self.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
     
     def _process_string(self, s):
         if '_' in s:
@@ -166,21 +125,6 @@ class DarkstoreCellBaseEnv(BaseEnv):
                 return s[:i] + ".obj"
         return s + ".obj"
 
-    def _get_absolute_matrix(self, node, nodes_dict):
-        current_matrix = np.array(node[2]["matrix"])
-        parent_name = node[0]
-        while parent_name != "world":
-            parent_node = nodes_dict[parent_name]
-            parent_matrix = np.array(parent_node[2]["matrix"])
-            current_matrix = parent_matrix @ current_matrix
-            parent_name = parent_node[0]
-        return current_matrix
-
-    def _get_pq(self, matrix, origin):
-        matrix = np.array(matrix)
-        q = quaternions.mat2quat(matrix[:3,:3])
-        p = matrix[:-1, 3] - origin
-        return p, q
     
     def _add_noise(self, p, max_noise = 1e-4):
         new_p = [0] * len(p)
@@ -188,34 +132,6 @@ class DarkstoreCellBaseEnv(BaseEnv):
             new_p[i] = p[i] + random.randrange(-max_noise, max_noise)
         return new_p
 
-    
-    def _load_scene_from_json(self, options: dict):
-        super()._load_scene(options)
-
-        # scale = np.array(options.get("scale", [0.3, 0.3, 0.3]))
-        origin = - self.IMPORTED_SS_SCENE_SHIFT#np.array(options.get("origin", [0.0, 1.0, 0.0]))
-
-        with open(self.json_file_path, "r") as f:
-            data = json.load(f)
-
-        nodes_dict = {}
-        for node in data["graph"]:
-            nodes_dict[node[1]] = node
-
-        for node in data["graph"]:
-            parent_name, obj_name, props = node
-            if '/' not in obj_name:
-                abs_matrix = self._get_absolute_matrix(node, nodes_dict)
-                p, q = self._get_pq(abs_matrix, origin)
-                pose = sapien.Pose(p=p, q=q)
-                if 'SHELF' in obj_name:
-                    actor = self.assets_lib['fixtures.shelf'].ms_build_actor(obj_name, self.scene, pose=pose)
-                    self.actors["fixtures"]["shelves"][obj_name] = {"actor" : actor, "p" : p, "q" : q}
-                    continue
-
-                asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
-                actor = self.assets_lib[asset_name].ms_build_actor(obj_name, self.scene, pose=pose)
-                self.actors["products"][obj_name] = {"actor" : actor, "p" : p, "q" : q}
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         

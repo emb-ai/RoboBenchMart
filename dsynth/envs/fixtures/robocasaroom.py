@@ -1,11 +1,14 @@
 import numpy as np
-
+from pathlib import Path
+import itertools
 from typing import List, Optional
 
 import torch
 import yaml
+import json
 from copy import deepcopy
 from typing import Dict, List, Optional
+import sapien
 from mani_skill.utils.scene_builder.robocasa.scene_builder import RoboCasaSceneBuilder, FIXTURES, FIXTURES_INTERIOR
 from mani_skill.utils.scene_builder.robocasa.utils import scene_registry, scene_utils
 from mani_skill.utils.scene_builder.robocasa.fixtures.fixture import (
@@ -20,27 +23,163 @@ from mani_skill.utils.scene_builder.robocasa.utils.placement_samplers import (
 )
 
 from transforms3d.euler import euler2quat
+from transforms3d import quaternions
 
+from dsynth.scene_gen.arrangements import CELL_SIZE, DEFAULT_ROOM_HEIGHT
 
-class RoomFromRobocasa(RoboCasaSceneBuilder):
-    def __init__(self, *args, arena_config=None, **kwargs):
-        self.arena_config = arena_config
+def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
+    x_size = x_cells * CELL_SIZE
+    y_size = y_cells * CELL_SIZE
+    return {
+        'meta': {
+            'x_cells': x_cells,
+            'y_cells': y_cells,
+            'x_size': x_size,
+            'y_size': y_size,
+            'height': height
+        },
+        'arena_config': {
+            'room': {
+                'walls': [
+                    {'name': 'wall', 'type': 'wall', 'size': [x_size / 2, height / 2, 0.02], 'pos': [x_size / 2, y_size, height / 2]}, 
+                    {'name': 'wall_backing', 'type': 'wall', 'backing': True, 'backing_extended': [True, False], 'size': [x_size / 2, height / 2, 0.1], 'pos': [x_size / 2, y_size, height / 2]}, 
+                    
+                    {'name': 'wall_front', 'type': 'wall', 'wall_side' : 'front', 'size': [x_size / 2, height / 2, 0.02], 'pos': [x_size / 2, 0, height / 2]}, 
+                    {'name': 'wall_front_backing', 'type': 'wall', 'wall_side' : 'front', 'backing': True, 'size': [x_size / 2, height / 2, 0.1], 'pos': [x_size / 2, 0, height / 2]}, 
+                    
+                    {'name': 'wall_left', 'type': 'wall', 'wall_side': 'left', 'size': [y_size / 2, height / 2, 0.02], 'pos': [0, y_size / 2, height / 2]}, 
+                    {'name': 'wall_left_backing', 'type': 'wall', 'wall_side': 'left', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [0, y_size / 2, height / 2]}, 
+                    
+                    {'name': 'wall_right', 'type': 'wall', 'wall_side': 'right', 'size': [y_size / 2, height / 2, 0.02], 'pos': [x_size, y_size / 2, height / 2]}, 
+                    {'name': 'wall_right_backing', 'type': 'wall', 'wall_side': 'right', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [x_size, y_size / 2, height / 2]}
+                ], 
+                'floor': [
+                    {'name': 'floor', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, 0.0]}, 
+                    {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.1], 'pos': [x_size / 2, y_size / 2, 0.0]},
+                    
+                    {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height + 4 * 0.02]}
+                ]
+            }
+        }
+    }
+
+def _get_absolute_matrix(node, nodes_dict):
+        current_matrix = np.array(node[2]["matrix"])
+        parent_name = node[0]
+        while parent_name != "world":
+            parent_node = nodes_dict[parent_name]
+            parent_matrix = np.array(parent_node[2]["matrix"])
+            current_matrix = parent_matrix @ current_matrix
+            parent_name = parent_node[0]
+        return current_matrix
+
+def _get_pq(matrix, origin):
+    matrix = np.array(matrix)
+    q = quaternions.mat2quat(matrix[:3,:3])
+    p = matrix[:-1, 3] - origin
+    return p, q
+class DarkstoreScene(RoboCasaSceneBuilder):
+    IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
+    def __init__(self, *args, config_dir_path=None, **kwargs):
+        self.config_dir_path = config_dir_path
+        self.scene_config_paths = sorted(list(Path(self.config_dir_path).glob('scene_config_*.json')))
+        self.num_generated_scenes = len(self.scene_config_paths)
+        
+        self.x_cells = []
+        self.y_cells = []
+        self.x_size = []
+        self.y_size = []
+        self.height = []
+
         super().__init__(*args, **kwargs)
+
+    def load_arrangement_from_json(self, scene_idx, scene_data):
+        origin = - self.IMPORTED_SS_SCENE_SHIFT
+
+        nodes_dict = {}
+        for node in scene_data["graph"]:
+            nodes_dict[node[1]] = node
+
+        for node in scene_data["graph"]:
+            parent_name, obj_name, props = node
+            if '/' not in obj_name:
+                abs_matrix = _get_absolute_matrix(node, nodes_dict)
+                p, q = _get_pq(abs_matrix, origin)
+                pose = sapien.Pose(p=p, q=q)
+                if 'SHELF' in obj_name:
+                    actor = self.env.assets_lib['fixtures.shelf'].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                    self.env.actors["fixtures"]["shelves"][obj_name] = {"actor" : actor, "p" : p, "q" : q}
+                    continue
+
+                asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
+                actor = self.env.assets_lib[asset_name].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                self.env.actors["products"][obj_name] = {"actor" : actor, "p" : p, "q" : q}
     
+    def _get_lamps_coords(self, x_cells, y_cells):
+        lamps_coords = []
+
+        # TODO: max number of light sources can be reached
+        for i, j in itertools.product(range(x_cells), range(y_cells)):
+            x = CELL_SIZE / 2 + CELL_SIZE * i
+            y = CELL_SIZE / 2 + CELL_SIZE * j
+            lamps_coords.append((x, y))
+        
+        return lamps_coords
+
+    def _load_lamps(self, scene_idx, lamps_coords, height):
+        self.env.actors["fixtures"]["lamps"] = {}
+        for n, (x, y) in enumerate(lamps_coords):
+            pose = sapien.Pose(p=[x, y, height], q=[1, 0, 0, 0])
+            lamp = self.env.assets_lib['fixtures.lamp'].ms_build_actor(f'[ENV#{scene_idx}]_lamp_{n}', self.scene, pose=pose, scene_idxs=[scene_idx])
+            self.env.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
+    
+    def _load_lighting(self, scene_idx, lamps_coords, height):
+        """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
+
+        shadow = self.env.enable_shadow
+        self.env.scene.set_ambient_light([0.4, 0.4, 0.4])
+        lamp_height = self.env.assets_lib['fixtures.lamp'].extents[2]
+        for x, y in lamps_coords:
+            # I have no idea what inner_fov and outer_fov mean :/
+            self.scene.add_spot_light([x, y, height - lamp_height], 
+                                      [0, 0, -1], 
+                                      inner_fov=10, 
+                                      outer_fov=20, 
+                                      color=[10, 10, 10], 
+                                      shadow=shadow,
+                                      scene_idxs=[scene_idx])
+
     def build(self, build_config_idxs: Optional[List[int]] = None):
         if self.env.agent is not None:
             self.robot_poses = self.env.agent.robot.initial_pose
         else:
             self.robot_poses = None
+
         if build_config_idxs is None:
             build_config_idxs = []
             for i in range(self.env.num_envs):
                 # Total number of configs is 10 * 12 = 120
-                config_idx = self.env._batched_episode_rng[i].randint(0, 120)
+                config_idx = self.env._batched_episode_rng[i].randint(0, self.num_generated_scenes * 12)
                 build_config_idxs.append(config_idx)
 
         for scene_idx, build_config_idx in enumerate(build_config_idxs):
-            layout_idx = build_config_idx // 12  # Get layout index (0-9)
+            config_path = self.scene_config_paths[build_config_idx % self.num_generated_scenes]
+            
+            with open(config_path, "r") as f:
+                scene_data = json.load(f)
+
+            arena_data = get_arena_data(x_cells=scene_data['meta']['n'], 
+                           y_cells=scene_data['meta']['m'])
+            
+            self.x_cells.append(arena_data['meta']['x_cells'])
+            self.y_cells.append(arena_data['meta']['y_cells'])
+            self.x_size.append(arena_data['meta']['x_size'])
+            self.y_size.append(arena_data['meta']['y_size'])
+            self.height.append(arena_data['meta']['height'])
+
+            arena_config = arena_data['arena_config']
+
+
             style_idx = build_config_idx % 12  # Get style index (0-11)
             # layout_path = scene_registry.get_layout_path(layout_idx)
             # layout_path = '/home/kvsoshin/.maniskill/data/scene_datasets/robocasa_dataset/assets/scenes/kitchen_layouts/L_shaped_large.yaml'
@@ -49,13 +188,13 @@ class RoomFromRobocasa(RoboCasaSceneBuilder):
             with open(style_path, "r") as f:
                 style = yaml.safe_load(f)
 
-            # load arena
-            if self.arena_config is None:
-                layout_path = 'layout_warehouse.yaml'
-                with open(layout_path, "r") as f:
-                    arena_config = yaml.safe_load(f)
-            else:
-                arena_config = self.arena_config
+            # # load arena
+            # if self.arena_config is None:
+            #     layout_path = 'layout_warehouse.yaml'
+            #     with open(layout_path, "r") as f:
+            #         arena_config = yaml.safe_load(f)
+            # else:
+            #     arena_config = self.arena_config
 
             # contains all fixtures with updated configs
             arena = list()
@@ -363,8 +502,15 @@ class RoomFromRobocasa(RoboCasaSceneBuilder):
                                 )
             # self.actors = actors
 
-        # disable collisions
+            self.load_arrangement_from_json(scene_idx, scene_data)
+            lamp_coords = self._get_lamps_coords(
+                arena_data['meta']['x_cells'],
+                arena_data['meta']['y_cells'],
+            )
+            self._load_lamps(scene_idx, lamp_coords, arena_data['meta']['height'])
+            self._load_lighting(scene_idx, lamp_coords, arena_data['meta']['height'])
 
+        # disable collisions
         if self.env.robot_uids == "fetch":
             self.env.agent
             for link in [self.env.agent.l_wheel_link, self.env.agent.r_wheel_link]:
