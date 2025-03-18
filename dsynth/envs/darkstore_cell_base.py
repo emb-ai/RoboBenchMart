@@ -27,11 +27,13 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
     def __init__(self, *args, 
                  config_dir_path,
-                 robot_uids="panda_wristcam",  
+                 robot_uids="panda_wristcam",
+                 build_config_idxs=None,
                 #  style_ids = 0, 
                 #  mapping_file=None,
                  **kwargs):
         self.config_dir_path = Path(config_dir_path)
+        self.build_config_idxs = build_config_idxs
 
         with hydra.initialize_config_dir(config_dir=str(self.config_dir_path.absolute()), version_base=None):
             cfg = hydra.compose(config_name='input_config')
@@ -41,7 +43,8 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.actors = {
             "fixtures": {
                 "shelves" : {},
-                "lamps": {}
+                "lamps": {},
+                "scene_assets": {}
             },
             "products": {}
         }
@@ -68,8 +71,26 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
     def _load_scene(self, options: dict):
         super()._load_scene(options)
+        self.actors = {
+            "fixtures": {
+                "shelves" : {},
+                "lamps": {},
+                "scene_assets": {}
+            },
+            "products": {}
+        }
         self.scene_builder = DarkstoreScene(self, config_dir_path=self.config_dir_path)
-        self.scene_builder.build()
+
+        # if self.build_config_idxs is None:
+        build_config_idxs = []
+        for i in range(self.num_envs):
+            # Total number of configs is 10 * 12 = 120
+            config_idx = self._batched_episode_rng[i].randint(0, self.scene_builder.num_generated_scenes * 12)
+            build_config_idxs.append(config_idx)
+        
+        self.build_config_idxs = build_config_idxs
+                
+        self.scene_builder.build(self.build_config_idxs)
         # self.scene_builder.load_scene_from_json(self.json_file_path)
 
         # self._load_lamps(options)
@@ -95,15 +116,15 @@ class DarkstoreCellBaseEnv(BaseEnv):
     #         # I have no idea what inner_fov and outer_fov mean :/
     #         self.scene.add_spot_light([x, y, self.height - lamp_height], [0, 0, -1], inner_fov=10, outer_fov=20, color=[20, 20, 20], shadow=shadow)
 
-    def _load_lighting(self, options: dict):
-        """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
-        # pass
-        shadow = self.enable_shadow
-        self.scene.set_ambient_light([0.3, 0.3, 0.3])
-        # self.scene.add_directional_light(
-        #     [1, 1, -1], [1, 1, 1], shadow=shadow, shadow_scale=5, shadow_map_size=2048
-        # )
-        # self.scene.add_directional_light([0, 0, -1], [1, 1, 1])
+    # def _load_lighting(self, options: dict):
+    #     """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
+    #     # pass
+    #     shadow = self.enable_shadow
+    #     self.scene.set_ambient_light([0.3, 0.3, 0.3])
+    #     self.scene.add_directional_light(
+    #         [1, 1, -1], [1, 1, 1], shadow=shadow, shadow_scale=5, shadow_map_size=2048
+    #     )
+    #     self.scene.add_directional_light([0, 0, -1], [1, 1, 1])
 
     # def _load_lamps(self, options: dict):
     #     self.actors["fixtures"]["lamps"] = {}
@@ -134,7 +155,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
-        
+
         if self.robot_uids == "fetch":
             qpos = np.array(
                 [
@@ -156,7 +177,8 @@ class DarkstoreCellBaseEnv(BaseEnv):
                 ]
             )
             self.agent.reset(qpos)
-            self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
+            # self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
+            self.agent.robot.set_pose(sapien.Pose([1.0, 0.5, 0.0]))
             # self._load_shopping_cart(options)
         elif self.robot_uids == "panda_wristcam":
             qpos = np.array(

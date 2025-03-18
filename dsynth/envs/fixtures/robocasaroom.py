@@ -57,7 +57,7 @@ def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
                     {'name': 'floor', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, 0.0]}, 
                     {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.1], 'pos': [x_size / 2, y_size / 2, 0.0]},
                     
-                    {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height + 4 * 0.02]}
+                    # {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height + 4 * 0.02]}
                 ]
             }
         }
@@ -108,12 +108,12 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                 pose = sapien.Pose(p=p, q=q)
                 if 'SHELF' in obj_name:
                     actor = self.env.assets_lib['fixtures.shelf'].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
-                    self.env.actors["fixtures"]["shelves"][obj_name] = {"actor" : actor, "p" : p, "q" : q}
+                    self.env.actors["fixtures"]["shelves"][obj_name] = actor
                     continue
 
                 asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
                 actor = self.env.assets_lib[asset_name].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
-                self.env.actors["products"][obj_name] = {"actor" : actor, "p" : p, "q" : q}
+                self.env.actors["products"][obj_name] = actor
     
     def _get_lamps_coords(self, x_cells, y_cells):
         lamps_coords = []

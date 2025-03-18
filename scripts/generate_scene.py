@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import json
 import sys
+import numpy as np
 
 sys.path.append('.')
 from dsynth.scene_gen.scene_generator import SceneGenerator
@@ -57,12 +58,17 @@ def main(cfg) -> None:
         randomize_layout=cfg.ds.randomize_layout,
         random_seed=cfg.ds.random_seed
     )
-    scene_gen.generate()
+    results = scene_gen.generate()
+    results = np.array(results)
 
     with open(output_dir / "input_config.yaml", "w") as f:
         f.write(OmegaConf.to_yaml(cfg))
     
-    log.info(f"Done")
-
+    if np.all(results):
+        log.info(f"Done")
+    elif np.all(~results):
+        log.info(f"All generations are failed")
+    else:
+        log.info(f"Not all generations are sucessful: {results}")
 if __name__ == "__main__":
     main()
