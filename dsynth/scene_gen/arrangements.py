@@ -4,7 +4,7 @@ from scene_synthesizer import procedural_assets as pa
 from scene_synthesizer import procedural_scenes as ps
 from scene_synthesizer.assets import TrimeshSceneAsset
 from dsynth.assets.ss_assets import DefaultShelf
-from dsynth.scene_gen.utils import PositionIteratorPI
+from dsynth.scene_gen.utils import PositionIteratorPI, PositionIteratorGridColumns
 from scene_synthesizer import utils
 from shapely.geometry import Point
 import trimesh.transformations as tra
@@ -14,6 +14,7 @@ import sys
 import argparse
 import trimesh
 import os
+from dsynth.scene_gen.hydra_configs import FillingType
 
 CELL_SIZE = 1.55
 DEFAULT_ROOM_HEIGHT = 2.7
@@ -141,27 +142,42 @@ def add_objects_to_shelf_v2(
     product_placement: dict,
     product_assets_lib,
     support_data,
+    gap,
+    filling_type
 ):
-    for num_board, board in enumerate(product_placement):
-        pos_iter = utils.PositionIteratorGrid(
-                    step_x=0.02,
-                    step_y=0.02,
-                    noise_std_x=0.001,
-                    noise_std_y=0.001,
-                    direction="y",
+    if filling_type == FillingType.BOARDWISE_COLUMNS:
+        for board_idx, board_arrangement in product_placement.items():
+            current_point = np.array([-1.0, -1.0])
+            for product, num_col in board_arrangement.items():
+                obj = product_assets_lib[product].ss_asset
+                dims = obj.get_extents()
+                scene.place_objects(
+                    obj_id_iterator=utils.object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:"),
+                    obj_asset_iterator=(obj for _ in range(int(np.ceil(support_data[0].polygon.bounds[3]/min(dims[0], dims[1]))*num_col))), #upperbound on how many objects can fit
+                    obj_support_id_iterator=utils.cycle_list(support_data, [board_idx]),
+                    obj_position_iterator=PositionIteratorGridColumns(obj_width=dims[0], obj_depth=dims[1], x_gap=gap, y_gap=gap, current_point=current_point, num_cols = num_col),
+                    obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0,0),
                 )
-        for cnt, elem_name in enumerate(board):
-            scene.place_objects(
-                obj_id_iterator=utils.object_id_generator(
-                    f"{elem_name}:" + f"{shelf_cnt}:{num_board}:{cnt}:"
-                ),
-                obj_asset_iterator=tuple([product_assets_lib[elem_name].ss_asset]),
-                # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
-                obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
-                obj_position_iterator=pos_iter,
-                obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0, upper= 3.14 / 20),
-            )
-
+    else:
+        for num_board, board in enumerate(product_placement):
+            pos_iter = utils.PositionIteratorGrid(
+                        step_x=0.02,
+                        step_y=0.02,
+                        noise_std_x=0.001,
+                        noise_std_y=0.001,
+                        direction="y",
+                    )
+            for cnt, elem_name in enumerate(board):
+                scene.place_objects(
+                    obj_id_iterator=utils.object_id_generator(
+                        f"{elem_name}:" + f"{shelf_cnt}:{num_board}:{cnt}:"
+                    ),
+                    obj_asset_iterator=tuple([product_assets_lib[elem_name].ss_asset]),
+                    # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
+                    obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
+                    obj_position_iterator=pos_iter,
+                    obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0, upper= 3.14 / 20),
+                )
 
 
 def shelf_placement_v2(
@@ -169,6 +185,7 @@ def shelf_placement_v2(
         darkstore: list[list],
         is_rotate: list[list],
         product_assets_lib,
+        cfg,
         is_showed: bool = False,
     ):
     n, m = len(darkstore), len(darkstore[0])
@@ -196,12 +213,16 @@ def shelf_placement_v2(
                 f'SHELF_{cnt}_{shelf_name}',
                 f'support_SHELF_{cnt}_{shelf_name}',
             )
+            z_name = shelf_name.split(".")[0]
+            s_name = shelf_name.split(".")[1]
             add_objects_to_shelf_v2(
                 scene,
                 cnt,
                 product_filling_flattened[shelf_name],
                 product_assets_lib,
                 support_data,
+                cfg.ds.zones[z_name][s_name].gap,
+                cfg.ds.zones[z_name][s_name].filling_type
             )
             cnt += 1
             it += 1
@@ -214,8 +235,10 @@ def shelf_placement_v2(
 
     data = json.loads(json_str)
     del data["geometry"]
-    data["meta"] = {"n": n, "m": m, "room": darkstore, "filling": product_filling_flattened}
-
+    if type(product_filling_flattened) == list:
+        data["meta"] = {"n": n, "m": m, "room": darkstore, "filling": product_filling_flattened}
+    else:
+        data["meta"] = {"n": n, "m": m, "room": darkstore}
     return data
 
 def one_shelf_placement_with(

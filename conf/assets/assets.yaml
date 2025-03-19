@@ -18,45 +18,45 @@ products_hierarchy:
         asset_file_path: ${assets.assets_dir_path}/cerealescornflakescora.glb
         ss_params:
           height: 0.25 
-          up: [0, 1, 0] 
+          up: [0, 1, 0]
           front: [0, 0, -1] 
-          origin: ["left", "bottom", "com"]
+          origin: ["center", "bottom", "center"]
       cornFlakesRetroEditionSmall:
         asset_file_path: ${assets.assets_dir_path}/cornFlakesRetroEditionSmall.glb
         ss_params:
           height: 0.3 
-          up: [0, 1, 0] 
+          up: [0, 1, 0]
           front: [1, 0, 0] 
-          origin: ["com", "bottom", "left"]
+          origin: ["center", "bottom", "center"]
       nestleFitnessChocolateCerealBox:
         asset_file_path: ${assets.assets_dir_path}/nestleFitnessChocolateCerealBox.glb
         ss_params:
-          height: 0.3 
-          up: [0, 1, 0] 
+          height: 0.275
+          up: [0, 1, 0]
           front: [-1, 0, 0] 
-          origin: ["com", "bottom", "com"]
+          origin: ["center", "bottom", "center"]
     dairy_products:
       milk:
         asset_file_path: ${assets.assets_dir_path}/milk.glb
         ss_params:
-          height: 0.25
-          up: [0, 0, 1] 
+          height: 0.26
+          up: [0, 0, 1]
           front: [-1, 0, 0] 
-          origin: ["com", "left", "bottom"]
+          origin: ["center", "center", "bottom"]
       milkHandle:
         asset_file_path: ${assets.assets_dir_path}/milkHandle.glb
         ss_params:
           height: 0.25
-          up: [0, 1, 0] 
+          up: [0, 1, 0]
           front: [0, 0, -1] 
-          origin: ["left", "bottom", "com"]
+          origin: ["center", "bottom", "center"]
       milkCarton:
         asset_file_path: ${assets.assets_dir_path}/milkCarton.glb
         ss_params:
-          height: 0.25
-          up: [0, 1, 0] 
+          height: 0.24
+          up: [0, 1, 0]
           front: [-1, 0, 0] 
-          origin: ["com", "bottom", "com"]
+          origin: ["center", "bottom", "center"]
     drinks:
       # CokeBottle:
       #   ss_asset_type: USDAsset
@@ -68,9 +68,107 @@ products_hierarchy:
         asset_file_path: ${assets.assets_dir_path}/cocaColaCan.glb
         ss_params:
           height: 0.15
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      pepsi:
+        asset_file_path: ${assets.assets_dir_path}/pepsi.glb
+        ss_params:
+          height: 0.18
+          up: [0, 1, 0]
+          front: [1, 0, 0]
+          origin: ["center", "bottom", "center"]
+      fanta:
+        asset_file_path: ${assets.assets_dir_path}/fanta.glb
+        ss_params:
+          height: 0.15
+          up: [0, 1, 0]
+          front: [1, 0, 0]
+          origin: ["center", "bottom", "center"]
+      mountainDew:
+        asset_file_path: ${assets.assets_dir_path}/mountainDew.glb
+        ss_params:
+          height: 0.15
+          up: [0, 1, 0]
+          front: [0, 0, 1]
+          origin: ["center", "bottom", "center"]
+      chaosCola2l:
+        asset_file_path: ${assets.assets_dir_path}/chaosCola2l.glb
+        ss_params:
+          height: 0.18
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      cocaColaNoSugar1p5l:
+        asset_file_path: ${assets.assets_dir_path}/cocaColaNoSugar1p5l.glb
+        ss_params:
+          height: 0.2
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      sprite2p25l:
+        asset_file_path: ${assets.assets_dir_path}/sprite2p25l.glb
+        ss_params:
+          height: 0.23
           up: [0, 1, 0] 
           front: [0, 0, -1]
-          origin: ["left", "bottom", "com"]
+          origin: ["center", "bottom", "center"]
+      fantaNaranja1p35l:
+        asset_file_path: ${assets.assets_dir_path}/fantaNaranja1p35l.glb
+        ss_params:
+          height: 0.25
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      coffeePackaging:
+        asset_file_path: ${assets.assets_dir_path}/coffeePackaging.glb
+        ss_params:
+          height: 0.2
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      coffeePaperBag:
+        asset_file_path: ${assets.assets_dir_path}/coffeePaperBag.glb
+        ss_params:
+          height: 0.23
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      coffeePackaging1:
+        asset_file_path: ${assets.assets_dir_path}/coffeePackaging1.glb
+        ss_params:
+          height: 0.25
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      coffeeCapsulesDolceGusto:
+        asset_file_path: ${assets.assets_dir_path}/coffeeCapsulesDolceGusto.glb
+        ss_params:
+          height: 0.18
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: ["center", "bottom", "center"]
+      nescafesimple:
+        asset_file_path: ${assets.assets_dir_path}/nescafesimple.glb
+        ss_params:
+          height: 0.15
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      pgTipsTeaBox:
+        asset_file_path: ${assets.assets_dir_path}/pgTipsTeaBox.glb
+        ss_params:
+          height: 0.13
+          up: [0, 1, 0]
+          front: [0, 0, -1]
+          origin: ["center", "bottom", "center"]
+      sirWinstonTea:
+        asset_file_path: ${assets.assets_dir_path}/sirWinstonTea.glb
+        ss_params:
+          height: 0.08
+          up: [0, 0, 1]
+          front: [0, 1, 0]
+          origin: ["center", "center", "bottom"]
       # coke:
       #   ss_asset_type: USDAsset
       #   asset_file_path: ${assets.assets_dir_path}/coke.usdc

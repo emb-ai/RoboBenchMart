@@ -42,7 +42,7 @@ def main(cfg: Config) -> None:
     is_rotate = get_orientation((x, y), room)
 
 
-    scene_meta = shelf_placement_v2(product_filling_flattened, room, is_rotate, product_assets_lib, cfg.ds.show)
+    scene_meta = shelf_placement_v2(product_filling_flattened, room, is_rotate, product_assets_lib, cfg, cfg.ds.show)
 
     if cfg.ds.output_dir is not None:
         output_dir = Path(cfg.ds.output_dir)

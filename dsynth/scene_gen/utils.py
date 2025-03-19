@@ -110,3 +110,66 @@ class ProductnameIteratorInfinite(ProductnameIterator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.products_iterator = cycle(self.products_iterator)
+
+class PositionIteratorGridColumns(PositionIterator2D):
+    def __init__(
+        self,
+        obj_width,
+        obj_depth,
+        x_gap,
+        y_gap,
+        current_point,
+        num_cols
+    ):
+        super().__init__()
+        self.obj_w = obj_width
+        self.obj_d = obj_depth
+        self.x_gap = x_gap
+        self.y_gap = y_gap
+        self.start_point = None
+        self.end_point = None
+        self.current_point = current_point
+        self.num_cols = num_cols
+        self.stop_iter = False
+
+    def __next__(self):
+        while not self.stop_iter:
+            if self.num_cols <= 0:
+                self.current_point[0] -= self.obj_w/2
+                self.current_point[1] -= self.obj_d/2
+                self.stop_iter = True
+                break
+            if self.current_point[0] + self.obj_w/2 < self.end_point[0]:
+                x = self.current_point[0]
+                y = self.current_point[1]
+                self.current_point[1] += self.obj_d + self.y_gap
+                if self.current_point[1] + self.obj_d/2 >= self.end_point[1]:
+                    self.current_point[0] += self.obj_w + self.x_gap
+                    self.current_point[1] = self.start_point[1] + self.obj_d/2
+                    self.num_cols -= 1
+
+                return np.array([x, y])
+            elif self.current_point[0] + self.obj_w/2 >= self.end_point[0]:
+                self.current_point[0] -= self.obj_w/2
+                self.current_point[1] -= self.obj_d/2
+                self.stop_iter = True
+                break
+
+        raise StopIteration
+
+    def __call__(self, support):
+        if support.polygon != self.polygon:
+            self.polygon = support.polygon
+            minx, miny, maxx, maxy = self.polygon.bounds
+            self.start_point = np.array([minx, miny])
+            self.end_point = np.array([maxx, maxy])
+            if self.current_point[0] == -1 and self.current_point[0] == -1:
+                self.current_point[0] = minx + self.obj_w/2
+                self.current_point[1] = miny + self.obj_d/2
+            else:
+                self.current_point[0] += self.obj_w/2
+                self.current_point[1] += self.obj_d/2
+        return self
+
+    def update(self, *args, **kwargs):
+        pass
