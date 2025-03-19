@@ -100,7 +100,8 @@ def _generate_routine(
     scene_meta = shelf_placement_v2(
         product_filling_flattened=product_filling_flattened,
         product_assets_lib=product_assets_lib, 
-        is_show=show,
+        is_showed=show,
+        zones_cfg=darkstore_arrangement_cfg,
         **layout_data
         )
     
@@ -161,7 +162,7 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
             
             if cur_board >= shelf_config.end_filling_from_board:
                 break
-            
+
     elif shelf_config.filling_type == FillingType.BOARDWISE_COLUMNS:
         filling = shelf_config['board_product_numcol']
 

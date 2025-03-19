@@ -35,7 +35,7 @@ class ShelfConfig:
 
     board_product_numcol: Dict[int, Dict[str, int]] = field(default_factory=lambda: {})
     gap: float = 0.002
-    
+
 @dataclass    
 class DsConfig:
     name: str 
@@ -45,7 +45,7 @@ class DsConfig:
     entrance_coords_y: int = 0
     zones: Dict = MISSING
     
-    num_scenes: int = 128
+    num_scenes: int = 1
     num_workers: int = 1
     output_dir: Optional[str] = None
     rewrite: bool = False
