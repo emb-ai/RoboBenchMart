@@ -89,8 +89,8 @@ def add_one_product(
             return False
     return True
 
-def get_rd_point(n: int, m: int):
-    return (random.randint(0, n - 1), random.randint(0, m - 1))
+def get_rd_point(n: int, m: int, rng: random.Random):
+    return (rng.randint(0, n - 1), rng.randint(0, m - 1))
 
 
 def add_many_products(
@@ -130,6 +130,7 @@ def add_one_zone(
     mat: list[list[int]],
     zone_name: str, 
     zone_shelves: list[str],
+    rng: random.Random,
     all_reached: bool = False,
 ) -> bool:
     n: int = len(mat)
@@ -139,7 +140,7 @@ def add_one_zone(
         my_nei: list[int] = find_neibours(st, n, m)
         if j == 0:
             my_nei = [st]
-        random.shuffle(my_nei)
+        rng.shuffle(my_nei)
         good_try: bool = False
         for el in my_nei:
             if mat[el[0]][el[1]] == 0:
@@ -163,6 +164,7 @@ def add_many_zones(
     mat: list[list[int]],
     # shelfname_to_cnt: dict,
     zones_list: dict[str, list[str]],
+    rng: random.Random,
     all_reached: bool = False,
 ) -> tuple[bool, list[list]]:
     n: int = len(mat)
@@ -175,8 +177,8 @@ def add_many_zones(
         goodpr = False
         id += 1
         for j in range(2 * n * m):
-            s = get_rd_point(n, m)
-            if add_one_zone(s, door, mat, zone_name, zone_shelves, all_reached):
+            s = get_rd_point(n, m, rng)
+            if add_one_zone(s, door, mat, zone_name, zone_shelves, rng, all_reached):
                 goodpr = True
                 break
         if not (goodpr):

@@ -10,39 +10,23 @@ import json
 import sys
 
 sys.path.append('.')
-from dsynth.scene_gen.arrangements import shelf_placement_v2
-from dsynth.scene_gen.layouts.random_connectivity import add_many_zones, get_orientation
+from dsynth.scene_gen.scene_generator import SceneGenerator
+from dsynth.scene_gen.layouts.layout_generator import LAYOUT_TYPES_TO_CLS
 from dsynth.scene_gen.utils import flatten_dict
-from dsynth.scene_gen.hydra_configs import product_filling_from_darkstore_config, Config, ShelfConfig
+from dsynth.scene_gen.hydra_configs import DsConfig, ShelfConfig
 from dsynth.assets.asset import load_assets_lib
 
 
 cs = ConfigStore.instance()
 cs.store(group="shelves", name="base_shelf_config", node=ShelfConfig)
-cs.store(group="ds", name="main_darkstore_config_base", node=Config)
+cs.store(group="ds", name="main_darkstore_config_base", node=DsConfig)
 
 OUTPUT_PATH = 'generated_envs'
 
 @hydra.main(version_base=None, config_name="config", config_path="../conf")
-def main(cfg: Config) -> None:
+def main(cfg) -> None:
     log.info(OmegaConf.to_yaml(cfg))
     product_assets_lib = flatten_dict(load_assets_lib(cfg.assets.products_hierarchy), sep='.')
-
-    product_filling = product_filling_from_darkstore_config(cfg.ds, list(product_assets_lib.keys()))
-    zones_dict = {key: list(val.keys()) for key, val in product_filling.items()}
-    product_filling_flattened = flatten_dict(product_filling, sep='.')
-
-    n, m = cfg.ds.size_n, cfg.ds.size_m
-    x, y = cfg.ds.entrance_coords_x, cfg.ds.entrance_coords_y
-    mat = [[0] * m for _ in range(n)]
-    is_gen, room = add_many_zones((x, y), mat, zones_dict)
-    if not is_gen:
-        log.error(f"Can't generate!")
-        exit(-1)
-    is_rotate = get_orientation((x, y), room)
-
-
-    scene_meta = shelf_placement_v2(product_filling_flattened, room, is_rotate, product_assets_lib, cfg, cfg.ds.show)
 
     if cfg.ds.output_dir is not None:
         output_dir = Path(cfg.ds.output_dir)
@@ -58,8 +42,22 @@ def main(cfg: Config) -> None:
 
     log.info(f"Write results to: {output_dir}")
 
-    with open(output_dir / "scene_config.json", "w") as f:
-        json.dump(scene_meta, f, indent=4)
+    layout_gen_cls = LAYOUT_TYPES_TO_CLS[cfg.ds.layout_gen_type]
+    layout_generator = layout_gen_cls(sizes_nm=(cfg.ds.size_n, cfg.ds.size_m), 
+                   start_coords=(cfg.ds.entrance_coords_x, cfg.ds.entrance_coords_y))
+
+    scene_gen = SceneGenerator(
+        layout_generator = layout_generator,
+        product_assets_lib = product_assets_lib,
+        darkstore_arrangement_cfg=cfg.ds.zones,
+        num_scenes=cfg.ds.num_scenes,
+        num_workers=cfg.ds.num_workers,
+        output_dir=output_dir,
+        randomize_arrangements=cfg.ds.randomize_arrangements,
+        randomize_layout=cfg.ds.randomize_layout,
+        random_seed=cfg.ds.random_seed
+    )
+    scene_gen.generate()
 
     with open(output_dir / "input_config.yaml", "w") as f:
         f.write(OmegaConf.to_yaml(cfg))

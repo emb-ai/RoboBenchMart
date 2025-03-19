@@ -27,7 +27,7 @@ def parse_args():
                         default='default',
                         const='default',
                         nargs='?',
-                        choices=['rt', 'rt-fast', 'default', 'minimal'],)
+                        choices=['rt', 'rt-fast', 'rt-med', 'default', 'minimal'],)
     parser.add_argument('--gui',
                         action='store_true',
                         default=False)
@@ -49,7 +49,6 @@ def main(args):
     env = gym.make('PickToCartEnv', 
                    robot_uids='fetch', 
                    config_dir_path = args.scene_dir,
-                   style_ids = [style_id], 
                    num_envs=1, 
                    viewer_camera_configs={'shader_pack': args.shader}, 
                     human_render_camera_configs={'shader_pack': args.shader},
@@ -57,7 +56,7 @@ def main(args):
                    render_mode="rgb_array", 
                 #    control_mode='pd_ee_delta_pos',
                    enable_shadow=True,
-                #    obs_mode='rgbd',
+                   obs_mode='rgbd',
                    parallel_in_single_scene = False,
                    )
 
@@ -69,7 +68,8 @@ def main(args):
         trajectory_name=new_traj_name,
         save_video=args.video,
         video_fps=30,
-        avoid_overwriting_video=True
+        avoid_overwriting_video=True,
+        max_steps_per_video=10
     )
 
     print("Video path:", video_path)

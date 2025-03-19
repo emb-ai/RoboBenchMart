@@ -185,7 +185,7 @@ def shelf_placement_v2(
         darkstore: list[list],
         is_rotate: list[list],
         product_assets_lib,
-        cfg,
+        zones_cfg,
         is_showed: bool = False,
     ):
     n, m = len(darkstore), len(darkstore[0])
@@ -221,8 +221,8 @@ def shelf_placement_v2(
                 product_filling_flattened[shelf_name],
                 product_assets_lib,
                 support_data,
-                cfg.ds.zones[z_name][s_name].gap,
-                cfg.ds.zones[z_name][s_name].filling_type
+                zones_cfg[z_name][s_name].gap,
+                zones_cfg[z_name][s_name].filling_type
             )
             cnt += 1
             it += 1

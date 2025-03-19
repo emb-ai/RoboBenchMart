@@ -1,10 +1,10 @@
 from itertools import cycle
 import re
 import numpy as np
+import random
 from scene_synthesizer.utils import PositionIterator2D
 from shapely.geometry import Point
 from dsynth.assets.ss_assets import WIDTH, DEPTH
-
 class PositionIteratorPI(PositionIterator2D):
     def __init__(
         self,
@@ -90,14 +90,13 @@ def get_needed_names(regexp, all_products):
     return list(filter(lambda x: re.match(regexp, x), all_products))
 
 class ProductnameIterator:
-    def __init__(self, queries, all_product_names, shuffle=True):
+    def __init__(self, queries, all_product_names, shuffle=True, rng=random.Random(42)):
         self.queries = queries
-        # self.shuffle = shuffle
         products = []
         for query in self.queries:
             products.extend(get_needed_names(rf'{query}', all_product_names))
-        # if self.shuffle:
-        #     random.shuffle(products)
+        if shuffle:
+            rng.shuffle(products)
         self.products_iterator = iter(products)
 
     def __iter__(self):
