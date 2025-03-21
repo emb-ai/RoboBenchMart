@@ -10,9 +10,11 @@ import os.path as osp
 from mani_skill.utils.wrappers.record import RecordEpisode
 from mani_skill.trajectory.merge_trajectory import merge_trajectories
 from mani_skill.examples.motionplanning.panda.solutions import solvePushCube, solvePickCube, solveStackCube, solvePegInsertionSide, solvePlugCharger, solvePullCubeTool, solveLiftPegUpright, solvePullCube
+import mplib
 import sys
 sys.path.append('.')
 from dsynth.envs.pick_to_cart import PickToCartEnv
+from dsynth.planning.motionplanner import PandaArmMotionPlanningSolverV2
 
 OPEN = 1
 CLOSED = -1
@@ -170,7 +172,7 @@ def solve_panda_ai360(env: PickCubeEnv, seed=None, debug=False, vis=False):
     #     visualize_target_grasp_pose=vis,
     #     print_env_info=False,
     # )
-    planner = PandaArmMotionPlanningSolver(
+    planner = PandaArmMotionPlanningSolverV2(
         env,
         debug=debug,
         vis=vis,
@@ -219,22 +221,33 @@ def solve_panda_ai360(env: PickCubeEnv, seed=None, debug=False, vis=False):
     height = obb.primitive.extents[2]
     closing, center, approaching = grasp_info["closing"], grasp_info["center"], grasp_info["approaching"]
     grasp_pose = env.agent.build_grasp_pose(approaching, closing, center)
-
-
+    
+    for name, actor in env.actors['products'].items():
+        if name != env.target_product_name:
+            not_collide_obb = get_actor_obb(actor, vis=False)
+            center_T = not_collide_obb.primitive.transform
+            collision_extents = not_collide_obb.primitive.extents
+            collision_pose = sapien.Pose(center_T)
+            planner.add_box_collision(collision_extents, collision_pose)
+    trimesh.points.PointCloud(planner.all_collision_pts).show()
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    print(agent_pose)
+
     reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
     res = planner.move_to_pose_with_screw(reach_pose)
 
-
-    # -------------------------------------------------------------------------- #
     # Grasp
     # -------------------------------------------------------------------------- #
-    res = planner.move_to_pose_with_screw(grasp_pose)
+    res = planner.move_to_pose_with_RRTConnect(grasp_pose)
     res = planner.close_gripper()
 
+    target_obb = get_actor_obb(target, vis=False)
+    target_extents = target_obb.primitive.extents
+    target_center_pose = sapien.Pose(target_obb.primitive.transform)
+
+    target_pose = target.pose.sp
+    planner.planner.update_attached_box(target_extents, mplib.Pose(target_center_pose.p, target_center_pose.q), link_id=-1)
     # -------------------------------------------------------------------------- #
     # Lift
     # -------------------------------------------------------------------------- #
@@ -242,26 +255,17 @@ def solve_panda_ai360(env: PickCubeEnv, seed=None, debug=False, vis=False):
     lift_pose = grasp_pose * sapien.Pose([0.02, 0., 0.])
     res = planner.move_to_pose_with_screw(lift_pose)
 
-    # -------------------------------------------------------------------------- #
-    # Return 
-    # -------------------------------------------------------------------------- #
-    # res = planner.move_to_pose_with_screw(init_pose)
-    res = planner.move_to_pose_with_screw(pre_goal_pose)
+
+    res = planner.move_to_pose_with_RRTConnect(pre_goal_pose)
     
     # -------------------------------------------------------------------------- #
     # Move to goal pose
     # -------------------------------------------------------------------------- #
 
-    res = planner.move_to_pose_with_screw(goal_pose)
+    res = planner.move_to_pose_with_RRTConnect(goal_pose)
     res = planner.open_gripper()
 
-    # -------------------------------------------------------------------------- #
-    # Do nothing
-    # -------------------------------------------------------------------------- #
-    # zero_action = np.zeros_like(env.action_space.sample())
-    # for i in range(20):
-    #     res = env.step(zero_action)
-    #     env.render_human()
+   
 
     planner.close()
     return res
