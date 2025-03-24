@@ -17,6 +17,21 @@ CLOSED = -1
 
 
 class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
+    def setup_planner(self):
+        link_names = [link.get_name() for link in self.robot.get_links()]
+        joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
+        planner = mplib.Planner(
+            urdf=self.env_agent.urdf_path,
+            srdf=self.env_agent.urdf_path.replace(".urdf", ".srdf"),
+            user_link_names=link_names,
+            user_joint_names=joint_names,
+            move_group="panda_hand_tcp",
+            joint_vel_limits=np.ones(7) * self.joint_vel_limits,
+            joint_acc_limits=np.ones(7) * self.joint_acc_limits,
+        )
+        planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
+        return planner
+    
     def move_to_pose_with_RRTConnect(
         self, pose: sapien.Pose, dry_run: bool = False, refine_steps: int = 0
     ):
@@ -30,6 +45,7 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
             time_step=self.base_env.control_timestep,
             # use_point_cloud=self.use_point_cloud,
             wrt_world=True,
+            verbose=True
         )
         if result["status"] != "Success":
             print(result["status"])
@@ -52,6 +68,7 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
             mplib.Pose(pose.p, pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            verbose=True
             # use_point_cloud=self.use_point_cloud,
         )
         if result["status"] != "Success":
@@ -109,19 +126,19 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
     def add_box_collision(self, extents: np.ndarray, pose: sapien.Pose):
         self.use_point_cloud = True
         box = trimesh.creation.box(extents, transform=pose.to_transformation_matrix())
-        pts, _ = trimesh.sample.sample_surface(box, 5000)
+        pts, _ = trimesh.sample.sample_surface(box, 500)
         if self.all_collision_pts is None:
             self.all_collision_pts = pts
         else:
             self.all_collision_pts = np.vstack([self.all_collision_pts, pts])
-        self.planner.update_point_cloud(self.all_collision_pts)
+        self.planner.update_point_cloud(self.all_collision_pts, resolution=1e-2)
 
     def add_collision_pts(self, pts: np.ndarray):
         if self.all_collision_pts is None:
             self.all_collision_pts = pts
         else:
             self.all_collision_pts = np.vstack([self.all_collision_pts, pts])
-        self.planner.update_point_cloud(self.all_collision_pts)
+        self.planner.update_point_cloud(self.all_collision_pts, resolution=1e-2)
 
     def clear_collisions(self):
         self.all_collision_pts = None
