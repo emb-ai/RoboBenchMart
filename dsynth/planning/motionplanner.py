@@ -147,3 +147,161 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
     def close(self):
         pass
 
+class FetchArmMotionPlanningSolver(PandaArmMotionPlanningSolverV2):
+    def setup_planner(self):
+        link_names = [link.get_name() for link in self.robot.get_links()]
+        # link_names = [
+        #     'torso_lift_link',
+        #     'shoulder_pan_link',
+        #     'shoulder_lift_link',
+        #     'upperarm_roll_link',
+        #     'elbow_flex_link',
+        #     'forearm_roll_link',
+        #     'wrist_flex_link',
+        #     'wrist_roll_link',
+        #     'gripper_link'
+        # ]
+        joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
+        # joint_names = ['torso_lift_joint', 
+        #                'shoulder_lift_joint', 
+        #                'upperarm_roll_joint', 
+        #                'elbow_flex_joint', 
+        #                'forearm_roll_joint', 
+        #                'wrist_flex_joint', 
+        #                'wrist_roll_joint']
+        planner = mplib.Planner(
+            urdf=self.env_agent.urdf_path,
+            srdf=self.env_agent.urdf_path.replace(".urdf", ".srdf"),
+            user_link_names=link_names,
+            user_joint_names=joint_names,
+            move_group="gripper_link",
+            joint_vel_limits=np.ones(11) * self.joint_vel_limits,
+            joint_acc_limits=np.ones(11) * self.joint_acc_limits,
+            verbose=True
+        )
+        planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
+        return planner
+
+    def follow_path(self, result, refine_steps: int = 0):
+        self.active_joints = self.robot.get_active_joints()
+        n_step = result["position"].shape[0]
+        for i in range(n_step + refine_steps):
+            qf = self.robot.compute_passive_force(
+                gravity=True, coriolis_and_centrifugal=True
+            )
+
+            self.robot.set_qf(qf)
+            for j in range(len(self.planner.move_group_joint_indices)):
+                self.active_joints[j].set_drive_target(result["position"][i][j])
+                self.active_joints[j].set_drive_velocity_target(
+                    result["velocity"][i][j]
+                )
+            # simulation step
+            self.env.scene.step()
+
+            if self.vis:
+                self.base_env.render_human()
+        return True
+
+    def follow_path_old(self, result, refine_steps: int = 0):
+        n_step = result["position"].shape[0]
+        for i in range(n_step + refine_steps):
+            arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
+            body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
+            gripper = self.env_agent.controller.controllers['gripper'].qpos[0].cpu().numpy()[0]
+            base_vel = np.array([0, 0])
+
+            qpos = result["position"][min(i, n_step - 1)]
+
+            qpos_dict = {}
+            for idx, q in zip(self.planner.move_group_joint_indices, qpos):
+                joint_name = self.planner.user_joint_names[idx]
+                qpos_dict[joint_name] = q
+            
+            for n, joint_name in enumerate(self.env_agent.controller.controllers['arm'].config.joint_names):
+                arm_action[n] = qpos_dict[joint_name]
+            
+            body_action[2] = qpos_dict['torso_lift_joint']
+
+            assert self.control_mode == "pd_joint_pos"
+            action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
+
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            self.elapsed_steps += 1
+            if self.print_env_info:
+                print(
+                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
+                )
+            if self.vis:
+                self.base_env.render_human()
+        return obs, reward, terminated, truncated, info
+    
+    def open_gripper(self):
+        self.gripper_state = OPEN
+        qpos = self.robot.get_qpos()[0, :-2].cpu().numpy()
+        for i in range(6):
+            if self.control_mode == "pd_joint_pos":
+                action = np.hstack([qpos, self.gripper_state])
+            else:
+                action = np.hstack([qpos, qpos * 0, self.gripper_state])
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            self.elapsed_steps += 1
+            if self.print_env_info:
+                print(
+                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
+                )
+            if self.vis:
+                self.base_env.render_human()
+        return obs, reward, terminated, truncated, info
+
+    def close_gripper(self, t=6, gripper_state = CLOSED):
+        self.gripper_state = gripper_state
+        arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
+        body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
+        base_vel = np.array([0, 0])
+
+        for i in range(t):
+            if self.control_mode == "pd_joint_pos":
+                action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
+            else:
+                raise NotImplementedError
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            self.elapsed_steps += 1
+            if self.print_env_info:
+                print(
+                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
+                )
+            if self.vis:
+                self.base_env.render_human()
+        return obs, reward, terminated, truncated, info
+    
+    def move_to_pose_with_screw(
+        self, pose: sapien.Pose, dry_run: bool = False, refine_steps: int = 0
+    ):
+        pose = to_sapien_pose(pose)
+        # try screw two times before giving up
+        if self.grasp_pose_visual is not None:
+            self.grasp_pose_visual.set_pose(pose)
+        pose = sapien.Pose(p=pose.p , q=pose.q)
+        result = self.planner.plan_screw(
+            mplib.Pose(pose.p, pose.q),
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True,
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            result = self.planner.plan_screw(
+                mplib.Pose(pose.p, pose.q),
+                self.robot.get_qpos().cpu().numpy()[0],
+                time_step=self.base_env.control_timestep,
+                # # use_point_cloud=self.use_point_cloud,
+            )
+            if result["status"] != "Success":
+                print(result["status"])
+                self.render_wait()
+                return -1
+        self.render_wait()
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
