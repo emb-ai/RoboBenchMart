@@ -17,7 +17,15 @@ from mplib.collision_detection import fcl
 import sys
 sys.path.append('.')
 from dsynth.envs.pick_to_cart import PickToCartEnv
-from dsynth.planning.solve import solve_fetch_pick_cube, solve_panda_pick_to_cart
+from dsynth.envs.pickcube_mptest import PickCubeEnvMPTest
+from dsynth.planning.solve import (
+    solve_fetch_pick_cube, 
+    solve_panda_pick_to_cart, 
+    solve_panda_pick_cube_test,
+    solve_panda_pick_cube_fcl_test,
+    solve_panda_pick_cube_sapien_planning,
+    solve_panda_pick_cube_fcl_V2_test
+)
 
 
 OPEN = 1
@@ -45,6 +53,7 @@ def parse_args(args=None):
 def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     env_id = 'PickToCartEnv'# args.env_id
     env_id = 'PickCube-v1'
+    env_id = 'PickCubeEnvMPTest'
     # env = gym.make(
     #     env_id,
     #     robot_uids='fetch',
@@ -105,10 +114,12 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     failed_motion_plans = 0
     passed = 0
     while True:
-        res = solve_panda_pick_to_cart(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_panda_pick_to_cart(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_fetch_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
-
-
+        # res = solve_panda_pick_cube_test(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_panda_pick_cube_fcl_test(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_panda_pick_cube_sapien_planning(env, seed=seed, debug=True, vis=True if args.vis else False)
+        res = solve_panda_pick_cube_fcl_V2_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # try:
         # except Exception as e:
         #     print(f"Cannot find valid solution because of an error in motion planning solution: {e}")
@@ -122,6 +133,8 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
             elapsed_steps = res[-1]["elapsed_steps"].item()
             solution_episode_lengths.append(elapsed_steps)
         successes.append(success)
+        seed += 1
+        continue
         if args.only_count_success and not success:
             seed += 1
             env.flush_trajectory(save=False)

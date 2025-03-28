@@ -11,13 +11,58 @@ from mani_skill.examples.motionplanning.panda.motionplanner import (
     build_panda_gripper_grasp_pose_visual,
     PandaArmMotionPlanningSolver
 )
+from mplib.sapien_utils import SapienPlanner, SapienPlanningWorld
+from mplib.pymp import ArticulatedModel
 import sapien.physx as physx
 OPEN = 1
 CLOSED = -1
 
-
 class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
-    def setup_planner(self):
+    def __init__(
+        self,
+        env: BaseEnv,
+        debug: bool = False,
+        vis: bool = True,
+        base_pose: sapien.Pose = None,  # TODO mplib doesn't support robot base being anywhere but 0
+        visualize_target_grasp_pose: bool = True,
+        print_env_info: bool = True,
+        joint_vel_limits=0.9,
+        joint_acc_limits=0.9,
+        objects = [],
+    ):
+        self.env = env
+        self.base_env: BaseEnv = env.unwrapped
+        self.env_agent: BaseAgent = self.base_env.agent
+        self.robot = self.env_agent.robot
+        self.joint_vel_limits = joint_vel_limits
+        self.joint_acc_limits = joint_acc_limits
+
+        self.base_pose = to_sapien_pose(base_pose)
+
+        self.planner = self.setup_planner(objects)
+        self.control_mode = self.base_env.control_mode
+
+        self.debug = debug
+        self.vis = vis
+        self.print_env_info = print_env_info
+        self.visualize_target_grasp_pose = visualize_target_grasp_pose
+        self.gripper_state = OPEN
+        self.grasp_pose_visual = None
+        if self.vis and self.visualize_target_grasp_pose:
+            if "grasp_pose_visual" not in self.base_env.scene.actors:
+                self.grasp_pose_visual = build_panda_gripper_grasp_pose_visual(
+                    self.base_env.scene
+                )
+            else:
+                self.grasp_pose_visual = self.base_env.scene.actors["grasp_pose_visual"]
+            self.grasp_pose_visual.set_pose(self.base_env.agent.tcp.pose)
+        self.elapsed_steps = 0
+
+        self.use_point_cloud = False
+        self.collision_pts_changed = False
+        self.all_collision_pts = None
+
+    def setup_planner(self, objects = []):
         link_names = [link.get_name() for link in self.robot.get_links()]
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
         planner = mplib.Planner(
@@ -28,6 +73,7 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
             move_group="panda_hand_tcp",
             joint_vel_limits=np.ones(7) * self.joint_vel_limits,
             joint_acc_limits=np.ones(7) * self.joint_acc_limits,
+            objects=objects
         )
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
@@ -45,7 +91,11 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
             time_step=self.base_env.control_timestep,
             # use_point_cloud=self.use_point_cloud,
             wrt_world=True,
-            verbose=True
+            verbose=True,
+            planning_time=2,
+            rrt_range=0.1,
+            simplify=True
+            
         )
         if result["status"] != "Success":
             print(result["status"])
@@ -123,22 +173,31 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
                 self.base_env.render_human()
         return obs, reward, terminated, truncated, info
 
-    def add_box_collision(self, extents: np.ndarray, pose: sapien.Pose):
+    def add_box_collision(self, extents: np.ndarray, pose: sapien.Pose, name='scene_pcd'):
         self.use_point_cloud = True
         box = trimesh.creation.box(extents, transform=pose.to_transformation_matrix())
         pts, _ = trimesh.sample.sample_surface(box, 500)
         if self.all_collision_pts is None:
-            self.all_collision_pts = pts
+            self.all_collision_pts = {name: pts}
         else:
-            self.all_collision_pts = np.vstack([self.all_collision_pts, pts])
-        self.planner.update_point_cloud(self.all_collision_pts, resolution=1e-2)
+            self.all_collision_pts[name] = pts
+        self.planner.update_point_cloud(self.all_collision_pts[name], resolution=1e-2, name=name)
 
-    def add_collision_pts(self, pts: np.ndarray):
+    def remove_collision_pts(self, name):
+        del self.all_collision_pts[name]
+        self.planner.remove_point_cloud(name)
+
+    def add_collision_pts(self, pts: np.ndarray, name='scene_pcd'):
         if self.all_collision_pts is None:
-            self.all_collision_pts = pts
+            self.all_collision_pts = dict(name=pts)
         else:
-            self.all_collision_pts = np.vstack([self.all_collision_pts, pts])
-        self.planner.update_point_cloud(self.all_collision_pts, resolution=1e-2)
+            # self.all_collision_pts = np.vstack([self.all_collision_pts, pts])
+            self.all_collision_pts[name] = pts
+        self.planner.update_point_cloud(self.all_collision_pts[name], resolution=1e-2, name=name)
+    
+    def get_all_collision_pts(self):
+        all_points = [pts for pts in self.all_collision_pts.values()]
+        return np.vstack(all_points)
 
     def clear_collisions(self):
         self.all_collision_pts = None
@@ -146,6 +205,33 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
 
     def close(self):
         pass
+
+
+class PandaArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
+    def setup_planner(self):
+        raise NotImplementedError
+        link_names = [link.get_name() for link in self.robot.get_links()]
+        joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
+
+        self.robot_art = ArticulatedModel(
+            str(self.env_agent.urdf_path),
+            str(self.env_agent.urdf_path.replace(".urdf", ".srdf")),
+            link_names=link_names,  # type: ignore
+            joint_names=joint_names,  # type: ignore
+            convex=False,
+            verbose=False,
+        )
+
+        planning_world = SapienPlanningWorld(self.base_env.scene.sub_scenes[0], [self.robot_art])
+        planner = SapienPlanner(
+            planning_world,
+            "panda_hand_tcp",
+            joint_vel_limits=np.ones(7) * self.joint_vel_limits,
+            joint_acc_limits=np.ones(7) * self.joint_acc_limits
+        )
+        
+        planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
+        return planner
 
 class FetchArmMotionPlanningSolver(PandaArmMotionPlanningSolverV2):
     def setup_planner(self):
