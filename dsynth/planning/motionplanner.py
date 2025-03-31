@@ -2,7 +2,7 @@ import mplib
 import numpy as np
 import sapien
 import trimesh
-
+import sapien.physx as physx
 from mani_skill.agents.base_agent import BaseAgent
 from mani_skill.envs.sapien_env import BaseEnv
 from mani_skill.envs.scene import ManiSkillScene
@@ -11,9 +11,13 @@ from mani_skill.examples.motionplanning.panda.motionplanner import (
     build_panda_gripper_grasp_pose_visual,
     PandaArmMotionPlanningSolver
 )
+from mplib.collision_detection.fcl import FCLObject
+from mplib.sapien_utils.conversion import convert_object_name
 from mplib.sapien_utils import SapienPlanner, SapienPlanningWorld
 from mplib.pymp import ArticulatedModel
-import sapien.physx as physx
+
+from dsynth.planning.utils import SapienPlanningWorldV2
+
 OPEN = 1
 CLOSED = -1
 
@@ -33,6 +37,7 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
         self.env = env
         self.base_env: BaseEnv = env.unwrapped
         self.env_agent: BaseAgent = self.base_env.agent
+        self._sim_scene: sapien.Scene = self.base_env.scene.sub_scenes[0]
         self.robot = self.env_agent.robot
         self.joint_vel_limits = joint_vel_limits
         self.joint_acc_limits = joint_acc_limits
@@ -189,7 +194,7 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
 
     def add_collision_pts(self, pts: np.ndarray, name='scene_pcd'):
         if self.all_collision_pts is None:
-            self.all_collision_pts = dict(name=pts)
+            self.all_collision_pts = {name: pts}
         else:
             # self.all_collision_pts = np.vstack([self.all_collision_pts, pts])
             self.all_collision_pts[name] = pts
@@ -208,24 +213,16 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
 
 
 class PandaArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
-    def setup_planner(self):
-        raise NotImplementedError
+    def setup_planner(self, objects = []):
+        # raise NotImplementedError
         link_names = [link.get_name() for link in self.robot.get_links()]
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
 
-        self.robot_art = ArticulatedModel(
-            str(self.env_agent.urdf_path),
-            str(self.env_agent.urdf_path.replace(".urdf", ".srdf")),
-            link_names=link_names,  # type: ignore
-            joint_names=joint_names,  # type: ignore
-            convex=False,
-            verbose=False,
-        )
-
-        planning_world = SapienPlanningWorld(self.base_env.scene.sub_scenes[0], [self.robot_art])
+        planned_articulation = self._sim_scene.get_all_articulations()[0]
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
         planner = SapienPlanner(
             planning_world,
-            "panda_hand_tcp",
+            "scene-0-panda_wristcam_panda_hand_tcp",
             joint_vel_limits=np.ones(7) * self.joint_vel_limits,
             joint_acc_limits=np.ones(7) * self.joint_acc_limits
         )

@@ -24,7 +24,8 @@ from dsynth.planning.solve import (
     solve_panda_pick_cube_test,
     solve_panda_pick_cube_fcl_test,
     solve_panda_pick_cube_sapien_planning,
-    solve_panda_pick_cube_fcl_V2_test
+    solve_panda_pick_cube_fcl_V2_test,
+    solve_panda_pick_to_cart_sapien
 )
 
 
@@ -52,8 +53,8 @@ def parse_args(args=None):
 
 def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     env_id = 'PickToCartEnv'# args.env_id
-    env_id = 'PickCube-v1'
-    env_id = 'PickCubeEnvMPTest'
+    # env_id = 'PickCube-v1'
+    # env_id = 'PickCubeEnvMPTest'
     # env = gym.make(
     #     env_id,
     #     robot_uids='fetch',
@@ -70,7 +71,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     record_dir = scene_dir + '/demos'
     env = gym.make(env_id, 
                    robot_uids='panda_wristcam', 
-                #    config_dir_path = scene_dir,
+                   config_dir_path = scene_dir,
                    num_envs=1, 
                    sim_backend=args.sim_backend,
                    control_mode="pd_joint_pos",
@@ -119,7 +120,9 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
         # res = solve_panda_pick_cube_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_fcl_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_sapien_planning(env, seed=seed, debug=True, vis=True if args.vis else False)
-        res = solve_panda_pick_cube_fcl_V2_test(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_panda_pick_cube_fcl_V2_test(env, seed=seed, debug=True, vis=True if args.vis else False)
+        res = solve_panda_pick_to_cart_sapien(env, seed=seed, debug=True, vis=True if args.vis else False)
+        
         # try:
         # except Exception as e:
         #     print(f"Cannot find valid solution because of an error in motion planning solution: {e}")
