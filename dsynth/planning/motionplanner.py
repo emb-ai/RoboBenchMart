@@ -84,7 +84,7 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
         return planner
     
     def move_to_pose_with_RRTConnect(
-        self, pose: sapien.Pose, dry_run: bool = False, refine_steps: int = 0
+        self, pose: sapien.Pose, dry_run: bool = False, refine_steps: int = 0, mask=None
     ):
         pose = to_sapien_pose(pose)
         if self.grasp_pose_visual is not None:
@@ -99,7 +99,8 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
             verbose=True,
             planning_time=2,
             rrt_range=0.1,
-            simplify=True
+            simplify=True,
+            mask=mask,
             
         )
         if result["status"] != "Success":
@@ -230,84 +231,64 @@ class PandaArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
 
-class FetchArmMotionPlanningSolver(PandaArmMotionPlanningSolverV2):
-    def setup_planner(self):
+class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
+    def setup_planner(self, *args, **kwargs):
         link_names = [link.get_name() for link in self.robot.get_links()]
-        # link_names = [
-        #     'torso_lift_link',
-        #     'shoulder_pan_link',
-        #     'shoulder_lift_link',
-        #     'upperarm_roll_link',
-        #     'elbow_flex_link',
-        #     'forearm_roll_link',
-        #     'wrist_flex_link',
-        #     'wrist_roll_link',
-        #     'gripper_link'
-        # ]
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
-        # joint_names = ['torso_lift_joint', 
-        #                'shoulder_lift_joint', 
-        #                'upperarm_roll_joint', 
-        #                'elbow_flex_joint', 
-        #                'forearm_roll_joint', 
-        #                'wrist_flex_joint', 
-        #                'wrist_roll_joint']
-        planner = mplib.Planner(
-            urdf=self.env_agent.urdf_path,
-            srdf=self.env_agent.urdf_path.replace(".urdf", ".srdf"),
-            user_link_names=link_names,
-            user_joint_names=joint_names,
-            move_group="gripper_link",
-            joint_vel_limits=np.ones(11) * self.joint_vel_limits,
-            joint_acc_limits=np.ones(11) * self.joint_acc_limits,
-            verbose=True
+
+        planned_articulation = self._sim_scene.get_all_articulations()[0]
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planner = SapienPlanner(
+            planning_world,
+            "scene-0-ds_fetch_static_gripper_link",
+            joint_vel_limits=np.ones(8) * self.joint_vel_limits,
+            joint_acc_limits=np.ones(8) * self.joint_acc_limits
         )
+        
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
 
+
+        return planner
+
     def follow_path(self, result, refine_steps: int = 0):
-        self.active_joints = self.robot.get_active_joints()
-        n_step = result["position"].shape[0]
-        for i in range(n_step + refine_steps):
-            qf = self.robot.compute_passive_force(
-                gravity=True, coriolis_and_centrifugal=True
-            )
-
-            self.robot.set_qf(qf)
-            for j in range(len(self.planner.move_group_joint_indices)):
-                self.active_joints[j].set_drive_target(result["position"][i][j])
-                self.active_joints[j].set_drive_velocity_target(
-                    result["velocity"][i][j]
-                )
-            # simulation step
-            self.env.scene.step()
-
-            if self.vis:
-                self.base_env.render_human()
-        return True
-
-    def follow_path_old(self, result, refine_steps: int = 0):
         n_step = result["position"].shape[0]
         for i in range(n_step + refine_steps):
             arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
             body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
             gripper = self.env_agent.controller.controllers['gripper'].qpos[0].cpu().numpy()[0]
-            base_vel = np.array([0, 0])
-
+            
+            print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+            # print("Arm: ", np.round(self.robot.get_qpos().cpu().numpy()[0][self.env_agent.controller.controllers['arm'].active_joint_indices], 4))
             qpos = result["position"][min(i, n_step - 1)]
+            qvel = result["velocity"][min(i, n_step - 1)]
 
             qpos_dict = {}
             for idx, q in zip(self.planner.move_group_joint_indices, qpos):
                 joint_name = self.planner.user_joint_names[idx]
                 qpos_dict[joint_name] = q
-            
+            print("qpos mp", np.round(qpos, 4))
             for n, joint_name in enumerate(self.env_agent.controller.controllers['arm'].config.joint_names):
-                arm_action[n] = qpos_dict[joint_name]
+                arm_action[n] = qpos_dict[f'scene-0-ds_fetch_static_{joint_name}']
             
-            body_action[2] = qpos_dict['torso_lift_joint']
+            # body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint'] - body_action[2]
+            # body_action[2] *= 10.
+            body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint']
+
+            base_vel = np.array([0., 0.])
+            # base_vel[0] = np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
+
+            phi = self.robot.get_qpos().cpu().numpy()[0, 2]
+            base_vel[0] = qvel[0] * np.cos(phi) + qvel[1] * np.sin(phi)
+
+            base_vel[1] = qvel[2]
 
             assert self.control_mode == "pd_joint_pos"
-            action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
+            # action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
+            action = np.hstack([arm_action, self.gripper_state, body_action])
+            print("arm Action:", np.round(arm_action, 4))
+            print("body Action:", np.round(body_action, 4))
+            # print("base Action:", np.round(base_vel, 4))
 
             obs, reward, terminated, truncated, info = self.env.step(action)
             self.elapsed_steps += 1
@@ -345,7 +326,8 @@ class FetchArmMotionPlanningSolver(PandaArmMotionPlanningSolverV2):
 
         for i in range(t):
             if self.control_mode == "pd_joint_pos":
-                action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
+                # action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
+                action = np.hstack([arm_action, self.gripper_state, body_action])
             else:
                 raise NotImplementedError
             obs, reward, terminated, truncated, info = self.env.step(action)

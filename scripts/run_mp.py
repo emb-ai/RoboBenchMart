@@ -17,9 +17,11 @@ from mplib.collision_detection import fcl
 import sys
 sys.path.append('.')
 from dsynth.envs.pick_to_cart import PickToCartEnv
-from dsynth.envs.pickcube_mptest import PickCubeEnvMPTest
+from dsynth.envs.pickcube_mptest import PickCubeEnvMPTest, PickCubeEnvDSynth
+from dsynth.robots.ds_fetch import DSFetchStatic
+
 from dsynth.planning.solve import (
-    solve_fetch_pick_cube, 
+    solve_fetch_static_pick_cube, 
     solve_panda_pick_to_cart, 
     solve_panda_pick_cube_test,
     solve_panda_pick_cube_fcl_test,
@@ -53,8 +55,9 @@ def parse_args(args=None):
 
 def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     env_id = 'PickToCartEnv'# args.env_id
-    # env_id = 'PickCube-v1'
+    env_id = 'PickCube-v1'
     # env_id = 'PickCubeEnvMPTest'
+    env_id = 'PickCubeEnvDSynth'
     # env = gym.make(
     #     env_id,
     #     robot_uids='fetch',
@@ -70,10 +73,11 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     scene_dir = 'generated_envs/one_milk/'
     record_dir = scene_dir + '/demos'
     env = gym.make(env_id, 
-                   robot_uids='panda_wristcam', 
-                   config_dir_path = scene_dir,
+                #    robot_uids='panda_wristcam', 
+                    robot_uids='ds_fetch_static',
+                #    config_dir_path = scene_dir,
                    num_envs=1, 
-                   sim_backend=args.sim_backend,
+                #    sim_backend=args.sim_backend,
                    control_mode="pd_joint_pos",
                    viewer_camera_configs={'shader_pack': args.shader}, 
                     human_render_camera_configs={'shader_pack': args.shader},
@@ -116,12 +120,12 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     passed = 0
     while True:
         # res = solve_panda_pick_to_cart(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_fetch_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
+        res = solve_fetch_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_fcl_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_sapien_planning(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_fcl_V2_test(env, seed=seed, debug=True, vis=True if args.vis else False)
-        res = solve_panda_pick_to_cart_sapien(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_panda_pick_to_cart_sapien(env, seed=seed, debug=True, vis=True if args.vis else False)
         
         # try:
         # except Exception as e:

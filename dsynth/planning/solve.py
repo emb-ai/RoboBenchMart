@@ -8,6 +8,7 @@ import numpy as np
 from tqdm import tqdm
 import os.path as osp
 import numpy as np
+np.set_printoptions(suppress=True)
 import mplib
 from mplib.sapien_utils.conversion import convert_object_name
 from mplib.collision_detection.fcl import CollisionGeometry
@@ -44,7 +45,7 @@ from dsynth.envs.pick_to_cart import PickToCartEnv
 from dsynth.planning.motionplanner import (
     PandaArmMotionPlanningSolverV2, 
     PandaArmMotionPlanningSapienSolver,
-    FetchArmMotionPlanningSolver
+    FetchStaticArmMotionPlanningSapienSolver
 )
 from dsynth.planning.utils import (
     get_fcl_object_name, 
@@ -777,7 +778,7 @@ def solve_panda_pick_to_cart_sapien(env: PickToCartEnv, seed=None, debug=False, 
     # Reach
     # -------------------------------------------------------------------------- #
 
-    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.15])
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.2])
     res = planner.move_to_pose_with_RRTConnect(reach_pose)
     planner.planner.update_from_simulation()
 
@@ -837,9 +838,9 @@ def solve_panda_pick_to_cart_sapien(env: PickToCartEnv, seed=None, debug=False, 
 
 
 
-def solve_fetch_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
+def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
     env.reset(seed=seed)
-    planner = FetchArmMotionPlanningSolver(
+    planner = FetchStaticArmMotionPlanningSapienSolver(
         env,
         debug=debug,
         vis=vis,
@@ -848,9 +849,23 @@ def solve_fetch_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
         print_env_info=False,
     )
 
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+            'scene-0-ds_fetch_static_r_wheel_link', 'scene-0_ground_31', True
+        )
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+            'scene-0-ds_fetch_static_l_wheel_link', 'scene-0_ground_31', True
+        )
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+            'scene-0-ds_fetch_static_base_link', 'scene-0_table-workspace_30', True
+        )
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+            'scene-0-ds_fetch_static_laser_link', 'scene-0_table-workspace_30', True
+        )
+
+
     FINGER_LENGTH = 0.025
     env = env.unwrapped
-
+    
     # retrieves the object oriented bounding box (trimesh box object)
     obb = get_actor_obb(env.cube)
 
@@ -872,9 +887,16 @@ def solve_fetch_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     # reach_pose = grasp_pose * sapien.Pose([0, 0, -0.2])
     reach_pose = grasp_pose * sapien.Pose([0.30, 0, 0])
-    reach_pose = env.agent.tcp.pose * sapien.Pose([0.0, 0, -0.20])
-    planner.move_to_pose_with_screw(reach_pose)
+    reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  0.10, 0.10])
+    # reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  -0.00, -0.10])
+    # planner.move_to_pose_with_RRTConnect(reach_pose, mask=[True, True, True, False, False, False, False, False, False, False, False, False, False, False, False])
+    # planner.move_to_pose_with_screw(reach_pose)
+    planner.move_to_pose_with_RRTConnect(reach_pose)
+    planner.planner.update_from_simulation()
+    
     res = planner.close_gripper()
+    planner.planner.update_from_simulation()
+
     planner.render_wait()
     return res
     # -------------------------------------------------------------------------- #

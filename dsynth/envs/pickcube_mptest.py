@@ -3,6 +3,8 @@ from typing import Any, Dict, Union
 import numpy as np
 import sapien
 import torch
+from transforms3d.euler import euler2quat
+
 
 import mani_skill.envs.utils.randomization as randomization
 from mani_skill.agents.robots import Fetch, Panda, XArm6Robotiq
@@ -14,6 +16,7 @@ from mani_skill.utils.registration import register_env
 from mani_skill.utils.scene_builder.table import TableSceneBuilder
 from mani_skill.utils.structs.pose import Pose
 from mani_skill.envs.tasks.tabletop.pick_cube import PickCubeEnv
+from mani_skill.agents.robots.fetch import FETCH_WHEELS_COLLISION_BIT
 
 @register_env("PickCubeEnvMPTest", max_episode_steps=50)
 class PickCubeEnvMPTest(PickCubeEnv):
@@ -117,5 +120,62 @@ class PickCubeEnvMPTest(PickCubeEnv):
                 ]
             )
             self.agent.reset(qpos)
-            
 
+# TODO (stao): make the build and initialize api consistent with other scenes
+class TableSceneBuilderDSynth(TableSceneBuilder):
+    def initialize(self, env_idx: torch.Tensor):
+        # table_height = 0.9196429
+        b = len(env_idx)
+        self.table.set_pose(
+            sapien.Pose(p=[-0.12, 0, -0.9196429], q=euler2quat(0, 0, np.pi / 2))
+        )
+        if self.env.robot_uids == "ds_fetch_static":
+            qpos = np.array(
+                [
+                    0.386,
+                    0,
+                    0,
+                    0,
+                    -np.pi / 4,
+                    0,
+                    np.pi / 4,
+                    0,
+                    np.pi / 3,
+                    0,
+                    0.015,
+                    0.015,
+                ]
+            )
+            self.env.agent.reset(qpos)
+            self.env.agent.robot.set_pose(sapien.Pose([-1.05, 0, -self.table_height]))
+
+            self.ground.set_collision_group_bit(
+                group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
+            )
+        else:
+            raise NotImplementedError
+
+@register_env("PickCubeEnvDSynth", max_episode_steps=50)
+class PickCubeEnvDSynth(PickCubeEnv):
+    def _load_scene(self, options: dict):
+        self.table_scene = TableSceneBuilderDSynth(
+            self, robot_init_qpos_noise=self.robot_init_qpos_noise
+        )
+        self.table_scene.build()
+        self.cube = actors.build_cube(
+            self.scene,
+            half_size=self.cube_half_size,
+            color=[1, 0, 0, 1],
+            name="cube",
+            initial_pose=sapien.Pose(p=[0, 0, self.cube_half_size]),
+        )
+        self.goal_site = actors.build_sphere(
+            self.scene,
+            radius=self.goal_thresh,
+            color=[0, 1, 0, 1],
+            name="goal_site",
+            body_type="kinematic",
+            add_collision=False,
+            initial_pose=sapien.Pose(),
+        )
+        self._hidden_objects.append(self.goal_site)
