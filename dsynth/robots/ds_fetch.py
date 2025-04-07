@@ -16,224 +16,6 @@ class DSFetch(Fetch):
     uid = "ds_fetch"
     urdf_path = f"{PACKAGE_DIR}/assets/urdf/fetch/fetch.urdf"
 
-    @property
-    def _controller_configs(self):
-        # -------------------------------------------------------------------------- #
-        # Arm
-        # -------------------------------------------------------------------------- #
-        arm_pd_joint_pos = PDJointPosControllerConfig(
-            self.arm_joint_names,
-            None,
-            None,
-            self.arm_stiffness,
-            self.arm_damping,
-            self.arm_force_limit,
-            normalize_action=False,
-        )
-        arm_pd_joint_delta_pos = PDJointPosControllerConfig(
-            self.arm_joint_names,
-            -0.1,
-            0.1,
-            self.arm_stiffness,
-            self.arm_damping,
-            self.arm_force_limit,
-            use_delta=True,
-        )
-        arm_pd_joint_target_delta_pos = deepcopy(arm_pd_joint_delta_pos)
-        arm_pd_joint_target_delta_pos.use_target = True
-
-        # PD ee position
-        arm_pd_ee_delta_pos = PDEEPosControllerConfig(
-            joint_names=self.arm_joint_names,
-            pos_lower=-0.1,
-            pos_upper=0.1,
-            stiffness=self.arm_stiffness,
-            damping=self.arm_damping,
-            force_limit=self.arm_force_limit,
-            ee_link=self.ee_link_name,
-            urdf_path=self.urdf_path,
-        )
-        arm_pd_ee_delta_pose = PDEEPoseControllerConfig(
-            joint_names=self.arm_joint_names,
-            pos_lower=-0.1,
-            pos_upper=0.1,
-            rot_lower=-0.1,
-            rot_upper=0.1,
-            stiffness=self.arm_stiffness,
-            damping=self.arm_damping,
-            force_limit=self.arm_force_limit,
-            ee_link=self.ee_link_name,
-            urdf_path=self.urdf_path,
-        )
-
-        arm_pd_ee_target_delta_pos = deepcopy(arm_pd_ee_delta_pos)
-        arm_pd_ee_target_delta_pos.use_target = True
-        arm_pd_ee_target_delta_pose = deepcopy(arm_pd_ee_delta_pose)
-        arm_pd_ee_target_delta_pose.use_target = True
-
-        # PD ee position (for human-interaction/teleoperation)
-        arm_pd_ee_delta_pose_align = deepcopy(arm_pd_ee_delta_pose)
-        arm_pd_ee_delta_pose_align.frame = "ee_align"
-
-        # PD joint velocity
-        arm_pd_joint_vel = PDJointVelControllerConfig(
-            self.arm_joint_names,
-            -1.0,
-            1.0,
-            self.arm_damping,  # this might need to be tuned separately
-            self.arm_force_limit,
-        )
-
-        # PD joint position and velocity
-        arm_pd_joint_pos_vel = PDJointPosVelControllerConfig(
-            self.arm_joint_names,
-            None,
-            None,
-            self.arm_stiffness,
-            self.arm_damping,
-            self.arm_force_limit,
-            normalize_action=True,
-        )
-        arm_pd_joint_delta_pos_vel = PDJointPosVelControllerConfig(
-            self.arm_joint_names,
-            -0.1,
-            0.1,
-            self.arm_stiffness,
-            self.arm_damping,
-            self.arm_force_limit,
-            use_delta=True,
-        )
-
-        # -------------------------------------------------------------------------- #
-        # Gripper
-        # -------------------------------------------------------------------------- #
-        # NOTE(jigu): IssacGym uses large P and D but with force limit
-        # However, tune a good force limit to have a good mimic behavior
-        gripper_pd_joint_pos = PDJointPosMimicControllerConfig(
-            self.gripper_joint_names,
-            -0.01,  # a trick to have force when the object is thin
-            0.05,
-            self.gripper_stiffness,
-            self.gripper_damping,
-            self.gripper_force_limit,
-        )
-
-        # -------------------------------------------------------------------------- #
-        # Body
-        # -------------------------------------------------------------------------- #
-        body_pd_joint_delta_pos = PDJointPosControllerConfig(
-            self.body_joint_names,
-            -0.1,
-            0.1,
-            self.body_stiffness,
-            self.body_damping,
-            self.body_force_limit,
-            use_delta=True,
-        )
-
-        # useful to keep body unmoving from passed position
-        stiff_body_pd_joint_pos = PDJointPosControllerConfig(
-            self.body_joint_names,
-            None,
-            None,
-            1e5,
-            1e5,
-            1e5,
-            normalize_action=False,
-        )
-
-        # -------------------------------------------------------------------------- #
-        # Base
-        # -------------------------------------------------------------------------- #
-        base_pd_joint_vel = PDBaseForwardVelControllerConfig(
-            self.base_joint_names,
-            lower=[-1, -3.14],
-            upper=[1, 3.14],
-            damping=1000,
-            force_limit=500,
-        )
-
-        controller_configs = dict(
-            pd_joint_delta_pos=dict(
-                arm=arm_pd_joint_delta_pos,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_joint_pos=dict(
-                arm=arm_pd_joint_pos,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_ee_delta_pos=dict(
-                arm=arm_pd_ee_delta_pos,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_ee_delta_pose=dict(
-                arm=arm_pd_ee_delta_pose,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_ee_delta_pose_align=dict(
-                arm=arm_pd_ee_delta_pose_align,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            # TODO(jigu): how to add boundaries for the following controllers
-            pd_joint_target_delta_pos=dict(
-                arm=arm_pd_joint_target_delta_pos,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_ee_target_delta_pos=dict(
-                arm=arm_pd_ee_target_delta_pos,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_ee_target_delta_pose=dict(
-                arm=arm_pd_ee_target_delta_pose,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            # Caution to use the following controllers
-            pd_joint_vel=dict(
-                arm=arm_pd_joint_vel,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_joint_pos_vel=dict(
-                arm=arm_pd_joint_pos_vel,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_joint_delta_pos_vel=dict(
-                arm=arm_pd_joint_delta_pos_vel,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-            pd_joint_delta_pos_stiff_body=dict(
-                arm=arm_pd_joint_delta_pos,
-                gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
-                base=base_pd_joint_vel,
-            ),
-        )
-
-        # Make a deepcopy in case users modify any config
-        return deepcopy_dict(controller_configs)
-
-
 @register_agent()
 class DSFetchStatic(Fetch):
     uid = "ds_fetch_static"
@@ -466,69 +248,69 @@ class DSFetchStatic(Fetch):
             pd_joint_delta_pos=dict(
                 arm=arm_pd_joint_delta_pos,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_joint_pos=dict(
                 arm=arm_pd_joint_pos,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_ee_delta_pos=dict(
                 arm=arm_pd_ee_delta_pos,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_ee_delta_pose=dict(
                 arm=arm_pd_ee_delta_pose,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_ee_delta_pose_align=dict(
                 arm=arm_pd_ee_delta_pose_align,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             # TODO(jigu): how to add boundaries for the following controllers
             pd_joint_target_delta_pos=dict(
                 arm=arm_pd_joint_target_delta_pos,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_ee_target_delta_pos=dict(
                 arm=arm_pd_ee_target_delta_pos,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_ee_target_delta_pose=dict(
                 arm=arm_pd_ee_target_delta_pose,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             # Caution to use the following controllers
             pd_joint_vel=dict(
                 arm=arm_pd_joint_vel,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_joint_pos_vel=dict(
                 arm=arm_pd_joint_pos_vel,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_joint_delta_pos_vel=dict(
                 arm=arm_pd_joint_delta_pos_vel,
                 gripper=gripper_pd_joint_pos,
-                body=stiff_body_pd_joint_pos,
+                body=body_pd_joint_delta_pos,
                 # base=base_pd_joint_vel,
             ),
             pd_joint_delta_pos_stiff_body=dict(

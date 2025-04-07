@@ -271,9 +271,9 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
             for n, joint_name in enumerate(self.env_agent.controller.controllers['arm'].config.joint_names):
                 arm_action[n] = qpos_dict[f'scene-0-ds_fetch_static_{joint_name}']
             
-            # body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint'] - body_action[2]
+            body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint'] - body_action[2]
             # body_action[2] *= 10.
-            body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint']
+            # body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint']
 
             base_vel = np.array([0., 0.])
             # base_vel[0] = np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
@@ -298,7 +298,25 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
                 )
             if self.vis:
                 self.base_env.render_human()
+
+        while not self.check_body_close_to_target(qpos_dict['scene-0-ds_fetch_static_torso_lift_joint']):
+            body_action[2] = body_action[2]
+            action = np.hstack([arm_action, self.gripper_state, body_action])
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            self.elapsed_steps += 1
+            if self.print_env_info:
+                print(
+                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
+                )
+            if self.vis:
+                self.base_env.render_human()
+
         return obs, reward, terminated, truncated, info
+
+    def check_body_close_to_target(self, target, eps=5e-3):
+        body_qpos = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
+        return np.allclose(body_qpos[2], target, atol=eps)
+
     
     def open_gripper(self):
         self.gripper_state = OPEN
@@ -321,7 +339,7 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
     def close_gripper(self, t=6, gripper_state = CLOSED):
         self.gripper_state = gripper_state
         arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
-        body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
+        body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
         base_vel = np.array([0, 0])
 
         for i in range(t):

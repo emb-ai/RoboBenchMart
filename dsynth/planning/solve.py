@@ -863,7 +863,7 @@ def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=F
         )
 
 
-    FINGER_LENGTH = 0.025
+    FINGER_LENGTH = 0.07
     env = env.unwrapped
     
     # retrieves the object oriented bounding box (trimesh box object)
@@ -881,27 +881,47 @@ def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=F
     )
     closing, center = grasp_info["closing"], grasp_info["center"]
     grasp_pose = env.agent.build_grasp_pose(approaching, closing, env.cube.pose.sp.p)
+    grasp_pose = grasp_pose * sapien.Pose([0, 0, -0.02])
 
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    # reach_pose = grasp_pose * sapien.Pose([0, 0, -0.2])
-    reach_pose = grasp_pose * sapien.Pose([0.30, 0, 0])
-    reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  0.10, 0.10])
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
+    # reach_pose = grasp_pose * sapien.Pose([0.30, 0, 0])
+    # reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  0.10, 0.10])
     # reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  -0.00, -0.10])
     # planner.move_to_pose_with_RRTConnect(reach_pose, mask=[True, True, True, False, False, False, False, False, False, False, False, False, False, False, False])
     # planner.move_to_pose_with_screw(reach_pose)
     planner.move_to_pose_with_RRTConnect(reach_pose)
     planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Grasp
+    # -------------------------------------------------------------------------- #
+
+    planner.move_to_pose_with_RRTConnect(grasp_pose)
+    planner.planner.update_from_simulation()
     
     res = planner.close_gripper()
+    planner.planner.update_from_simulation()
+    
+    kwargs = {"name": get_fcl_object_name(env.cube), "art_name": 'scene-0_ds_fetch_static_1', "link_id": planner.planner.move_group_link_id}
+    planner.planner.planning_world.attach_object(**kwargs)
+    planner.planner.update_from_simulation()
+
+    planner.move_to_pose_with_RRTConnect(reach_pose)
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Move to goal pose
+    # -------------------------------------------------------------------------- #
+    goal_pose = sapien.Pose(env.goal_site.pose.sp.p, grasp_pose.q)
+    planner.move_to_pose_with_RRTConnect(goal_pose)
     planner.planner.update_from_simulation()
 
     planner.render_wait()
     return res
-    # -------------------------------------------------------------------------- #
-    # Grasp
-    # -------------------------------------------------------------------------- #
+    
     planner.move_to_pose_with_screw(grasp_pose)
     planner.close_gripper()
 

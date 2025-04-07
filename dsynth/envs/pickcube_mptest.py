@@ -179,3 +179,22 @@ class PickCubeEnvDSynth(PickCubeEnv):
             initial_pose=sapien.Pose(),
         )
         self._hidden_objects.append(self.goal_site)
+
+    def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
+        with torch.device(self.device):
+            b = len(env_idx)
+            self.table_scene.initialize(env_idx)
+            xyz = torch.zeros((b, 3))
+            xyz[:, :2] = torch.rand((b, 2)) * 0.02
+            xyz[:, 0] -= 0.3
+            xyz[:, 2] = self.cube_half_size
+            qs = randomization.random_quaternions(b, lock_x=True, lock_y=True)
+            self.cube.set_pose(Pose.create_from_pq(xyz, qs))
+
+            goal_xyz = torch.zeros((b, 3))
+            goal_xyz[:, :2] = torch.rand((b, 2)) * 0.02 - 0.1
+            goal_xyz[:, 0] -= 0.3
+            goal_xyz[:, 2] = torch.rand((b)) * 0.3 + xyz[:, 2]
+            self.goal_site.set_pose(Pose.create_from_pq(goal_xyz))
+
+

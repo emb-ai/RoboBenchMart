@@ -58,17 +58,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     env_id = 'PickCube-v1'
     # env_id = 'PickCubeEnvMPTest'
     env_id = 'PickCubeEnvDSynth'
-    # env = gym.make(
-    #     env_id,
-    #     robot_uids='fetch',
-    #     obs_mode=args.obs_mode,
-    #     control_mode="pd_joint_pos",
-    #     render_mode=args.render_mode,
-    #     sensor_configs=dict(shader_pack=args.shader),
-    #     human_render_camera_configs=dict(shader_pack=args.shader),
-    #     viewer_camera_configs=dict(shader_pack=args.shader),
-    #     sim_backend=args.sim_backend
-    # )
+
     scene_dir = 'generated_envs/mp_test/'
     scene_dir = 'generated_envs/one_milk/'
     record_dir = scene_dir + '/demos'
