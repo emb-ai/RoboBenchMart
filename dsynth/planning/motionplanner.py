@@ -1,5 +1,6 @@
 import mplib
 import numpy as np
+from collections import deque
 import sapien
 import trimesh
 import sapien.physx as physx
@@ -256,10 +257,7 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
         for i in range(n_step + refine_steps):
             arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
             body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
-            gripper = self.env_agent.controller.controllers['gripper'].qpos[0].cpu().numpy()[0]
             
-            print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
-            # print("Arm: ", np.round(self.robot.get_qpos().cpu().numpy()[0][self.env_agent.controller.controllers['arm'].active_joint_indices], 4))
             qpos = result["position"][min(i, n_step - 1)]
             qvel = result["velocity"][min(i, n_step - 1)]
 
@@ -267,55 +265,54 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
             for idx, q in zip(self.planner.move_group_joint_indices, qpos):
                 joint_name = self.planner.user_joint_names[idx]
                 qpos_dict[joint_name] = q
-            print("qpos mp", np.round(qpos, 4))
+
             for n, joint_name in enumerate(self.env_agent.controller.controllers['arm'].config.joint_names):
                 arm_action[n] = qpos_dict[f'scene-0-ds_fetch_static_{joint_name}']
-            
-            body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint'] - body_action[2]
-            # body_action[2] *= 10.
-            # body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint']
-
-            base_vel = np.array([0., 0.])
-            # base_vel[0] = np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
-
-            phi = self.robot.get_qpos().cpu().numpy()[0, 2]
-            base_vel[0] = qvel[0] * np.cos(phi) + qvel[1] * np.sin(phi)
-
-            base_vel[1] = qvel[2]
 
             assert self.control_mode == "pd_joint_pos"
-            # action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
-            action = np.hstack([arm_action, self.gripper_state, body_action])
-            print("arm Action:", np.round(arm_action, 4))
-            print("body Action:", np.round(body_action, 4))
-            # print("base Action:", np.round(base_vel, 4))
+            last_poses = deque(maxlen=10)
+            lift_step = 1.
+            while not (self.check_body_close_to_target(qpos_dict) \
+                       and (len(last_poses) > 1 and np.std(last_poses) < 1e-2)):
+                print("arm Action:", np.round(arm_action, 4))
+                print("body Action:", np.round(body_action, 4))
+                print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+                body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
+                body_action[2] = (qpos_dict['scene-0-ds_fetch_static_torso_lift_joint'] - body_action[2]) * lift_step
+                body_action[0] = body_action[1] = 0.
+                last_poses.append(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2])
 
-            obs, reward, terminated, truncated, info = self.env.step(action)
-            self.elapsed_steps += 1
-            if self.print_env_info:
-                print(
-                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
-                )
-            if self.vis:
-                self.base_env.render_human()
+                action = np.hstack([arm_action, self.gripper_state, body_action])
+                obs, reward, terminated, truncated, info = self.env.step(action)
+                self.elapsed_steps += 1
+                if self.print_env_info:
+                    print(
+                        f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
+                    )
+                if self.vis:
+                    self.base_env.render_human()
 
-        while not self.check_body_close_to_target(qpos_dict['scene-0-ds_fetch_static_torso_lift_joint']):
-            body_action[2] = body_action[2]
-            action = np.hstack([arm_action, self.gripper_state, body_action])
-            obs, reward, terminated, truncated, info = self.env.step(action)
-            self.elapsed_steps += 1
-            if self.print_env_info:
-                print(
-                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
-                )
-            if self.vis:
-                self.base_env.render_human()
+                lift_step *= 1.8
+
 
         return obs, reward, terminated, truncated, info
 
-    def check_body_close_to_target(self, target, eps=5e-3):
-        body_qpos = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
-        return np.allclose(body_qpos[2], target, atol=eps)
+    def check_body_close_to_target(self, target_dict, eps=1e-2):
+        body_qpos = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2]
+        target_lift_joint_height = target_dict['scene-0-ds_fetch_static_torso_lift_joint']
+        robot_qpos = self.robot.get_qpos().cpu().numpy()[0]
+        arm_pos = robot_qpos[self.env_agent.controller.controllers['arm'].active_joint_indices.cpu().numpy()]
+        target_arm_pos = np.array([
+            target_dict['scene-0-ds_fetch_static_shoulder_pan_joint'],
+            target_dict['scene-0-ds_fetch_static_shoulder_lift_joint'],
+            target_dict['scene-0-ds_fetch_static_upperarm_roll_joint'],
+            target_dict['scene-0-ds_fetch_static_elbow_flex_joint'],
+            target_dict['scene-0-ds_fetch_static_forearm_roll_joint'],
+            target_dict['scene-0-ds_fetch_static_wrist_flex_joint'],
+            target_dict['scene-0-ds_fetch_static_wrist_roll_joint']
+        ])
+        return np.allclose(body_qpos, target_lift_joint_height, atol=eps) and \
+            np.allclose(arm_pos, target_arm_pos, atol=eps)
 
     
     def open_gripper(self):

@@ -887,12 +887,7 @@ def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=F
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
-    # reach_pose = grasp_pose * sapien.Pose([0.30, 0, 0])
-    # reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  0.10, 0.10])
-    # reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  -0.00, -0.10])
-    # planner.move_to_pose_with_RRTConnect(reach_pose, mask=[True, True, True, False, False, False, False, False, False, False, False, False, False, False, False])
-    # planner.move_to_pose_with_screw(reach_pose)
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.05])
     planner.move_to_pose_with_RRTConnect(reach_pose)
     planner.planner.update_from_simulation()
 
@@ -900,7 +895,7 @@ def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=F
     # Grasp
     # -------------------------------------------------------------------------- #
 
-    planner.move_to_pose_with_RRTConnect(grasp_pose)
+    planner.move_to_pose_with_screw(grasp_pose)
     planner.planner.update_from_simulation()
     
     res = planner.close_gripper()
@@ -910,7 +905,7 @@ def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=F
     planner.planner.planning_world.attach_object(**kwargs)
     planner.planner.update_from_simulation()
 
-    planner.move_to_pose_with_RRTConnect(reach_pose)
+    planner.move_to_pose_with_screw(reach_pose)
     planner.planner.update_from_simulation()
 
     # -------------------------------------------------------------------------- #

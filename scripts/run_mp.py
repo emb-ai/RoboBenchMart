@@ -65,7 +65,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     record_dir = scene_dir + '/demos'
     env = gym.make(env_id, 
                 #    robot_uids='panda_wristcam', 
-                    robot_uids='ds_fetch_quasi_static',
+                    robot_uids='ds_fetch_static',
                 #    config_dir_path = scene_dir,
                    num_envs=1, 
                 #    sim_backend=args.sim_backend,
@@ -111,13 +111,13 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     passed = 0
     while True:
         # res = solve_panda_pick_to_cart(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_fetch_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
+        res = solve_fetch_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_fcl_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_sapien_planning(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_fcl_V2_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_to_cart_sapien(env, seed=seed, debug=True, vis=True if args.vis else False)
-        res = solve_fetch_quasi_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_fetch_quasi_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
         # try:
         # except Exception as e:
         #     print(f"Cannot find valid solution because of an error in motion planning solution: {e}")

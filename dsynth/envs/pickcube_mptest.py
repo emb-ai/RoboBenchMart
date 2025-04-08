@@ -155,7 +155,7 @@ class TableSceneBuilderDSynth(TableSceneBuilder):
         elif self.env.robot_uids == "ds_fetch_quasi_static":
             qpos = np.array(
                 [
-                    -0.5,
+                    -0.01,
                     0.386,
                     0,
                     0,
@@ -217,8 +217,9 @@ class PickCubeEnvDSynth(PickCubeEnv):
 
             goal_xyz = torch.zeros((b, 3))
             goal_xyz[:, :2] = torch.rand((b, 2)) * 0.02 - 0.1
-            goal_xyz[:, 0] -= 0.3
-            goal_xyz[:, 2] = torch.rand((b)) * 0.3 + xyz[:, 2]
+            goal_xyz[:, 0] -= 0.2
+            # goal_xyz[:, 1] -= 0.2
+            goal_xyz[:, 2] = torch.rand((b)) * 0.1 + xyz[:, 2]
             self.goal_site.set_pose(Pose.create_from_pq(goal_xyz))
 
 
