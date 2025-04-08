@@ -45,7 +45,8 @@ from dsynth.envs.pick_to_cart import PickToCartEnv
 from dsynth.planning.motionplanner import (
     PandaArmMotionPlanningSolverV2, 
     PandaArmMotionPlanningSapienSolver,
-    FetchStaticArmMotionPlanningSapienSolver
+    FetchStaticArmMotionPlanningSapienSolver,
+    FetchQuasiStaticArmMotionPlanningSapienSolver
 )
 from dsynth.planning.utils import (
     get_fcl_object_name, 
@@ -922,14 +923,88 @@ def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=F
     planner.render_wait()
     return res
     
-    planner.move_to_pose_with_screw(grasp_pose)
-    planner.close_gripper()
+
+
+def solve_fetch_quasi_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
+    env.reset(seed=seed)
+    planner = FetchQuasiStaticArmMotionPlanningSapienSolver(
+        env,
+        debug=debug,
+        vis=vis,
+        base_pose=env.unwrapped.agent.robot.pose,
+        visualize_target_grasp_pose=vis,
+        print_env_info=False,
+    )
+
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+            'scene-0-ds_fetch_quasi_static_r_wheel_link', 'scene-0_ground_31', True
+        )
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+            'scene-0-ds_fetch_quasi_static_l_wheel_link', 'scene-0_ground_31', True
+        )
+    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+    #         'scene-0-ds_fetch_quasi_static_base_link', 'scene-0_table-workspace_30', True
+    #     )
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+            'scene-0-ds_fetch_quasi_static_laser_link', 'scene-0_table-workspace_30', True
+        )
+
+
+    FINGER_LENGTH = 0.07
+    env = env.unwrapped
+    
+    # retrieves the object oriented bounding box (trimesh box object)
+    obb = get_actor_obb(env.cube)
+
+    approaching = np.array([0, 0, -1])
+    # get transformation matrix of the tcp pose, is default batched and on torch
+    target_closing = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    # we can build a simple grasp pose using this information for Panda
+    grasp_info = compute_grasp_info_by_obb(
+        obb,
+        approaching=approaching,
+        target_closing=target_closing,
+        depth=FINGER_LENGTH,
+    )
+    closing, center = grasp_info["closing"], grasp_info["center"]
+    grasp_pose = env.agent.build_grasp_pose(approaching, closing, env.cube.pose.sp.p)
+    grasp_pose = grasp_pose * sapien.Pose([0, 0, -0.02])
+
+    # -------------------------------------------------------------------------- #
+    # Reach
+    # -------------------------------------------------------------------------- #
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
+    # reach_pose = grasp_pose * sapien.Pose([0.30, 0, 0])
+    reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  0.10, 0.10])
+    # reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  -0.00, -0.10])
+    # planner.move_to_pose_with_RRTConnect(reach_pose, mask=[True, True, True, False, False, False, False, False, False, False, False, False, False, False, False])
+    # planner.move_to_pose_with_screw(reach_pose)
+    planner.move_to_pose_with_RRTConnect(reach_pose)
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Grasp
+    # -------------------------------------------------------------------------- #
+
+    planner.move_to_pose_with_RRTConnect(grasp_pose)
+    planner.planner.update_from_simulation()
+    
+    res = planner.close_gripper()
+    planner.planner.update_from_simulation()
+    
+    kwargs = {"name": get_fcl_object_name(env.cube), "art_name": 'scene-0_ds_fetch_quasi_static_1', "link_id": planner.planner.move_group_link_id}
+    planner.planner.planning_world.attach_object(**kwargs)
+    planner.planner.update_from_simulation()
+
+    planner.move_to_pose_with_RRTConnect(reach_pose)
+    planner.planner.update_from_simulation()
 
     # -------------------------------------------------------------------------- #
     # Move to goal pose
     # -------------------------------------------------------------------------- #
     goal_pose = sapien.Pose(env.goal_site.pose.sp.p, grasp_pose.q)
-    res = planner.move_to_pose_with_screw(goal_pose)
+    planner.move_to_pose_with_RRTConnect(goal_pose)
+    planner.planner.update_from_simulation()
 
-    planner.close()
+    planner.render_wait()
     return res

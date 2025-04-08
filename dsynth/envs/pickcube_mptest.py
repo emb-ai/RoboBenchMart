@@ -152,6 +152,30 @@ class TableSceneBuilderDSynth(TableSceneBuilder):
             self.ground.set_collision_group_bit(
                 group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
             )
+        elif self.env.robot_uids == "ds_fetch_quasi_static":
+            qpos = np.array(
+                [
+                    -0.5,
+                    0.386,
+                    0,
+                    0,
+                    0,
+                    -np.pi / 4,
+                    0,
+                    np.pi / 4,
+                    0,
+                    np.pi / 3,
+                    0,
+                    0.015,
+                    0.015,
+                ]
+            )
+            self.env.agent.reset(qpos)
+            self.env.agent.robot.set_pose(sapien.Pose([-1.05, 0, -self.table_height]))
+
+            self.ground.set_collision_group_bit(
+                group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
+            )
         else:
             raise NotImplementedError
 
