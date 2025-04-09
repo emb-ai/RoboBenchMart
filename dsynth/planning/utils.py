@@ -9,6 +9,7 @@ from tqdm import tqdm
 import os.path as osp
 import numpy as np
 from transforms3d.euler import euler2quat
+from typing import Callable
 import mplib
 from mplib.sapien_utils.conversion import convert_object_name
 from mplib.collision_detection.fcl import CollisionGeometry
@@ -268,3 +269,78 @@ class SapienPlanningWorldV2(SapienPlanningWorld):
             shapes,
             shape_poses,
         )
+    
+class SapienPlannerV2(SapienPlanner):
+    def plan_pose(
+        self,
+        goal_pose: mplib.Pose,
+        current_qpos: np.ndarray,
+        mask: Optional[list[bool] | np.ndarray] = None,
+        *,
+        time_step: float = 0.1,
+        rrt_range: float = 0.1,
+        planning_time: float = 1,
+        fix_joint_limits: bool = True,
+        wrt_world: bool = True,
+        simplify: bool = True,
+        constraint_function: Optional[Callable] = None,
+        constraint_jacobian: Optional[Callable] = None,
+        constraint_tolerance: float = 1e-3,
+        verbose: bool = False,
+        n_init_qpos: int = 20
+    ) -> dict[str, str | np.ndarray | np.float64]:
+        """
+        plan from a start configuration to a goal pose of the end-effector
+
+        Args:
+            goal_pose: pose of the goal
+            current_qpos: current joint configuration (either full or move_group joints)
+            mask: if the value at a given index is True, the joint is *not* used in the
+                IK
+            time_step: time step for TOPPRA (time parameterization of path)
+            rrt_range: step size for RRT
+            planning_time: time limit for RRT
+            fix_joint_limits: if True, will clip the joint configuration to be within
+                the joint limits
+            wrt_world: if true, interpret the target pose with respect to
+                the world frame instead of the base frame
+            verbose: if True, will print the log of OMPL and TOPPRA
+        """
+        if mask is None:
+            mask = []
+
+        if fix_joint_limits:
+            current_qpos = np.clip(
+                current_qpos, self.joint_limits[:, 0], self.joint_limits[:, 1]
+            )
+        current_qpos = self.pad_move_group_qpos(current_qpos)
+
+        if wrt_world:
+            goal_pose = self._transform_goal_to_wrt_base(goal_pose)
+
+        # we need to take only the move_group joints when planning
+        # idx = self.move_group_joint_indices
+
+        ik_status, goal_qpos = self.IK(goal_pose, current_qpos, mask, n_init_qpos=n_init_qpos)
+        if ik_status != "Success":
+            return {"status": ik_status}
+
+        if verbose:
+            print("IK results:")
+            for i in range(len(goal_qpos)):  # type: ignore
+                print(goal_qpos[i])  # type: ignore
+
+        return self.plan_qpos(
+            goal_qpos,  # type: ignore
+            current_qpos,
+            time_step=time_step,
+            rrt_range=rrt_range,
+            planning_time=planning_time,
+            fix_joint_limits=fix_joint_limits,
+            simplify=simplify,
+            constraint_function=constraint_function,
+            constraint_jacobian=constraint_jacobian,
+            constraint_tolerance=constraint_tolerance,
+            verbose=verbose,
+        )
+
