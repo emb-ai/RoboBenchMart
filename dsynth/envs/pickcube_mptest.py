@@ -155,7 +155,7 @@ class TableSceneBuilderDSynth(TableSceneBuilder):
         elif self.env.robot_uids == "ds_fetch_quasi_static":
             qpos = np.array(
                 [
-                    -0.01,
+                    -1.01,
                     0.386,
                     0,
                     0,

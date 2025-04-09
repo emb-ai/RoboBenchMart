@@ -937,9 +937,10 @@ def solve_fetch_quasi_static_pick_cube(env: PickCubeEnv, seed=None, debug=False,
     planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
             'scene-0-ds_fetch_quasi_static_l_wheel_link', 'scene-0_ground_31', True
         )
-    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
-    #         'scene-0-ds_fetch_quasi_static_base_link', 'scene-0_table-workspace_30', True
-    #     )
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+            'scene-0-ds_fetch_quasi_static_base_link', 'scene-0_table-workspace_30', True
+        )
+    
     planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
             'scene-0-ds_fetch_quasi_static_laser_link', 'scene-0_table-workspace_30', True
         )
@@ -964,24 +965,22 @@ def solve_fetch_quasi_static_pick_cube(env: PickCubeEnv, seed=None, debug=False,
     closing, center = grasp_info["closing"], grasp_info["center"]
     grasp_pose = env.agent.build_grasp_pose(approaching, closing, env.cube.pose.sp.p)
     grasp_pose = grasp_pose * sapien.Pose([0, 0, -0.02])
+    
+    mask_wo_moving =[True, False, False, False, False, False, False, False, False, False, False, False, False]
 
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
-    # reach_pose = grasp_pose * sapien.Pose([0.30, 0, 0])
-    reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  0.10, 0.10])
-    # reach_pose = env.agent.tcp.pose * sapien.Pose([0.0,  -0.00, -0.10])
-    # planner.move_to_pose_with_RRTConnect(reach_pose, mask=[True, True, True, False, False, False, False, False, False, False, False, False, False, False, False])
-    # planner.move_to_pose_with_screw(reach_pose)
-    planner.move_to_pose_with_RRTConnect(reach_pose)
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.05])
+
+    planner.move_to_pose_with_RRTConnect(reach_pose, n_init_qpos=100)
     planner.planner.update_from_simulation()
 
     # -------------------------------------------------------------------------- #
     # Grasp
     # -------------------------------------------------------------------------- #
 
-    planner.move_to_pose_with_RRTConnect(grasp_pose)
+    planner.move_to_pose_with_screw(grasp_pose)
     planner.planner.update_from_simulation()
     
     res = planner.close_gripper()
@@ -991,7 +990,7 @@ def solve_fetch_quasi_static_pick_cube(env: PickCubeEnv, seed=None, debug=False,
     planner.planner.planning_world.attach_object(**kwargs)
     planner.planner.update_from_simulation()
 
-    planner.move_to_pose_with_RRTConnect(reach_pose)
+    planner.move_to_pose_with_screw(reach_pose)
     planner.planner.update_from_simulation()
 
     # -------------------------------------------------------------------------- #
