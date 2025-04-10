@@ -414,7 +414,7 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
     def close_gripper(self, t=6, gripper_state = CLOSED):
         self.gripper_state = gripper_state
         arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
-        body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
+        body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
         base_vel = np.array([0, 0])
 
         for i in range(t):
@@ -663,7 +663,7 @@ class FetchQuasiStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolver
     def close_gripper(self, t=6, gripper_state = CLOSED):
         self.gripper_state = gripper_state
         arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
-        body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
+        body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
         base_vel = np.array([0, 0])
         base_action = np.zeros_like(self.env_agent.controller.controllers['base'].qpos[0].cpu().numpy())
 
