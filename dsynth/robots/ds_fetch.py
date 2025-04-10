@@ -194,7 +194,9 @@ class DSFetchQuasiStatic(Fetch):
             self.body_stiffness,
             self.body_damping,
             self.body_force_limit,
-            use_delta=True,
+            use_delta=False,
+            normalize_action=False,
+            interpolate=False
         )
 
         # useful to keep body unmoving from passed position
@@ -213,12 +215,14 @@ class DSFetchQuasiStatic(Fetch):
         # -------------------------------------------------------------------------- #
         base_pd_joint_vel = PDJointPosControllerConfig(
             self.base_joint_names,
-            -1.,
-            1.,
+            None,
+            None,
             stiffness=1e3,
             damping=1000,
             force_limit=500,
-            use_delta=True
+            use_delta=False,
+            normalize_action=False,
+            interpolate=True
         )
         # base_pd_joint_vel = PDBaseForwardVelControllerConfig(
         #     self.base_joint_names,
@@ -506,12 +510,13 @@ class DSFetchStatic(Fetch):
         # -------------------------------------------------------------------------- #
         body_pd_joint_delta_pos = PDJointPosControllerConfig(
             self.body_joint_names,
-            -0.1,
-            0.1,
+            None,
+            None,
             self.body_stiffness,
             self.body_damping,
             self.body_force_limit,
-            use_delta=True,
+            use_delta=False,
+            normalize_action=False
         )
 
         # useful to keep body unmoving from passed position
