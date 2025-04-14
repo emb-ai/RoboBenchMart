@@ -763,6 +763,12 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
 
     def follow_rotation(self, result, refine_steps: int = 0):
+        qpos_final = result["position"][-1]
+        qpos_dict_final = {}
+        for idx, q in zip(self.planner.move_group_joint_indices, qpos_final):
+            joint_name = self.planner.user_joint_names[idx]
+            qpos_dict_final[joint_name] = q
+        
         n_step = result["position"].shape[0]
         for i in range(n_step + refine_steps):
             arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
@@ -867,7 +873,6 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
         if refine:
             # REFINEMENT!
-            # We refine only x position and lift at the end of the trajectory
             passed_refine_steps = 0
             last_lift_poses = deque(maxlen=10)
             last_x_base_poses = deque(maxlen=10)
@@ -917,9 +922,12 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         body_qpos = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2]
         target_lift_joint_height = target_dict['scene-0-ds_fetch_torso_lift_joint']
 
-        base_x = self.env_agent.controller.controllers['base'].qpos[0].cpu().numpy()[0]
-        target_base_x = target_dict['scene-0-ds_fetch_root_x_axis_joint']
-        
+        base_xy = self.env_agent.controller.controllers['base'].qpos[0].cpu().numpy()[0:2]
+        target_base = np.array([
+            target_dict['scene-0-ds_fetch_root_x_axis_joint'],
+            target_dict['scene-0-ds_fetch_root_y_axis_joint']
+        ])
+
         robot_qpos = self.robot.get_qpos().cpu().numpy()[0]
         arm_pos = robot_qpos[self.env_agent.controller.controllers['arm'].active_joint_indices.cpu().numpy()]
         target_arm_pos = np.array([
@@ -932,7 +940,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             target_dict['scene-0-ds_fetch_wrist_roll_joint']
         ])
         return np.allclose(body_qpos, target_lift_joint_height, atol=eps) and \
-            np.allclose(base_x, target_base_x, atol=eps) and \
+            np.allclose(base_xy, target_base, atol=eps) and \
             np.allclose(arm_pos, target_arm_pos, atol=eps)
 
     
