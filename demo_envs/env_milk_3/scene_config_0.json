@@ -1,0 +1,607 @@
+{
+    "graph": [
+        [
+            "world",
+            "SHELF_1_zone1.shelf1",
+            {
+                "metadata": {
+                    "joint": {
+                        "name": "SHELF_1_zone1.shelf1/world_fixed_joint",
+                        "type": "fixed"
+                    }
+                },
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        1.55
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/board_0",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/board_0",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/board_1",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/board_1",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/board_2",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/board_2",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/board_3",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/board_3",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/board_4",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/board_4",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/post_0_0",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/post_0_0",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/post_0_1",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/post_0_1",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/post_1_0",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/post_1_0",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1",
+            "SHELF_1_zone1.shelf1/post_1_1",
+            {
+                "geometry": "SHELF_1_zone1.shelf1/post_1_1",
+                "metadata": null,
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1/board_1",
+            "food.dairy_products.milk:1:1:0",
+            {
+                "metadata": {
+                    "joint": {
+                        "name": "food.dairy_products.milk:1:1:0/SHELF_1_zone1.shelf1_board_1_floating_joint",
+                        "type": "floating"
+                    }
+                },
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        -0.6739398604880686
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        -0.17361477171687473
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.5566015000000001
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "food.dairy_products.milk:1:1:0",
+            "food.dairy_products.milk:1:1:0/Tetra Rex_0",
+            {
+                "geometry": "food.dairy_products.milk:1:1:0/Tetra Rex_0",
+                "metadata": null,
+                "matrix": [
+                    [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0004250887711939287
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1/board_1",
+            "food.dairy_products.milk:1:1:1",
+            {
+                "metadata": {
+                    "joint": {
+                        "name": "food.dairy_products.milk:1:1:1/SHELF_1_zone1.shelf1_board_1_floating_joint",
+                        "type": "floating"
+                    }
+                },
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        -0.20481958146420598
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        -0.17361477171687473
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.5566015000000001
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "food.dairy_products.milk:1:1:1",
+            "food.dairy_products.milk:1:1:1/Tetra Rex_0",
+            {
+                "geometry": "food.dairy_products.milk:1:1:1/Tetra Rex_0",
+                "metadata": null,
+                "matrix": [
+                    [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0004250887711939287
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ],
+        [
+            "SHELF_1_zone1.shelf1/board_1",
+            "food.dairy_products.milk:1:1:2",
+            {
+                "matrix": [
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.2643006975596567
+                    ],
+                    [
+                        0.0,
+                        1.0,
+                        0.0,
+                        -0.17361477171687473
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.5566015000000001
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ],
+                "metadata": {
+                    "joint": {
+                        "name": "food.dairy_products.milk:1:1:2/SHELF_1_zone1.shelf1_board_1_floating_joint",
+                        "type": "floating"
+                    }
+                }
+            }
+        ],
+        [
+            "food.dairy_products.milk:1:1:2",
+            "food.dairy_products.milk:1:1:2/Tetra Rex_0",
+            {
+                "geometry": "food.dairy_products.milk:1:1:2/Tetra Rex_0",
+                "metadata": null,
+                "matrix": [
+                    [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0004250887711939287
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        ]
+    ],
+    "scene_cache": {
+        "bounds": [
+            [
+                -0.7735,
+                1.2764,
+                0.0
+            ],
+            [
+                0.7735,
+                1.8236,
+                2.0
+            ]
+        ],
+        "extents": [
+            1.547,
+            0.5472000000000001,
+            2.0
+        ],
+        "centroid": [
+            0.0,
+            1.55,
+            1.0
+        ],
+        "scale": 2.5870131116791812
+    },
+    "meta": {
+        "n": 3,
+        "m": 2,
+        "room": [
+            [
+                0,
+                "zone1.shelf1"
+            ],
+            [
+                0,
+                0
+            ],
+            [
+                0,
+                0
+            ]
+        ]
+    }
+}

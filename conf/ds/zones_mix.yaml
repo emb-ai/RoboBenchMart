@@ -1,5 +1,5 @@
 defaults:
-  - /zones@zone2: mix_zone
+  - /zones@zone1: mix_zone
 
 
     

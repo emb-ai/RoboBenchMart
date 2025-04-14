@@ -6,6 +6,7 @@ import torch
 import numpy as np
 from transforms3d import quaternions
 import random
+import copy
 import sapien
 from pathlib import Path
 import hydra
@@ -18,17 +19,18 @@ from dsynth.scene_gen.arrangements import CELL_SIZE, DEFAULT_ROOM_HEIGHT
 from dsynth.assets.asset import load_assets_lib
 from dsynth.scene_gen.utils import flatten_dict
 from mani_skill.utils.structs.pose import Pose
+from mani_skill.utils.building import actors
+from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
 
 
 @register_env('DarkstoreCellBaseEnv', max_episode_steps=200000)
 class DarkstoreCellBaseEnv(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
 
-
     def __init__(self, *args, 
                  config_dir_path,
+                 target_product_name=None,
                  robot_uids="panda_wristcam",
-                 build_config_idxs=None,
                 #  style_ids = 0, 
                 #  mapping_file=None,
                  **kwargs):
@@ -49,6 +51,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
             "products": {}
         }
 
+        self.target_product_name = target_product_name
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property
@@ -80,17 +83,20 @@ class DarkstoreCellBaseEnv(BaseEnv):
             "products": {}
         }
         self.scene_builder = DarkstoreScene(self, config_dir_path=self.config_dir_path)
+        self.scene_builder.build()
+        print("built")
 
-        # if self.build_config_idxs is None:
-        build_config_idxs = []
-        for i in range(self.num_envs):
-            # Total number of configs is 10 * 12 = 120
-            config_idx = self._batched_episode_rng[i].randint(0, self.scene_builder.num_generated_scenes * 12)
-            build_config_idxs.append(config_idx)
-        
-        self.build_config_idxs = build_config_idxs
-                
-        self.scene_builder.build(self.build_config_idxs)
+        self.target_product_marker = actors.build_sphere(
+            self.scene,
+            radius=0.05,
+            color=[0, 1, 0, 1],
+            name="target_product",
+            body_type="kinematic",
+            add_collision=False,
+            initial_pose=sapien.Pose(),
+        )
+
+        self._load_shopping_cart(options)
         # self.scene_builder.load_scene_from_json(self.json_file_path)
 
         # self._load_lamps(options)
@@ -155,7 +161,10 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
-
+        self.product_displaced = False
+        self.products_initial_poses = {}
+        for p, a in self.actors['products'].items():
+            self.products_initial_poses[p] = copy.deepcopy(a['actor'].pose.raw_pose)
         if self.robot_uids == "fetch":
             qpos = np.array(
                 [
@@ -202,3 +211,100 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
     def _get_obs_extra(self, info: Dict):
         return dict()
+
+    def evaluate(self):
+        target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
+        target_pos[0][2] -= self.target_sizes[2]/2
+        tolerance = torch.tensor(self.target_sizes/2, dtype=torch.float32)
+        target_product_pos = self.actors['products'][self.target_product_name]['actor'].pose.p
+        
+        is_obj_placed = torch.all(
+            (target_product_pos >= (target_pos - tolerance)) & 
+            (target_product_pos <= (target_pos + tolerance)),
+            dim=-1
+        )
+        #print("is_obj_placed", is_obj_placed, target_pos, target_product_pos, tolerance)
+
+        is_robot_static = self.agent.is_static(0.2)
+        if not self.product_displaced:
+            for p, a in self.actors['products'].items():
+                if p != self.target_product_name:
+                    if not torch.all(torch.isclose(a['actor'].pose.raw_pose, self.products_initial_poses[p], rtol=0.1, atol=0.1)):
+                        self.product_displaced = True
+                        self.target_volume = actors.build_box(
+                            self.scene,
+                            half_sizes=list(self.target_sizes/2),
+                            color=[1, 0, 0, 0.9],
+                            name="target_box_red",
+                            body_type="static",
+                            add_collision=False,
+                            initial_pose=self.target_volume.pose,
+                        )
+                        break
+        
+        is_object_grasped = self.agent.is_grasping(self.actors['products'][self.target_product_name]['actor'])
+
+        print("is_obj_placed", is_obj_placed.item(), "product_displaced", self.product_displaced, "is_object_grasped", is_object_grasped.item())
+        return {
+            "first" : target_product_pos,
+            "second" : target_pos,
+            "third" : target_pos - tolerance,
+            "fourth" : target_pos + tolerance,
+            "success": is_obj_placed & is_robot_static,
+            "is_obj_placed": is_obj_placed,
+            "is_robot_static": is_robot_static,
+            "is_object_grasped": is_object_grasped,
+            "product_displaced": self.product_displaced
+        }
+
+
+    # def _get_obs_extra(self, info: Dict):
+    #     """Get task-relevant extra observations. Usually defined on a task by task basis"""
+    #     lang_task = dict(language_instruction = str.encode(LANGUAGE_INSTRUCTION))
+    #     return lang_task
+    
+    def _load_shopping_cart(self, options: dict):
+        # recommended to use shift = (0,0.5,0)
+        # print(self.unwrapped.agent.robot.get_pose())
+        if not hasattr(self, 'shopping_cart'):
+            shopping_cart_asset = "/home/alex/projects/darkstore-synthesizer/assets/smallShoppingCart2.glb" #os.path.join(self.assets_dir, "smallShoppingCart2.glb")
+            
+            if not os.path.exists(shopping_cart_asset):
+                print(f"Shopping cart asset not found: {shopping_cart_asset}")
+            else:
+                builder = self.scene.create_actor_builder()
+                builder.add_visual_from_file(filename=shopping_cart_asset, scale=np.array([1.0, 1.0, 1.0]))
+                builder.add_nonconvex_collision_from_file(filename=shopping_cart_asset, scale=np.array([1.0, 1.0, 1.0]))
+                shopping_cart_pose = sapien.Pose(p=[11.0, 10.0, 0.0], q=np.array([1, 0, 0, 0]))
+                builder.set_initial_pose(shopping_cart_pose)
+                self.shopping_cart = builder.build_static(name="shopping_cart")
+                #self.actors.append(self.shopping_cart)
+
+    @property
+    def _default_human_render_camera_configs(self):
+        # pose = sapien_utils.look_at([7, 7, 7], [5, 5, 2])
+        pose = sapien_utils.look_at([-1, 0.3, 1.2], [1, 2, 1])
+        return CameraConfig(
+            "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
+        )
+    
+    @property
+    def _default_sensor_configs(self):
+        pose = sapien_utils.look_at([0.9, 1.4, 1.3], [0.8, 1.8, 1.05])
+        return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
+    
+    def setup_target_object(self):
+        if self.target_product_name is None:
+            random_product_int = random.randint(0, len(self.actors['products']))
+            self.target_product_name = list(self.actors['products'].keys())[random_product_int]
+            print("Target product selected randomly")
+        obb = get_actor_obb(self.actors['products'][self.target_product_name]["actor"])
+        center = np.array(obb.primitive.transform)[:3, 3]
+
+        self.target_product_marker.set_pose(sapien.Pose(center))
+
+        # goal_pose = self.actors["fixtures"]["scene_assets"][f'[ENV#0]_cart'].pose
+        # goal_obb = self.actors["fixtures"]["scene_assets"][f'[ENV#0]_cart'].get_collision_meshes()[0].bounding_box_oriented
+        # goal_center = np.array(goal_obb.primitive.transform)[:3, 3]
+
+        # self.goal_zone.set_pose(sapien.Pose(goal_center))
