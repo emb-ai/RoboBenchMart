@@ -129,7 +129,33 @@ class TableSceneBuilderDSynth(TableSceneBuilder):
         self.table.set_pose(
             sapien.Pose(p=[-0.12, 0, -0.9196429], q=euler2quat(0, 0, np.pi / 2))
         )
-        if self.env.robot_uids == "ds_fetch_static":
+        if self.env.robot_uids == "fetch":
+            qpos = np.array(
+                [
+                    0,
+                    0,
+                    0,
+                    0.386,
+                    0,
+                    0,
+                    0,
+                    -np.pi / 4,
+                    0,
+                    np.pi / 4,
+                    0,
+                    np.pi / 3,
+                    0,
+                    0.015,
+                    0.015,
+                ]
+            )
+            self.env.agent.reset(qpos)
+            self.env.agent.robot.set_pose(sapien.Pose([-1.05, 0, -self.table_height]))
+
+            self.ground.set_collision_group_bit(
+                group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
+            )
+        elif self.env.robot_uids == "ds_fetch_static":
             qpos = np.array(
                 [
                     0.386,
@@ -156,6 +182,32 @@ class TableSceneBuilderDSynth(TableSceneBuilder):
             qpos = np.array(
                 [
                     -1.01,
+                    0.386,
+                    0,
+                    0,
+                    0,
+                    -np.pi / 4,
+                    0,
+                    np.pi / 4,
+                    0,
+                    np.pi / 3,
+                    0,
+                    0.015,
+                    0.015,
+                ]
+            )
+            self.env.agent.reset(qpos)
+            self.env.agent.robot.set_pose(sapien.Pose([-1.05, 0, -self.table_height]))
+
+            self.ground.set_collision_group_bit(
+                group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
+            )
+        elif self.env.robot_uids == "ds_fetch":
+            qpos = np.array(
+                [
+                    -2. - np.random.randn() * 0.5,
+                    -1. - np.random.randn() * 0.5,
+                    np.random.rand() * 6.2832 - 3.1416,
                     0.386,
                     0,
                     0,

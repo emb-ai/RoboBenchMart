@@ -32,12 +32,12 @@
     <limit effort="100" lower="-20" upper="20" velocity="0.50"/>
     <dynamics damping="10.0" friction="10"/>
   </joint>
-  <joint name="root_z_rotation_joint" type="prismatic">
+  <joint name="root_z_rotation_joint" type="revolute">
     <parent link="root_arm_1_link_2"/>
     <child link="base_link"/>
     <axis xyz="0 0 1"/>
     <dynamics damping="1.0" />
-    <limit effort="33.82" lower="-2.8973" upper="2.8973" velocity="1.256"/>
+    <limit effort="33.82" lower="-6.28" upper="6.28" velocity="1.256"/>
   </joint>
 
   <link name="base_link">
