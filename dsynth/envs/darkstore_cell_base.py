@@ -31,8 +31,6 @@ class DarkstoreCellBaseEnv(BaseEnv):
                  config_dir_path,
                  target_product_name=None,
                  robot_uids="panda_wristcam",
-                #  style_ids = 0, 
-                #  mapping_file=None,
                  **kwargs):
         self.config_dir_path = Path(config_dir_path)
         self.is_rebuild = False
@@ -140,27 +138,6 @@ class DarkstoreCellBaseEnv(BaseEnv):
     #         pose = sapien.Pose(p=[x, y, self.height], q=[1, 0, 0, 0])
     #         lamp = self.assets_lib['fixtures.lamp'].ms_build_actor(f'lamp_{n}', self.scene, pose=pose)
     #         self.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
-    
-    def _process_string(self, s):
-        if '_' in s:
-            return s.split('_',1)[0] + '.obj'
-        if '.' in s:
-            return s.split('.',1)[0] + '.obj'
-        return s + '.obj'
-
-    def _temp_process_string(self, s):
-        for i, char in enumerate(s):
-            if char in "_." or char.isdigit():
-                return s[:i] + ".obj"
-        return s + ".obj"
-
-    
-    def _add_noise(self, p, max_noise = 1e-4):
-        new_p = [0] * len(p)
-        for i in range(len(p)):
-            new_p[i] = p[i] + random.randrange(-max_noise, max_noise)
-        return new_p
-
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         if not self.is_rebuild:
@@ -308,28 +285,13 @@ class DarkstoreCellBaseEnv(BaseEnv):
             "product_displaced": self.product_displaced
         }
 
-
-    # def _get_obs_extra(self, info: Dict):
-    #     """Get task-relevant extra observations. Usually defined on a task by task basis"""
-    #     lang_task = dict(language_instruction = str.encode(LANGUAGE_INSTRUCTION))
-    #     return lang_task
     
     def _load_shopping_cart(self, options: dict):
-        # recommended to use shift = (0,0.5,0)
-        # print(self.unwrapped.agent.robot.get_pose())
-        if not hasattr(self, 'shopping_cart'):
-            shopping_cart_asset = "/mnt/disk2tb/soshin/repo/darkstore_synthesizer/assets/smallShoppingCart2.glb" #os.path.join(self.assets_dir, "smallShoppingCart2.glb")
-            
-            if not os.path.exists(shopping_cart_asset):
-                print(f"Shopping cart asset not found: {shopping_cart_asset}")
-            else:
-                builder = self.scene.create_actor_builder()
-                builder.add_visual_from_file(filename=shopping_cart_asset, scale=np.array([1.0, 1.0, 1.0]))
-                builder.add_nonconvex_collision_from_file(filename=shopping_cart_asset, scale=np.array([1.0, 1.0, 1.0]))
-                shopping_cart_pose = sapien.Pose(p=[11.0, 10.0, 0.0], q=np.array([1, 0, 0, 0]))
-                builder.set_initial_pose(shopping_cart_pose)
-                self.shopping_cart = builder.build_static(name="shopping_cart")
-                #self.actors.append(self.shopping_cart)
+        self.shopping_cart = self.assets_lib['scene_assets.shoppingCart'].ms_build_actor(
+            "shopping_cart",
+            self.scene,
+            sapien.Pose(p=[11.0, 10.0, 0.0], q=np.array([1, 0, 0, 0]))
+        )
 
     @property
     def _default_human_render_camera_configs(self):
@@ -355,9 +317,3 @@ class DarkstoreCellBaseEnv(BaseEnv):
         center = np.array(obb.primitive.transform)[:3, 3]
 
         self.target_product_marker.set_pose(sapien.Pose(center))
-
-        # goal_pose = self.actors["fixtures"]["scene_assets"][f'[ENV#0]_cart'].pose
-        # goal_obb = self.actors["fixtures"]["scene_assets"][f'[ENV#0]_cart'].get_collision_meshes()[0].bounding_box_oriented
-        # goal_center = np.array(goal_obb.primitive.transform)[:3, 3]
-
-        # self.goal_zone.set_pose(sapien.Pose(goal_center))
