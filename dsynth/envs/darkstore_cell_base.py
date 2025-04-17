@@ -35,7 +35,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
                 #  mapping_file=None,
                  **kwargs):
         self.config_dir_path = Path(config_dir_path)
-        # self.build_config_idxs = build_config_idxs
+        self.is_rebuild = False
 
         with hydra.initialize_config_dir(config_dir=str(self.config_dir_path.absolute()), version_base=None):
             cfg = hydra.compose(config_name='input_config')
@@ -74,6 +74,8 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
     def _load_scene(self, options: dict):
         super()._load_scene(options)
+        self.is_rebuild = True
+
         self.actors = {
             "fixtures": {
                 "shelves" : {},
@@ -161,6 +163,10 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
+        if not self.is_rebuild:
+            raise RuntimeError("To reset arrangement use 'reconfigure' flag: env.reset(options={'reconfigure': True})")
+        self.is_rebuild = False
+        
         self.product_displaced = False
         self.products_initial_poses = {}
         for p, a in self.actors['products'].items():

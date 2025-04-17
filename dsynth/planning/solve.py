@@ -1101,7 +1101,7 @@ def solve_fetch_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
 
 
 def solve_fetch_pick_target_object(env: DarkstoreCellBaseEnv, seed=None, debug=False, vis=False):
-    env.reset(seed=seed)
+    env.reset(seed=seed, options={'reconfigure': True})
     planner = FetchMotionPlanningSapienSolver(
         env,
         debug=debug,
