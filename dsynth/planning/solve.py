@@ -42,6 +42,7 @@ from mani_skill.utils import common
 
 from dsynth.envs.pickcube_mptest import PickCubeEnvMPTest
 from dsynth.envs.pick_to_cart import PickToCartEnv
+from dsynth.envs.darkstore_cell_base import DarkstoreCellBaseEnv
 from dsynth.planning.motionplanner import (
     PandaArmMotionPlanningSolverV2, 
     PandaArmMotionPlanningSapienSolver,
@@ -1093,6 +1094,103 @@ def solve_fetch_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     goal_pose = sapien.Pose(env.goal_site.pose.sp.p, grasp_pose.q)
     planner.static_manipulation(goal_pose)
+    planner.planner.update_from_simulation()
+
+    planner.render_wait()
+    return res
+
+
+def solve_fetch_pick_target_object(env: DarkstoreCellBaseEnv, seed=None, debug=False, vis=False):
+    env.reset(seed=seed)
+    planner = FetchMotionPlanningSapienSolver(
+        env,
+        debug=debug,
+        vis=vis,
+        base_pose=env.unwrapped.agent.robot.pose,
+        visualize_target_grasp_pose=vis,
+        print_env_info=False,
+    )
+
+    FINGER_LENGTH = 0.07
+    env = env.unwrapped
+    
+    target = env.actors['products'][env.target_product_name]
+    # retrieves the object oriented bounding box (trimesh box object)
+
+    target_closing = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    target_approaching = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    ee_direction = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    tcp_center = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 3].cpu().numpy()
+
+
+
+    obb = get_actor_obb(target)
+
+    approaching = np.array([0, 0, -1])
+    # get transformation matrix of the tcp pose, is default batched and on torch
+    target_closing = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    # we can build a simple grasp pose using this information for Panda
+    grasp_info = compute_box_grasp_thin_side_info(
+        obb,
+        target_closing=target_closing,
+        ee_direction=ee_direction,
+        depth=FINGER_LENGTH,
+    )
+
+    closing, center, approaching = grasp_info["closing"], grasp_info["center"], grasp_info["approaching"]
+    grasp_pose = env.agent.build_grasp_pose(approaching, closing, center)
+    
+    grasp_pose = grasp_pose * sapien.Pose([0, 0, -0.02])
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.2])
+    
+    mask_wo_moving =[True, True, True, False, False, False, False, False, False, False, False, False, False, False, False]
+
+
+    # -------------------------------------------------------------------------- #
+    # Drive
+    # -------------------------------------------------------------------------- #
+    drive_pos = sapien.Pose(
+        p = reach_pose.p - [0, 0.6, 0],
+        q = env.agent.tcp.pose.sp.q
+    )
+
+    planner.drive_base(drive_pos, reach_pose)
+    planner.planner.update_from_simulation()
+    # -------------------------------------------------------------------------- #
+    # Reach
+    # -------------------------------------------------------------------------- #
+
+    planner.static_manipulation(reach_pose)
+    # planner.move_base_x_and_manipulation(reach_pose, n_init_qpos=100)
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Grasp
+    # -------------------------------------------------------------------------- #
+
+    # planner.move_base_x_and_manipulation(grasp_pose)
+    planner.static_manipulation(grasp_pose)
+    planner.planner.update_from_simulation()
+    
+    res = planner.close_gripper()
+    planner.planner.update_from_simulation()
+    
+    kwargs = {"name": get_fcl_object_name(target), "art_name": 'scene-0_ds_fetch_1', "link_id": planner.planner.move_group_link_id}
+    planner.planner.planning_world.attach_object(**kwargs)
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Lift
+    # -------------------------------------------------------------------------- #
+    lift_pose = grasp_pose * sapien.Pose([0.02, 0., 0.])
+    planner.static_manipulation(lift_pose, 200)
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Pull
+    # -------------------------------------------------------------------------- #
+
+    planner.static_manipulation(reach_pose)
     planner.planner.update_from_simulation()
 
     planner.render_wait()

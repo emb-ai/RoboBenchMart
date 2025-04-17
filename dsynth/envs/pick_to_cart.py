@@ -9,6 +9,7 @@ from mani_skill.utils.registration import register_env
 from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
 from dsynth.envs.darkstore_cell_base import DarkstoreCellBaseEnv
 from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
+from mani_skill.agents.robots.fetch import FETCH_WHEELS_COLLISION_BIT
 import copy
 
 LANGUAGE_INSTRUCTION = 'pick a milk from the shelf and put it on the cart'
@@ -51,13 +52,13 @@ class PickToCartEnv(DarkstoreCellBaseEnv):
             self.agent.robot.set_pose(sapien.Pose([0.5, 1.7, 0.0]))
 
         robot_pose = self.agent.robot.get_pose()
-        cart_shift = np.array([0.4, -0.2, 0.])
+        cart_shift = np.array([0.45, -0.2, 0.])
         cube_shift_up = np.array([0, 0.13, 0.35])
         new_cart_pose_p = robot_pose.p[0].cpu().numpy() + cart_shift 
         
         self.shopping_cart.set_pose(sapien.Pose(p=new_cart_pose_p, q=robot_pose.q[0].numpy()))
         self.target_volume.set_pose(sapien.Pose(p=new_cart_pose_p + cube_shift_up, q=robot_pose.q[0].numpy()))
-        self.agent.robot.set_pose(sapien.Pose([0.5, 1.7, 0.0], [0.70710678118, 0, 0, 0.70710678118]))
+        # self.agent.robot.set_pose(sapien.Pose([0.5, 1.7, 0.0], [0.70710678118, 0, 0, 0.70710678118]))
         self.setup_target_object()
 
 

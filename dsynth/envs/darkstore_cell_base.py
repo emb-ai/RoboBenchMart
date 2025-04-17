@@ -35,7 +35,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
                 #  mapping_file=None,
                  **kwargs):
         self.config_dir_path = Path(config_dir_path)
-        self.build_config_idxs = build_config_idxs
+        # self.build_config_idxs = build_config_idxs
 
         with hydra.initialize_config_dir(config_dir=str(self.config_dir_path.absolute()), version_base=None):
             cfg = hydra.compose(config_name='input_config')
@@ -164,7 +164,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.product_displaced = False
         self.products_initial_poses = {}
         for p, a in self.actors['products'].items():
-            self.products_initial_poses[p] = copy.deepcopy(a['actor'].pose.raw_pose)
+            self.products_initial_poses[p] = copy.deepcopy(a.pose.raw_pose)
         if self.robot_uids == "fetch":
             qpos = np.array(
                 [
@@ -176,7 +176,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
                     0,
                     0,
                     -np.pi / 4,
-                    0,
+                    np.pi / 4,
                     np.pi / 4,
                     0,
                     np.pi / 3,
@@ -205,7 +205,52 @@ class DarkstoreCellBaseEnv(BaseEnv):
             )
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.0, 0.0, 0.0]))
-            
+
+        elif self.robot_uids == "ds_fetch":
+            qpos = np.array(
+                [
+                #     # -2. - np.random.randn() * 0.5,
+                #     # -1. - np.random.randn() * 0.5,
+                #     0,
+                #     0,
+                #     1.57,#np.random.rand() * 6.2832 - 3.1416,
+                #     0.386,
+                #     0,
+                #     0,
+                #     0,
+                #      -np.pi / 4,
+                #     0,
+                #     np.pi / 4,
+                #     0,
+                #     np.pi / 3,
+                #     0,
+                #     0.015,
+                #     0.015,
+                # ]
+
+                 0,
+                    0,
+                    1.57,#np.random.rand() * 6.2832 - 3.1416,
+                    0.386,
+                    0,
+                    0,
+                    0,
+                    1.517,
+                    0,
+                    0,
+                    0,
+                    - 2 * np.pi / 3,
+                    0,
+                    0.015,
+                    0.015,
+                ]
+            )
+            self.agent.reset(qpos)
+            self.agent.robot.set_pose(sapien.Pose([3.7, 1, 0]))
+
+            # self.ground.set_collision_group_bit(
+            #     group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
+            # )
         else:
             raise NotImplementedError
 
@@ -216,7 +261,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
         target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
         target_pos[0][2] -= self.target_sizes[2]/2
         tolerance = torch.tensor(self.target_sizes/2, dtype=torch.float32)
-        target_product_pos = self.actors['products'][self.target_product_name]['actor'].pose.p
+        target_product_pos = self.actors['products'][self.target_product_name].pose.p
         
         is_obj_placed = torch.all(
             (target_product_pos >= (target_pos - tolerance)) & 
@@ -229,7 +274,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
         if not self.product_displaced:
             for p, a in self.actors['products'].items():
                 if p != self.target_product_name:
-                    if not torch.all(torch.isclose(a['actor'].pose.raw_pose, self.products_initial_poses[p], rtol=0.1, atol=0.1)):
+                    if not torch.all(torch.isclose(a.pose.raw_pose, self.products_initial_poses[p], rtol=0.1, atol=0.1)):
                         self.product_displaced = True
                         self.target_volume = actors.build_box(
                             self.scene,
@@ -242,7 +287,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
                         )
                         break
         
-        is_object_grasped = self.agent.is_grasping(self.actors['products'][self.target_product_name]['actor'])
+        is_object_grasped = self.agent.is_grasping(self.actors['products'][self.target_product_name])
 
         print("is_obj_placed", is_obj_placed.item(), "product_displaced", self.product_displaced, "is_object_grasped", is_object_grasped.item())
         return {
@@ -267,7 +312,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
         # recommended to use shift = (0,0.5,0)
         # print(self.unwrapped.agent.robot.get_pose())
         if not hasattr(self, 'shopping_cart'):
-            shopping_cart_asset = "/home/alex/projects/darkstore-synthesizer/assets/smallShoppingCart2.glb" #os.path.join(self.assets_dir, "smallShoppingCart2.glb")
+            shopping_cart_asset = "/mnt/disk2tb/soshin/repo/darkstore_synthesizer/assets/smallShoppingCart2.glb" #os.path.join(self.assets_dir, "smallShoppingCart2.glb")
             
             if not os.path.exists(shopping_cart_asset):
                 print(f"Shopping cart asset not found: {shopping_cart_asset}")
@@ -294,11 +339,13 @@ class DarkstoreCellBaseEnv(BaseEnv):
         return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
     
     def setup_target_object(self):
+        self.target_product_name = 'food.dairy_products.milk:1:1:52'
+        # self.target_product_name = 'food.dairy_products.milk:1:1:24'
         if self.target_product_name is None:
             random_product_int = random.randint(0, len(self.actors['products']))
             self.target_product_name = list(self.actors['products'].keys())[random_product_int]
             print("Target product selected randomly")
-        obb = get_actor_obb(self.actors['products'][self.target_product_name]["actor"])
+        obb = get_actor_obb(self.actors['products'][self.target_product_name])
         center = np.array(obb.primitive.transform)[:3, 3]
 
         self.target_product_marker.set_pose(sapien.Pose(center))

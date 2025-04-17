@@ -625,26 +625,27 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             self.grasp_pose_visual.set_pose(target_tcp_pose)
         target_tcp_pose = mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q)
 
-        result = self.planner.plan_screw(
-            mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
-            self.robot.get_qpos().cpu().numpy()[0],
-            time_step=self.base_env.control_timestep,
-        )
-
-        # result = self.planner.plan_pose(
-        #     target_tcp_pose,
+        # result = self.planner.plan_screw(
+        #     mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
         #     self.robot.get_qpos().cpu().numpy()[0],
         #     time_step=self.base_env.control_timestep,
-        #     # use_point_cloud=self.use_point_cloud,
-        #     wrt_world=True,
-        #     verbose=True,
-        #     planning_time=2,
-        #     rrt_range=0.1,
-        #     simplify=True,
-        #     mask=mask_rot_z_only,
-        #     n_init_qpos=n_init_qpos
-            
         # )
+
+        result = self.planner.plan_pose(
+            target_tcp_pose,
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            # use_point_cloud=self.use_point_cloud,
+            wrt_world=True,
+            verbose=True,
+            planning_time=2,
+            rrt_range=0.1,
+            simplify=True,
+            mask=mask_rot_z_only,
+            fixed_joint_indices=[0, 1,],
+            n_init_qpos=n_init_qpos
+            
+        )
         if result["status"] != "Success":
             print(result["status"])
             self.render_wait()
@@ -658,7 +659,10 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         moving_direction[2] = 0.
 
         self.rotate_base_z(moving_direction)
-        self.move_base_forward(target_pos.p, n_init_qpos=20)
+        self.planner.update_from_simulation()
+
+        self.move_base_forward(target_pos.p, n_init_qpos=100)
+        self.planner.update_from_simulation()
         
         view_direction = target_view_pos.p - self.base_env.agent.base_link.pose.sp.p
         view_direction[2] = 0.
@@ -703,12 +707,12 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
         return self.follow_moving_forward(result)
 
-    def move_base_forward_and_manipulation(self, target_tcp_pose, n_init_qpos=20):
+    def move_base_x_and_manipulation(self, target_tcp_pose, n_init_qpos=20):
         if self.grasp_pose_visual is not None:
             self.grasp_pose_visual.set_pose(target_tcp_pose)
         target_tcp_pose = mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q)
        
-        move_forward_and_manipulate =[False, False, True, False, False, False, False, False, False, False, False, False, False, False, False]
+        move_x_and_manipulate =[False, True, True, False, False, False, False, False, False, False, False, False, False, False, False]
         result = self.planner.plan_pose(
             target_tcp_pose,
             self.robot.get_qpos().cpu().numpy()[0],
@@ -719,7 +723,8 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             planning_time=2,
             rrt_range=0.1,
             simplify=True,
-            mask=move_forward_and_manipulate,
+            mask=move_x_and_manipulate,
+            fixed_joint_indices=[1],
             n_init_qpos=n_init_qpos   
         )
 
@@ -730,7 +735,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         self.render_wait()
 
         res = self.follow_forward_path_w_refinement(result)
-
+        self.planner.update_from_simulation()
         return self.static_manipulation(target_tcp_pose, n_init_qpos=n_init_qpos)
 
 
@@ -746,10 +751,11 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             # use_point_cloud=self.use_point_cloud,
             wrt_world=True,
             verbose=True,
-            planning_time=2,
+            planning_time=4,
             rrt_range=0.1,
             simplify=True,
             mask=only_manipulate,
+            fixed_joint_indices=[0, 1, 2],
             n_init_qpos=n_init_qpos   
         )
 

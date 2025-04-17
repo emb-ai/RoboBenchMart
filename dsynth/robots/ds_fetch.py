@@ -165,6 +165,7 @@ class DSFetch(Fetch):
             upper=[1, 3.14],
             damping=1000,
             force_limit=500,
+            normalize_action=False,
         )
 
         controller_configs = dict(
