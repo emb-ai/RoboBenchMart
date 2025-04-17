@@ -17,15 +17,20 @@ from mplib.collision_detection import fcl
 import sys
 sys.path.append('.')
 from dsynth.envs.pick_to_cart import PickToCartEnv
-from dsynth.envs.pickcube_mptest import PickCubeEnvMPTest
+from dsynth.envs.pickcube_mptest import PickCubeEnvMPTest, PickCubeEnvDSynth
+from dsynth.robots.ds_fetch import DSFetchStatic
+
 from dsynth.planning.solve import (
-    solve_fetch_pick_cube, 
+    solve_fetch_static_pick_cube, 
     solve_panda_pick_to_cart, 
     solve_panda_pick_cube_test,
     solve_panda_pick_cube_fcl_test,
     solve_panda_pick_cube_sapien_planning,
     solve_panda_pick_cube_fcl_V2_test,
-    solve_panda_pick_to_cart_sapien
+    solve_panda_pick_to_cart_sapien,
+    solve_fetch_quasi_static_pick_cube,
+    solve_fetch_pick_cube,
+    solve_fetch_pick_target_object
 )
 
 
@@ -55,25 +60,18 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     env_id = 'PickToCartEnv'# args.env_id
     # env_id = 'PickCube-v1'
     # env_id = 'PickCubeEnvMPTest'
-    # env = gym.make(
-    #     env_id,
-    #     robot_uids='fetch',
-    #     obs_mode=args.obs_mode,
-    #     control_mode="pd_joint_pos",
-    #     render_mode=args.render_mode,
-    #     sensor_configs=dict(shader_pack=args.shader),
-    #     human_render_camera_configs=dict(shader_pack=args.shader),
-    #     viewer_camera_configs=dict(shader_pack=args.shader),
-    #     sim_backend=args.sim_backend
-    # )
+    # env_id = 'PickCubeEnvDSynth'
+
     scene_dir = 'generated_envs/mp_test/'
     scene_dir = 'generated_envs/one_milk/'
+    scene_dir = 'demo_envs/env_all_items_together'
     record_dir = scene_dir + '/demos'
     env = gym.make(env_id, 
-                   robot_uids='panda_wristcam', 
+                #    robot_uids='panda_wristcam', 
+                    robot_uids='ds_fetch',
                    config_dir_path = scene_dir,
                    num_envs=1, 
-                   sim_backend=args.sim_backend,
+                #    sim_backend=args.sim_backend,
                    control_mode="pd_joint_pos",
                    viewer_camera_configs={'shader_pack': args.shader}, 
                     human_render_camera_configs={'shader_pack': args.shader},
@@ -116,12 +114,15 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     passed = 0
     while True:
         # res = solve_panda_pick_to_cart(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_fetch_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_fetch_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_fcl_test(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_sapien_planning(env, seed=seed, debug=True, vis=True if args.vis else False)
         # res = solve_panda_pick_cube_fcl_V2_test(env, seed=seed, debug=True, vis=True if args.vis else False)
-        res = solve_panda_pick_to_cart_sapien(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_panda_pick_to_cart_sapien(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_fetch_quasi_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
+        # res = solve_fetch_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
+        res = solve_fetch_pick_target_object(env, seed=seed, debug=True, vis=True if args.vis else False)
         
         # try:
         # except Exception as e:

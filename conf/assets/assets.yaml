@@ -192,7 +192,7 @@ fixtures:
     ms_is_static: true
 scene_assets:
   shoppingCart: 
-    asset_file_path: ${assets.assets_dir_path}/shoppingCart.glb
+    asset_file_path: ${assets.assets_dir_path}/smallShoppingCart2.glb
     ms_is_static: true
 
             

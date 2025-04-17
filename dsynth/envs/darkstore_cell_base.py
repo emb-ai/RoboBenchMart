@@ -6,6 +6,7 @@ import torch
 import numpy as np
 from transforms3d import quaternions
 import random
+import copy
 import sapien
 from pathlib import Path
 import hydra
@@ -18,22 +19,21 @@ from dsynth.scene_gen.arrangements import CELL_SIZE, DEFAULT_ROOM_HEIGHT
 from dsynth.assets.asset import load_assets_lib
 from dsynth.scene_gen.utils import flatten_dict
 from mani_skill.utils.structs.pose import Pose
+from mani_skill.utils.building import actors
+from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
 
 
 @register_env('DarkstoreCellBaseEnv', max_episode_steps=200000)
 class DarkstoreCellBaseEnv(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
 
-
     def __init__(self, *args, 
                  config_dir_path,
+                 target_product_name=None,
                  robot_uids="panda_wristcam",
-                 build_config_idxs=None,
-                #  style_ids = 0, 
-                #  mapping_file=None,
                  **kwargs):
         self.config_dir_path = Path(config_dir_path)
-        self.build_config_idxs = build_config_idxs
+        self.is_rebuild = False
 
         with hydra.initialize_config_dir(config_dir=str(self.config_dir_path.absolute()), version_base=None):
             cfg = hydra.compose(config_name='input_config')
@@ -49,6 +49,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
             "products": {}
         }
 
+        self.target_product_name = target_product_name
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property
@@ -71,6 +72,8 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
     def _load_scene(self, options: dict):
         super()._load_scene(options)
+        self.is_rebuild = True
+
         self.actors = {
             "fixtures": {
                 "shelves" : {},
@@ -80,17 +83,20 @@ class DarkstoreCellBaseEnv(BaseEnv):
             "products": {}
         }
         self.scene_builder = DarkstoreScene(self, config_dir_path=self.config_dir_path)
+        self.scene_builder.build()
+        print("built")
 
-        # if self.build_config_idxs is None:
-        build_config_idxs = []
-        for i in range(self.num_envs):
-            # Total number of configs is 10 * 12 = 120
-            config_idx = self._batched_episode_rng[i].randint(0, self.scene_builder.num_generated_scenes * 12)
-            build_config_idxs.append(config_idx)
-        
-        self.build_config_idxs = build_config_idxs
-                
-        self.scene_builder.build(self.build_config_idxs)
+        self.target_product_marker = actors.build_sphere(
+            self.scene,
+            radius=0.05,
+            color=[0, 1, 0, 1],
+            name="target_product",
+            body_type="kinematic",
+            add_collision=False,
+            initial_pose=sapien.Pose(),
+        )
+
+        self._load_shopping_cart(options)
         # self.scene_builder.load_scene_from_json(self.json_file_path)
 
         # self._load_lamps(options)
@@ -132,30 +138,16 @@ class DarkstoreCellBaseEnv(BaseEnv):
     #         pose = sapien.Pose(p=[x, y, self.height], q=[1, 0, 0, 0])
     #         lamp = self.assets_lib['fixtures.lamp'].ms_build_actor(f'lamp_{n}', self.scene, pose=pose)
     #         self.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
-    
-    def _process_string(self, s):
-        if '_' in s:
-            return s.split('_',1)[0] + '.obj'
-        if '.' in s:
-            return s.split('.',1)[0] + '.obj'
-        return s + '.obj'
-
-    def _temp_process_string(self, s):
-        for i, char in enumerate(s):
-            if char in "_." or char.isdigit():
-                return s[:i] + ".obj"
-        return s + ".obj"
-
-    
-    def _add_noise(self, p, max_noise = 1e-4):
-        new_p = [0] * len(p)
-        for i in range(len(p)):
-            new_p[i] = p[i] + random.randrange(-max_noise, max_noise)
-        return new_p
-
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
-
+        if not self.is_rebuild:
+            raise RuntimeError("To reset arrangement use 'reconfigure' flag: env.reset(options={'reconfigure': True})")
+        self.is_rebuild = False
+        
+        self.product_displaced = False
+        self.products_initial_poses = {}
+        for p, a in self.actors['products'].items():
+            self.products_initial_poses[p] = copy.deepcopy(a.pose.raw_pose)
         if self.robot_uids == "fetch":
             qpos = np.array(
                 [
@@ -167,7 +159,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
                     0,
                     0,
                     -np.pi / 4,
-                    0,
+                    np.pi / 4,
                     np.pi / 4,
                     0,
                     np.pi / 3,
@@ -196,9 +188,132 @@ class DarkstoreCellBaseEnv(BaseEnv):
             )
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.0, 0.0, 0.0]))
-            
+
+        elif self.robot_uids == "ds_fetch":
+            qpos = np.array(
+                [
+                #     # -2. - np.random.randn() * 0.5,
+                #     # -1. - np.random.randn() * 0.5,
+                #     0,
+                #     0,
+                #     1.57,#np.random.rand() * 6.2832 - 3.1416,
+                #     0.386,
+                #     0,
+                #     0,
+                #     0,
+                #      -np.pi / 4,
+                #     0,
+                #     np.pi / 4,
+                #     0,
+                #     np.pi / 3,
+                #     0,
+                #     0.015,
+                #     0.015,
+                # ]
+
+                 0,
+                    0,
+                    1.57,#np.random.rand() * 6.2832 - 3.1416,
+                    0.386,
+                    0,
+                    0,
+                    0,
+                    1.517,
+                    0,
+                    0,
+                    0,
+                    - 2 * np.pi / 3,
+                    0,
+                    0.015,
+                    0.015,
+                ]
+            )
+            self.agent.reset(qpos)
+            self.agent.robot.set_pose(sapien.Pose([3.7, 1, 0]))
+
+            # self.ground.set_collision_group_bit(
+            #     group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
+            # )
         else:
             raise NotImplementedError
 
     def _get_obs_extra(self, info: Dict):
         return dict()
+
+    def evaluate(self):
+        target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
+        target_pos[0][2] -= self.target_sizes[2]/2
+        tolerance = torch.tensor(self.target_sizes/2, dtype=torch.float32)
+        target_product_pos = self.actors['products'][self.target_product_name].pose.p
+        
+        is_obj_placed = torch.all(
+            (target_product_pos >= (target_pos - tolerance)) & 
+            (target_product_pos <= (target_pos + tolerance)),
+            dim=-1
+        )
+        #print("is_obj_placed", is_obj_placed, target_pos, target_product_pos, tolerance)
+
+        is_robot_static = self.agent.is_static(0.2)
+        if not self.product_displaced:
+            for p, a in self.actors['products'].items():
+                if p != self.target_product_name:
+                    if not torch.all(torch.isclose(a.pose.raw_pose, self.products_initial_poses[p], rtol=0.1, atol=0.1)):
+                        self.product_displaced = True
+                        self.target_volume = actors.build_box(
+                            self.scene,
+                            half_sizes=list(self.target_sizes/2),
+                            color=[1, 0, 0, 0.9],
+                            name="target_box_red",
+                            body_type="static",
+                            add_collision=False,
+                            initial_pose=self.target_volume.pose,
+                        )
+                        break
+        
+        is_object_grasped = self.agent.is_grasping(self.actors['products'][self.target_product_name])
+
+        print("is_obj_placed", is_obj_placed.item(), "product_displaced", self.product_displaced, "is_object_grasped", is_object_grasped.item())
+        return {
+            "first" : target_product_pos,
+            "second" : target_pos,
+            "third" : target_pos - tolerance,
+            "fourth" : target_pos + tolerance,
+            "success": is_obj_placed & is_robot_static,
+            "is_obj_placed": is_obj_placed,
+            "is_robot_static": is_robot_static,
+            "is_object_grasped": is_object_grasped,
+            "product_displaced": self.product_displaced
+        }
+
+    
+    def _load_shopping_cart(self, options: dict):
+        self.shopping_cart = self.assets_lib['scene_assets.shoppingCart'].ms_build_actor(
+            "shopping_cart",
+            self.scene,
+            sapien.Pose(p=[11.0, 10.0, 0.0], q=np.array([1, 0, 0, 0]))
+        )
+
+    @property
+    def _default_human_render_camera_configs(self):
+        # pose = sapien_utils.look_at([7, 7, 7], [5, 5, 2])
+        pose = sapien_utils.look_at([-1, 0.3, 1.2], [1, 2, 1])
+        return CameraConfig(
+            "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
+        )
+    
+    @property
+    def _default_sensor_configs(self):
+        pose = sapien_utils.look_at([0.9, 1.4, 1.3], [0.8, 1.8, 1.05])
+        return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
+    
+    def setup_target_object(self):
+        self.target_product_name = 'food.dairy_products.milk:1:1:52'
+        # self.target_product_name = 'food.dairy_products.milk:1:1:24'
+        if self.target_product_name is None:
+            random_product_int = random.randint(0, len(self.actors['products']))
+            self.target_product_name = list(self.actors['products'].keys())[random_product_int]
+            print("Target product selected randomly")
+        obb = get_actor_obb(self.actors['products'][self.target_product_name])
+        center = np.array(obb.primitive.transform)[:3, 3]
+
+        self.target_product_marker.set_pose(sapien.Pose(center))
