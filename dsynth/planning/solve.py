@@ -1182,7 +1182,7 @@ def solve_fetch_pick_target_object(env: DarkstoreCellBaseEnv, seed=None, debug=F
     # -------------------------------------------------------------------------- #
     # Lift
     # -------------------------------------------------------------------------- #
-    lift_pose = grasp_pose * sapien.Pose([0.02, 0., 0.])
+    lift_pose = grasp_pose * sapien.Pose([0.05, 0., 0.])
     planner.static_manipulation(lift_pose, 200)
     planner.planner.update_from_simulation()
 
@@ -1190,7 +1190,7 @@ def solve_fetch_pick_target_object(env: DarkstoreCellBaseEnv, seed=None, debug=F
     # Pull
     # -------------------------------------------------------------------------- #
 
-    planner.static_manipulation(reach_pose)
+    planner.static_manipulation(reach_pose * sapien.Pose([0.05, 0., 0.]))
     planner.planner.update_from_simulation()
 
     planner.render_wait()

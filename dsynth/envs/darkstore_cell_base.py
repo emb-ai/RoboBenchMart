@@ -192,35 +192,16 @@ class DarkstoreCellBaseEnv(BaseEnv):
         elif self.robot_uids == "ds_fetch":
             qpos = np.array(
                 [
-                #     # -2. - np.random.randn() * 0.5,
-                #     # -1. - np.random.randn() * 0.5,
-                #     0,
-                #     0,
-                #     1.57,#np.random.rand() * 6.2832 - 3.1416,
-                #     0.386,
-                #     0,
-                #     0,
-                #     0,
-                #      -np.pi / 4,
-                #     0,
-                #     np.pi / 4,
-                #     0,
-                #     np.pi / 3,
-                #     0,
-                #     0.015,
-                #     0.015,
-                # ]
-
                  0,
                     0,
                     1.57,#np.random.rand() * 6.2832 - 3.1416,
-                    0.386,
+                    0.36,
                     0,
                     0,
                     0,
-                    1.517,
+                    1.4,
                     0,
-                    0,
+                    0.76,
                     0,
                     - 2 * np.pi / 3,
                     0,
@@ -231,9 +212,6 @@ class DarkstoreCellBaseEnv(BaseEnv):
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([3.7, 1, 0]))
 
-            # self.ground.set_collision_group_bit(
-            #     group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
-            # )
         else:
             raise NotImplementedError
 

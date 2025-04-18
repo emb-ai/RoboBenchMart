@@ -625,33 +625,60 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             self.grasp_pose_visual.set_pose(target_tcp_pose)
         target_tcp_pose = mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q)
 
-        # result = self.planner.plan_screw(
-        #     mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
-        #     self.robot.get_qpos().cpu().numpy()[0],
-        #     time_step=self.base_env.control_timestep,
-        # )
-
-        result = self.planner.plan_pose(
-            target_tcp_pose,
+        result = self.planner.plan_screw(
+            mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            # use_point_cloud=self.use_point_cloud,
-            wrt_world=True,
-            verbose=True,
-            planning_time=2,
-            rrt_range=0.1,
-            simplify=True,
-            mask=mask_rot_z_only,
-            fixed_joint_indices=[0, 1,],
-            n_init_qpos=n_init_qpos
-            
         )
+
+        # result = self.planner.plan_pose(
+        #     target_tcp_pose,
+        #     self.robot.get_qpos().cpu().numpy()[0],
+        #     time_step=self.base_env.control_timestep,
+        #     # use_point_cloud=self.use_point_cloud,
+        #     wrt_world=True,
+        #     verbose=True,
+        #     planning_time=2,
+        #     rrt_range=0.1,
+        #     simplify=True,
+        #     mask=mask_rot_z_only,
+        #     fixed_joint_indices=[0, 1,],
+        #     n_init_qpos=n_init_qpos   
+        # )
+
         if result["status"] != "Success":
             print(result["status"])
             self.render_wait()
             return -1
         self.render_wait()
        
+        res = self.follow_rotation(result)
+
+        result = self.planner.plan_screw(
+            mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+        )
+        # result = self.planner.plan_pose(
+        #     target_tcp_pose,
+        #     self.robot.get_qpos().cpu().numpy()[0],
+        #     time_step=self.base_env.control_timestep,
+        #     # use_point_cloud=self.use_point_cloud,
+        #     wrt_world=True,
+        #     verbose=True,
+        #     planning_time=2,
+        #     rrt_range=0.1,
+        #     simplify=True,
+        #     mask=mask_rot_z_only,
+        #     fixed_joint_indices=[0, 1,],
+        #     n_init_qpos=n_init_qpos   
+        # )
+        
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+
         return self.follow_rotation(result)
     
     def drive_base(self, target_pos, target_view_pos):
@@ -679,31 +706,44 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         if self.grasp_pose_visual is not None:
             self.grasp_pose_visual.set_pose(target_tcp_pose)
         target_tcp_pose = mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q)
-        # result = self.planner.plan_screw(
-        #     mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
-        #     self.robot.get_qpos().cpu().numpy()[0],
-        #     time_step=self.base_env.control_timestep,
-        # )
-        move_forward_only =[False, False, True, True, True, True, True, True, True, True, True, True, True, True, True]
-        result = self.planner.plan_pose(
-            target_tcp_pose,
+        result = self.planner.plan_screw(
+            mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            # use_point_cloud=self.use_point_cloud,
-            wrt_world=True,
-            verbose=True,
-            planning_time=2,
-            rrt_range=0.1,
-            simplify=True,
-            mask=move_forward_only,
-            n_init_qpos=n_init_qpos   
+        )
+        move_forward_only =[False, False, True, True, True, True, True, True, True, True, True, True, True, True, True]
+        # result = self.planner.plan_pose(
+        #     target_tcp_pose,
+        #     self.robot.get_qpos().cpu().numpy()[0],
+        #     time_step=self.base_env.control_timestep,
+        #     # use_point_cloud=self.use_point_cloud,
+        #     wrt_world=True,
+        #     verbose=True,
+        #     planning_time=2,
+        #     rrt_range=0.1,
+        #     simplify=True,
+        #     mask=move_forward_only,
+        #     n_init_qpos=n_init_qpos   
+        # )
+        self.render_wait()
+
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+        self.follow_moving_forward(result)
+
+        
+        result = self.planner.plan_screw(
+            mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
         )
 
         if result["status"] != "Success":
             print(result["status"])
             self.render_wait()
             return -1
-        self.render_wait()
 
         return self.follow_moving_forward(result)
 
