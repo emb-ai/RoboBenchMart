@@ -29,7 +29,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
     def __init__(self, *args, 
                  config_dir_path,
-                 target_product_name=None,
+                 user_target_product_name=None,
                  robot_uids="panda_wristcam",
                  **kwargs):
         self.config_dir_path = Path(config_dir_path)
@@ -49,7 +49,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
             "products": {}
         }
 
-        self.target_product_name = target_product_name
+        self.user_target_product_name = user_target_product_name
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property
@@ -285,12 +285,13 @@ class DarkstoreCellBaseEnv(BaseEnv):
         return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
     
     def setup_target_object(self):
-        self.target_product_name = 'food.dairy_products.milk:1:1:52'
-        # self.target_product_name = 'food.dairy_products.milk:1:1:24'
-        if self.target_product_name is None:
-            random_product_int = random.randint(0, len(self.actors['products']))
+        if self.user_target_product_name is None:
+            random_product_int = self._batched_episode_rng[0].randint(0, len(self.actors['products']) - 1)
+            # random_product_int = random.randint(0, len(self.actors['products']))
             self.target_product_name = list(self.actors['products'].keys())[random_product_int]
             print("Target product selected randomly")
+        else:
+            self.target_product_name = self.user_target_product_name
         obb = get_actor_obb(self.actors['products'][self.target_product_name])
         center = np.array(obb.primitive.transform)[:3, 3]
 

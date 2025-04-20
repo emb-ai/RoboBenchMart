@@ -40,7 +40,7 @@ class DarkStoreTask(object):
             save_trajectory=False,
             video_fps=30,
         )
-        self.env.reset()
+        self.env.reset(options={'reconfigure': True})
     
     def evaluate(self):
         with h5py.File(self.reference_trajectory, 'r') as file:

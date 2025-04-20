@@ -15,10 +15,10 @@ class PickFromFloorEnv(DarkstoreCellBaseEnv):
     def _load_scene(self, options: dict):
         super()._load_scene(options)
 
-        target_pose = self.actors['products'][self.target_product_name]['actor'].pose
-        target_pose.raw_pose[0,2] += get_actor_obb(self.actors['products'][self.target_product_name]['actor']).extents[2]/2
+        target_pose = self.actors['products'][self.target_product_name].pose
+        target_pose.raw_pose[0,2] += get_actor_obb(self.actors['products'][self.target_product_name]).extents[2]/2
         target_pose.raw_pose[0][3:] = torch.Tensor([1, 0, 0, 0])
-        self.target_sizes = get_actor_obb(self.actors['products'][self.target_product_name]['actor']).extents
+        self.target_sizes = get_actor_obb(self.actors['products'][self.target_product_name]).extents
         self.target_volume = actors.build_box(
             self.scene,
             half_sizes=list(self.target_sizes/2),
@@ -55,5 +55,5 @@ class PickFromFloorEnv(DarkstoreCellBaseEnv):
         
         self.shopping_cart.set_pose(sapien.Pose(p=new_cart_pose_p, q=robot_pose.q[0].numpy()))
         self.agent.robot.set_pose(sapien.Pose([0.5, 1.7, 0.0], [0.70710678118, 0, 0, 0.70710678118]))
-        self.actors['products'][self.target_product_name]['actor'].pose = sapien.Pose(p=[0.8, 1.5, 0.0] , q=[0.498, -0.502, -0.498, -0.502])
+        self.actors['products'][self.target_product_name].pose = sapien.Pose(p=[0.8, 1.5, 0.0] , q=[0.498, -0.502, -0.498, -0.502])
         self.setup_target_object()

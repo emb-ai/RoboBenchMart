@@ -28,10 +28,10 @@ class PlaceOnTopEnv(DarkstoreCellBaseEnv):
     def _load_scene(self, options: dict):
         super()._load_scene(options)
 
-        target_pose = self.actors['products'][self.on_top_of_product_name]['actor'].pose
-        target_pose.raw_pose[0,2] += 3*get_actor_obb(self.actors['products'][self.on_top_of_product_name]['actor']).extents[2]/2
+        target_pose = self.actors['products'][self.on_top_of_product_name].pose
+        target_pose.raw_pose[0,2] += 3*get_actor_obb(self.actors['products'][self.on_top_of_product_name]).extents[2]/2
         target_pose.raw_pose[0][3:] = torch.Tensor([1, 0, 0, 0])
-        self.target_sizes = get_actor_obb(self.actors['products'][self.on_top_of_product_name]['actor']).extents
+        self.target_sizes = get_actor_obb(self.actors['products'][self.on_top_of_product_name]).extents
         self.target_volume = actors.build_box(
             self.scene,
             half_sizes=list(self.target_sizes/2),
