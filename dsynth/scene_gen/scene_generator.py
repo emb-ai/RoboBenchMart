@@ -10,7 +10,7 @@ from tqdm import tqdm
 from typing import Optional, Union, BinaryIO, IO, Dict, Tuple
 import numpy as np
 from omegaconf import DictConfig
-
+from omegaconf import OmegaConf
 from dsynth.scene_gen.layouts.layout_generator import LayoutGeneratorBase
 from dsynth.scene_gen.hydra_configs import ShelfConfig, FillingType
 from dsynth.scene_gen.arrangements import shelf_placement_v2
@@ -59,7 +59,10 @@ class SceneGenerator:
     
     def generate(self):
         if self.num_workers == 1:
-            results = list(map(self.generate_routine, self.task_params))
+            results = []
+            for task_param in tqdm(self.task_params):
+                results.append(self.generate_routine(task_param))
+            # results = list(map(self.generate_routine, self.task_params))
         else:
             with Pool(self.num_workers) as p:
                 total_samples = len(self.task_params)
@@ -164,7 +167,16 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
                 break
 
     elif shelf_config.filling_type == FillingType.BOARDWISE_COLUMNS:
-        filling = shelf_config['board_product_numcol']
+        board_product_numcol = OmegaConf.to_container(shelf_config['board_product_numcol'])
+        # filling = shelf_config['board_product_numcol']
+        for board_idx in range(shelf_config.start_filling_board, shelf_config.end_filling_from_board):
+            if not board_idx in board_product_numcol:
+                filling.append([])
+                continue
+            cur_board_arrangement = list(board_product_numcol[board_idx].items())
+            rng.shuffle(cur_board_arrangement)
+
+            filling.append([f'{key}:{val}' for key, val in cur_board_arrangement])
 
     for _ in range(shelf_config.end_filling_from_board, shelf_config.num_boards):
         filling.append([])

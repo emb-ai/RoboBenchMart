@@ -29,11 +29,11 @@ class RandomConnectedZones(LayoutGeneratorBase):
         if not is_gen:
             log.error(f"Can't generate!")
             return None
-        is_rotate = get_orientation((x, y), room)
+        rotations = get_orientation((x, y), room)
 
         return {
             "darkstore": room,
-            "is_rotate": is_rotate
+            "rotations": rotations
         }
     
 LAYOUT_TYPES_TO_CLS = {
