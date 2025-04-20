@@ -1,0 +1,15 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: 'mp_test'
+filling_type: BOARDWISE_COLUMNS
+
+x_gap: 0.1
+y_gap: 0.5
+start_point_x: 0.5
+board_product_numcol:
+  2:
+    food.dairy_products.milk: 1
+    food.dairy_products.milkCarton: 1
+    food.drinks.cocaColaNoSugar1p5l: 1
