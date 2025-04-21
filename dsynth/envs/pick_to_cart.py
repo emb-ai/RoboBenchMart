@@ -19,7 +19,8 @@ class PickToCartEnv(DarkstoreCellBaseEnv):
 
     def _load_scene(self, options: dict):
         super()._load_scene(options)
-
+        self._load_shopping_cart(options)
+        
         self.target_sizes = np.array([0.3, 0.3, 0.3])
         self.target_volume = actors.build_box(
             self.scene,

@@ -14,7 +14,8 @@ class PickFromFloorEnv(DarkstoreCellBaseEnv):
 
     def _load_scene(self, options: dict):
         super()._load_scene(options)
-
+        self._load_shopping_cart(options)
+        
         target_pose = self.actors['products'][self.target_product_name].pose
         target_pose.raw_pose[0,2] += get_actor_obb(self.actors['products'][self.target_product_name]).extents[2]/2
         target_pose.raw_pose[0][3:] = torch.Tensor([1, 0, 0, 0])
