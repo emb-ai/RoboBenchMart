@@ -50,6 +50,9 @@ class DarkstoreCellBaseEnv(BaseEnv):
         }
 
         self.user_target_product_name = user_target_product_name
+        
+        self.target_product_str = ''
+        self.language_instruction = ''
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property
@@ -95,11 +98,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
             add_collision=False,
             initial_pose=sapien.Pose(),
         )
-
-        self._load_shopping_cart(options)
-        # self.scene_builder.load_scene_from_json(self.json_file_path)
-
-        # self._load_lamps(options)
+        
 
     # def _get_lamps_coords(self):
     #     lamps_coords = []
@@ -284,11 +283,18 @@ class DarkstoreCellBaseEnv(BaseEnv):
         pose = sapien_utils.look_at([0.9, 1.4, 1.3], [0.8, 1.8, 1.05])
         return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
     
+    def _get_obs_extra(self, info: Dict):
+        obs = {
+            'language_instruction_bytes': np.array(list(self.language_instruction.encode('utf8')))
+        }
+        return obs
+
+
     def setup_target_object(self):
         if self.user_target_product_name is None:
-            random_product_int = self._batched_episode_rng[0].randint(0, len(self.actors['products']) - 1)
+            random_product_int = self._batched_episode_rng[0].randint(0, len(self.actors['products'].keys()))
             # random_product_int = random.randint(0, len(self.actors['products']))
-            self.target_product_name = list(self.actors['products'].keys())[random_product_int]
+            self.target_product_name = sorted(list(self.actors['products'].keys()))[random_product_int]
             print("Target product selected randomly")
         else:
             self.target_product_name = self.user_target_product_name
@@ -296,3 +302,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
         center = np.array(obb.primitive.transform)[:3, 3]
 
         self.target_product_marker.set_pose(sapien.Pose(center))
+
+        target_product_name = 'products_hierarchy.' + self.target_product_name.split(':')[0]
+        self.target_product_str = self.assets_lib[target_product_name].asset_name
+

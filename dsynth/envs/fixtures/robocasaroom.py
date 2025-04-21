@@ -90,6 +90,8 @@ class DarkstoreScene(RoboCasaSceneBuilder):
         self.x_size = []
         self.y_size = []
         self.height = []
+        self.room = []
+        self.rotations = []
 
         super().__init__(*args, **kwargs)
 
@@ -176,6 +178,9 @@ class DarkstoreScene(RoboCasaSceneBuilder):
             self.x_size.append(arena_data['meta']['x_size'])
             self.y_size.append(arena_data['meta']['y_size'])
             self.height.append(arena_data['meta']['height'])
+            self.room.append(scene_data['meta']['room'])
+            self.rotations.append(scene_data['meta']['rotations'])
+
 
             arena_config = arena_data['arena_config']
 
