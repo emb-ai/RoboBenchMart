@@ -196,6 +196,24 @@ def convert_actor_convex_mesh_to_fcl(actor: Actor):
         [mplib.Pose(shape.local_pose)],
     )
 
+def is_mesh_cylindrical(actor, to_world_frame=True):
+    mesh = get_component_mesh(
+        actor._objs[0].find_component_by_type(physx.PhysxRigidDynamicComponent),
+        to_world_frame=to_world_frame,
+    )
+    assert mesh is not None, "can not get actor mesh for {}".format(actor)
+
+    obb: trimesh.primitives.Box = mesh.bounding_box_oriented
+    cylinder: trimesh.primitives.Cylinder = mesh.bounding_cylinder
+    cylinder_obb: trimesh.primitives.Box = cylinder.bounding_box_oriented
+
+    h_obb, w_obb = obb.primitive.extents[:2]
+    h_c_obb, w_c_obb = cylinder_obb.primitive.extents[:2]
+    if np.abs(h_obb * w_obb - h_c_obb * w_c_obb) < 1e-3 and \
+        np.abs(h_obb + w_obb - h_c_obb - w_c_obb) < 1e-3:
+        return True
+    return False
+    
 
 class SapienPlanningWorldV2(SapienPlanningWorld):
     """
@@ -322,7 +340,7 @@ class SapienPlannerV2(SapienPlanner):
         # we need to take only the move_group joints when planning
         # idx = self.move_group_joint_indices
 
-        ik_status, goal_qpos = self.IK(goal_pose, current_qpos, mask, n_init_qpos=n_init_qpos)
+        ik_status, goal_qpos = self.IK(goal_pose, current_qpos, mask, n_init_qpos=n_init_qpos, verbose=True)
         if ik_status != "Success":
             return {"status": ik_status}
 

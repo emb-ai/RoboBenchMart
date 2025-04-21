@@ -779,11 +779,12 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         return self.static_manipulation(target_tcp_pose, n_init_qpos=n_init_qpos)
 
 
-    def static_manipulation(self, target_tcp_pose, n_init_qpos=20):
+    def static_manipulation(self, target_tcp_pose, n_init_qpos=20, disable_lift_joint: bool = False):
         if self.grasp_pose_visual is not None:
             self.grasp_pose_visual.set_pose(sapien.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q))
         target_tcp_pose = mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q)
-        only_manipulate =[True, True, True, False, False, False, False, False, False, False, False, False, False, False, False]
+        only_manipulate =[True, True, True, disable_lift_joint, False, False, False, False, False, False, False, False, False, False, False]
+        fixed_joint_indices = [0, 1, 2, 3] if disable_lift_joint else [0, 1, 2]
         result = self.planner.plan_pose(
             target_tcp_pose,
             self.robot.get_qpos().cpu().numpy()[0],
@@ -795,7 +796,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             rrt_range=0.1,
             simplify=True,
             mask=only_manipulate,
-            fixed_joint_indices=[0, 1, 2],
+            fixed_joint_indices=fixed_joint_indices,
             n_init_qpos=n_init_qpos   
         )
 
@@ -989,26 +990,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             np.allclose(base_xy, target_base, atol=eps) and \
             np.allclose(arm_pos, target_arm_pos, atol=eps)
 
-    
-    def open_gripper(self):
-        self.gripper_state = OPEN
-        qpos = self.robot.get_qpos()[0, :-2].cpu().numpy()
-        for i in range(6):
-            if self.control_mode == "pd_joint_pos":
-                action = np.hstack([qpos, self.gripper_state])
-            else:
-                action = np.hstack([qpos, qpos * 0, self.gripper_state])
-            obs, reward, terminated, truncated, info = self.env.step(action)
-            self.elapsed_steps += 1
-            if self.print_env_info:
-                print(
-                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
-                )
-            if self.vis:
-                self.base_env.render_human()
-        return obs, reward, terminated, truncated, info
-
-    def close_gripper(self, t=6, gripper_state = CLOSED):
+    def change_gripper_state(self, t=6, gripper_state = OPEN):
         self.gripper_state = gripper_state
         arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
         body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
@@ -1030,4 +1012,8 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
                 self.base_env.render_human()
         return obs, reward, terminated, truncated, info
 
-
+    def close_gripper(self, t=6):
+        return self.change_gripper_state(t=t, gripper_state = CLOSED)
+        
+    def open_gripper(self, t=6):
+        return self.change_gripper_state(t=t, gripper_state = OPEN)
