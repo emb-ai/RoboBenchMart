@@ -98,6 +98,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
             add_collision=False,
             initial_pose=sapien.Pose(),
         )
+        self._hidden_objects.append(self.target_product_marker)
         
 
     # def _get_lamps_coords(self):

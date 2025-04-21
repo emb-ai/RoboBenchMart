@@ -103,10 +103,11 @@ class MoveFromBoardToBoardStaticEnv(DarkstoreCellBaseEnv):
             half_sizes=list(self.target_sizes/2),
             color=[0, 1, 0, 0.5],
             name="target_box",
-            body_type="static",
+            body_type="kinematic",
             add_collision=False,
             initial_pose=target_pose,
         )
+        self._hidden_objects.append(self.target_volume)
 
     @property
     def _default_human_render_camera_configs(self):
