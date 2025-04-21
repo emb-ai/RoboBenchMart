@@ -286,7 +286,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
     
     def _get_obs_extra(self, info: Dict):
         obs = {
-            'language_instruction_bytes': np.array(list(self.language_instruction.encode('utf8')))
+            'language_instruction_bytes': np.array([list(self.language_instruction.encode('utf8'))])
         }
         return obs
 
