@@ -1,5 +1,5 @@
 from copy import deepcopy
-
+from transforms3d import euler
 import numpy as np
 import sapien
 
@@ -16,6 +16,51 @@ from dsynth import PACKAGE_DIR
 class DSFetch(Fetch):
     uid = "ds_fetch"
     urdf_path = f"{PACKAGE_DIR}/assets/urdf/fetch/fetch.urdf"
+
+    @property
+    def _sensor_configs(self):
+        return [
+            CameraConfig(
+                uid="fetch_head",
+                pose=Pose.create_from_pq([0, 0, 0], [1, 0, 0, 0]),
+                width=256,
+                height=256,
+                fov=2,
+                near=0.01,
+                far=100,
+                entity_uid="head_camera_link",
+            ),
+            CameraConfig(
+                uid="fetch_hand",
+                pose=Pose.create_from_pq([0.1, 0, -0.1], euler.euler2quat(np.pi, -np.pi / 2, 0)),
+                width=256,
+                height=256,
+                fov=2,
+                near=0.01,
+                far=100,
+                entity_uid="gripper_link",
+            ),
+            CameraConfig(
+                uid="left_base_camera_link",
+                pose=Pose.create_from_pq([-0.5, 0.5, 0], euler.euler2quat(0, 0.3, -0.2)),
+                width=256,
+                height=256,
+                fov=1.5,
+                near=0.01,
+                far=100,
+                entity_uid="head_camera_link",
+            ),
+            CameraConfig(
+                uid="right_base_camera_link",
+                pose=Pose.create_from_pq([-0.5, -0.5, 0], euler.euler2quat(0, 0.3, 0.2)),
+                width=256,
+                height=256,
+                fov=1.5,
+                near=0.01,
+                far=100,
+                entity_uid="head_camera_link",
+            ),
+        ]
 
     @property
     def _controller_configs(self):
