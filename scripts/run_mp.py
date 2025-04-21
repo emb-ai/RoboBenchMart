@@ -16,22 +16,10 @@ import mplib
 from mplib.collision_detection import fcl
 import sys
 sys.path.append('.')
-from dsynth.envs.pick_to_cart import PickToCartEnv
-from dsynth.envs.pickcube_mptest import PickCubeEnvMPTest, PickCubeEnvDSynth
-from dsynth.robots.ds_fetch import DSFetchStatic
+from dsynth.envs import *
+from dsynth.robots import *
 
-from dsynth.planning.solve import (
-    solve_fetch_static_pick_cube, 
-    solve_panda_pick_to_cart, 
-    solve_panda_pick_cube_test,
-    solve_panda_pick_cube_fcl_test,
-    solve_panda_pick_cube_sapien_planning,
-    solve_panda_pick_cube_fcl_V2_test,
-    solve_panda_pick_to_cart_sapien,
-    solve_fetch_quasi_static_pick_cube,
-    solve_fetch_pick_cube,
-    solve_fetch_pick_target_object
-)
+from dsynth.planning import MP_SOLUTIONS
 
 
 OPEN = 1
@@ -41,7 +29,8 @@ CLOSED = -1
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    # parser.add_argument("-e", "--env-id", type=str, default="PickCube-v1", help=f"Environment to run motion planning solver on. Available options are {list(MP_SOLUTIONS.keys())}")
+    parser.add_argument("-e", "--env-id", type=str, default="PickToCartEnv", help=f"Environment to run motion planning solver on. Available options are {list(MP_SOLUTIONS.keys())}")
+    parser.add_argument("--scene-dir", type=str)
     parser.add_argument("-o", "--obs-mode", type=str, default="none", help="Observation mode to use. Usually this is kept as 'none' as observations are not necesary to be stored, they can be replayed later via the mani_skill.trajectory.replay_trajectory script.")
     parser.add_argument("-n", "--num-traj", type=int, default=10, help="Number of trajectories to generate.")
     parser.add_argument("--only-count-success", action="store_true", help="If true, generates trajectories until num_traj of them are successful and only saves the successful trajectories/videos")
@@ -52,39 +41,31 @@ def parse_args(args=None):
     parser.add_argument("--save-video", action="store_true", help="whether or not to save videos locally")
     parser.add_argument("--traj-name", type=str, help="The name of the trajectory .h5 file that will be created.")
     parser.add_argument("--shader", default="default", type=str, help="Change shader used for rendering. Default is 'default' which is very fast. Can also be 'rt' for ray tracing and generating photo-realistic renders. Can also be 'rt-fast' for a faster but lower quality ray-traced renderer")
-    parser.add_argument("--record-dir", type=str, default="demos", help="where to save the recorded trajectories")
+    # parser.add_argument("--record-dir", type=str, default="demos", help="where to save the recorded trajectories")
     parser.add_argument("--num-procs", type=int, default=1, help="Number of processes to use to help parallelize the trajectory replay process. This uses CPU multiprocessing and only works with the CPU simulation backend at the moment.")
     return parser.parse_args()
 
 def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
-    env_id = 'PickToCartEnv'# args.env_id
-    # env_id = 'PickCube-v1'
-    # env_id = 'PickCubeEnvMPTest'
-    # env_id = 'PickCubeEnvDSynth'
-
-    scene_dir = 'generated_envs/mp_test/'
-    scene_dir = 'generated_envs/one_milk/'
-    scene_dir = 'demo_envs/env_all_items_together'
-    record_dir = scene_dir + '/demos'
+    env_id = args.env_id
+    scene_dir = args.scene_dir
+    record_dir = args.scene_dir + '/demos'
+    
     env = gym.make(env_id, 
-                #    robot_uids='panda_wristcam', 
                     robot_uids='ds_fetch',
                    config_dir_path = scene_dir,
                    num_envs=1, 
-                #    sim_backend=args.sim_backend,
                    control_mode="pd_joint_pos",
                    viewer_camera_configs={'shader_pack': args.shader}, 
                     human_render_camera_configs={'shader_pack': args.shader},
                     sensor_configs={'shader_pack': args.shader},
                 #    render_mode="human" if gui else "rgb_array", 
                    render_mode="rgb_array", 
-                #    control_mode='pd_ee_delta_pos',
                    enable_shadow=True,
                    obs_mode='rgbd',
                    parallel_in_single_scene = False,
                    )
-    # if env_id not in MP_SOLUTIONS:
-    #     raise RuntimeError(f"No already written motion planning solutions for {env_id}. Available options are {list(MP_SOLUTIONS.keys())}")
+    if env_id not in MP_SOLUTIONS:
+        raise RuntimeError(f"No already written motion planning solutions for {env_id}. Available options are {list(MP_SOLUTIONS.keys())}")
 
     if not args.traj_name:
         new_traj_name = time.strftime("%Y%m%d_%H%M%S")
@@ -95,16 +76,16 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
         new_traj_name = new_traj_name + "." + str(proc_id)
     env = RecordEpisode(
         env,
-        output_dir=osp.join(record_dir, env_id, "motionplanning"),
+        output_dir=osp.join(record_dir, "motionplanning"),
         trajectory_name=new_traj_name, save_video=args.save_video,
         source_type="motionplanning",
-        source_desc="official motion planning solution from ManiSkill contributors",
+        source_desc="official motion planning solution from dsynth contributors",
         video_fps=30,
         record_reward=False,
         save_on_reset=False
     )
     output_h5_path = env._h5_file.filename
-    # solve = MP_SOLUTIONS[env_id]
+    solve = MP_SOLUTIONS[env_id]
     print(f"Motion Planning Running on {env_id}")
     pbar = tqdm(range(args.num_traj), desc=f"proc_id: {proc_id}")
     seed = start_seed
@@ -113,21 +94,11 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     failed_motion_plans = 0
     passed = 0
     while True:
-        # res = solve_panda_pick_to_cart(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_fetch_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_panda_pick_cube_test(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_panda_pick_cube_fcl_test(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_panda_pick_cube_sapien_planning(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_panda_pick_cube_fcl_V2_test(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_panda_pick_to_cart_sapien(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_fetch_quasi_static_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
-        # res = solve_fetch_pick_cube(env, seed=seed, debug=True, vis=True if args.vis else False)
-        res = solve_fetch_pick_target_object(env, seed=seed, debug=True, vis=True if args.vis else False)
-        
-        # try:
-        # except Exception as e:
-        #     print(f"Cannot find valid solution because of an error in motion planning solution: {e}")
-        #     res = -1
+        try:
+            res = solve(env, seed=seed, debug=True, vis=True if args.vis else False)
+        except Exception as e:
+            print(f"Cannot find valid solution because of an error in motion planning solution: {e}")
+            res = -1
 
         if res == -1:
             success = False
@@ -138,7 +109,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
             solution_episode_lengths.append(elapsed_steps)
         successes.append(success)
         seed += 1
-        continue
+
         if args.only_count_success and not success:
             seed += 1
             env.flush_trajectory(save=False)
