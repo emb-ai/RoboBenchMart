@@ -5,3 +5,4 @@ scene-synthesizer[recommend]
 usd-core
 pyglet<2
 hydra-core
+trimesh==4.5.3
