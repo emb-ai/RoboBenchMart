@@ -141,6 +141,8 @@ def add_objects_to_shelf_v2(
     support_data,
     x_gap,
     y_gap,
+    delta_x,
+    delta_y,
     start_point_x,
     start_point_y,
     filling_type
@@ -156,7 +158,14 @@ def add_objects_to_shelf_v2(
                     obj_id_iterator=utils.object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:"),
                     obj_asset_iterator=(obj for _ in range(int(np.ceil(support_data[0].polygon.bounds[3]/min(dims[0], dims[1]))*num_col))), #upperbound on how many objects can fit
                     obj_support_id_iterator=utils.cycle_list(support_data, [board_idx]),
-                    obj_position_iterator=PositionIteratorGridColumns(obj_width=dims[0], obj_depth=dims[1], x_gap=x_gap, y_gap=y_gap, current_point=start_point, num_cols = num_col),
+                    obj_position_iterator=PositionIteratorGridColumns(obj_width=dims[0], 
+                                                                      obj_depth=dims[1], 
+                                                                      x_gap=x_gap, 
+                                                                      y_gap=y_gap, 
+                                                                      delta_x=delta_x,
+                                                                      delta_y=delta_y,
+                                                                      current_point=start_point, 
+                                                                      num_cols = num_col),
                     obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0,0),
                 )
     else:
@@ -224,6 +233,8 @@ def shelf_placement_v2(
                 support_data,
                 zones_cfg[z_name][s_name].x_gap,
                 zones_cfg[z_name][s_name].y_gap,
+                zones_cfg[z_name][s_name].delta_x,
+                zones_cfg[z_name][s_name].delta_y,
                 zones_cfg[z_name][s_name].start_point_x,
                 zones_cfg[z_name][s_name].start_point_y,
                 zones_cfg[z_name][s_name].filling_type

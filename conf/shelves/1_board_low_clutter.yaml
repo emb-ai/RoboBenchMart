@@ -5,9 +5,9 @@ defaults:
 name: 'mp_test'
 filling_type: BOARDWISE_COLUMNS
 
-x_gap: 0.1
+x_gap: 0.15
 y_gap: 0.5
-start_point_x: 0.5
+delta_x: 0.4
 board_product_numcol:
   1:
     food.dairy_products.milk: 1
