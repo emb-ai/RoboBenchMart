@@ -203,16 +203,28 @@ def get_orientation(door: tuple[int, int], mat: list[list[int]]) -> list[list[bo
             if mat[el[0]][el[1]] == 0 and dst[el[0]][el[1]] != 0:
                 had.append(el)
                 dst[el[0]][el[1]] = 0
-    mat_ops: list[list[bool]] = [[0 for j in range(m)] for i in range(n)]
+    rotations: list[list[int]] = [[0 for j in range(m)] for i in range(n)]
     for i in range(n):
         for j in range(m):
             for el in find_neibours((i, j), n, m):
                 if dst[el[0]][el[1]] == 0:
-                    if abs(el[0] - i) == 1:
-                        mat_ops[i][j] = 0
-                    else:
-                        mat_ops[i][j] = 1
-    return mat_ops
+                    if el[0] - i < 0:
+                        rotations[i][j] = -90
+                        break
+                    elif el[1] - j < 0:
+                        # rotations[i][j] = 0
+                        break
+                    elif el[1] - j > 0:
+                        rotations[i][j] = 180
+                        break
+                    elif el[0] - i > 0:
+                        rotations[i][j] = 90
+                        break
+                    # if abs(el[0] - i) == 1:
+                    #     mat_ops[i][j] = 0
+                    # else:
+                    #     mat_ops[i][j] = 1
+    return rotations
 
 if __name__ == '__main__':
     ms = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 0]]

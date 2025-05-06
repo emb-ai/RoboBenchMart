@@ -4,7 +4,8 @@ defaults:
   
 name: 'mixed_shelf'
 filling_type: BOARDWISE_COLUMNS
-gap: 0.002
+x_gap: 0.002
+y_gap: 0.002
 board_product_numcol:
   0:
     food.drinks.chaosCola2l: 3

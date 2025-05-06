@@ -1,0 +1,2 @@
+defaults:
+  - /zones@zone1: mp_test

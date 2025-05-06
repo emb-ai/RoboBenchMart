@@ -38,6 +38,7 @@ products_hierarchy:
     dairy_products:
       milk:
         asset_file_path: ${assets.assets_dir_path}/milk.glb
+        asset_name: 'milk'
         ss_params:
           height: 0.26
           up: [0, 0, 1]
@@ -101,13 +102,15 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       cocaColaNoSugar1p5l:
         asset_file_path: ${assets.assets_dir_path}/cocaColaNoSugar1p5l.glb
-        ss_params:
+        asset_name: 'cola with no sugar'
+        ss_params: 
           height: 0.2
           up: [0, 1, 0]
           front: [0, 0, -1]
           origin: ["center", "bottom", "center"]
       sprite2p25l:
         asset_file_path: ${assets.assets_dir_path}/sprite2p25l.glb
+        asset_name: 'sprite'
         ss_params:
           height: 0.23
           up: [0, 1, 0] 
@@ -192,7 +195,7 @@ fixtures:
     ms_is_static: true
 scene_assets:
   shoppingCart: 
-    asset_file_path: ${assets.assets_dir_path}/shoppingCart.glb
+    asset_file_path: ${assets.assets_dir_path}/smallShoppingCart2.glb
     ms_is_static: true
 
             

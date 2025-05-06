@@ -1,0 +1,15 @@
+defaults:
+  - main_darkstore_config_base
+  - /ds@zones: mp_test_list
+  - _self_
+
+
+name: ds
+size_n: 1
+size_m: 2
+num_scenes: 128
+num_workers: 1
+layout_gen_type: CONNECTED_ZONES
+randomize_layout: false
+randomize_arrangements: true
+random_seed: 42

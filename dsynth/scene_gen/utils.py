@@ -117,6 +117,8 @@ class PositionIteratorGridColumns(PositionIterator2D):
         obj_depth,
         x_gap,
         y_gap,
+        delta_x, 
+        delta_y,
         current_point,
         num_cols
     ):
@@ -125,6 +127,8 @@ class PositionIteratorGridColumns(PositionIterator2D):
         self.obj_d = obj_depth
         self.x_gap = x_gap
         self.y_gap = y_gap
+        self.delta_x = delta_x
+        self.delta_y = delta_y
         self.start_point = None
         self.end_point = None
         self.current_point = current_point
@@ -162,11 +166,15 @@ class PositionIteratorGridColumns(PositionIterator2D):
             minx, miny, maxx, maxy = self.polygon.bounds
             self.start_point = np.array([minx, miny])
             self.end_point = np.array([maxx, maxy])
-            if self.current_point[0] == -1 and self.current_point[0] == -1:
-                self.current_point[0] = minx + self.obj_w/2
-                self.current_point[1] = miny + self.obj_d/2
+
+            if self.current_point[0] == -1:
+                self.current_point[0] = minx + self.delta_x + self.obj_w/2
             else:
                 self.current_point[0] += self.obj_w/2
+            
+            if self.current_point[1] == -1:
+                self.current_point[1] = miny + self.delta_y + self.obj_d/2
+            else:
                 self.current_point[1] += self.obj_d/2
         return self
 

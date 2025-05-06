@@ -1,0 +1,439 @@
+ds:
+  name: ds
+  size_n: 3
+  size_m: 2
+  entrance_coords_x: 0
+  entrance_coords_y: 0
+  zones:
+    zone1:
+      shelf1:
+        name: mixed_shelf
+        filling_type: BOARDWISE_COLUMNS
+        queries: []
+        num_products_per_block: 7
+        num_products_per_board: 10
+        start_filling_board: 0
+        end_filling_from_board: 5
+        is_dynamic: true
+        num_boards: 5
+        board_product_numcol:
+          0:
+            food.grocery.baby: 1
+            food.grocery.cerealsForSS: 1
+            food.grocery.cerealescornflakescora: 1
+            food.grocery.cornFlakesRetroEditionSmall: 1
+            food.grocery.nestleFitnessChocolateCerealBox: 1
+            food.dairy_products.milk: 1
+            food.dairy_products.milkHandle: 1
+            food.dairy_products.milkCarton: 1
+          1:
+            food.dairy_products.milk: 60
+          2:
+            food.drinks.cocaColaCan: 1
+            food.drinks.pepsi: 1
+            food.drinks.fanta: 1
+            food.drinks.mountainDew: 2
+            food.drinks.cocaColaNoSugar1p5l: 1
+            food.drinks.sprite2p25l: 1
+            food.drinks.fantaNaranja1p35l: 1
+            food.drinks.coffeePackaging: 1
+            food.drinks.coffeePaperBag: 1
+            food.drinks.coffeePackaging1: 1
+          3:
+            food.drinks.nescafesimple: 1
+            food.drinks.pgTipsTeaBox: 1
+            food.drinks.sirWinstonTea: 1
+            food.drinks.coffeeCapsulesDolceGusto: 1
+        gap: 0.03
+  num_scenes: 1
+  num_workers: 1
+  output_dir: null
+  rewrite: true
+  show: false
+  layout_gen_type: CONNECTED_ZONES
+  randomize_layout: false
+  randomize_arrangements: true
+  random_seed: 42
+assets:
+  assets_dir_path: assets
+  products_hierarchy:
+    food:
+      grocery:
+        baby:
+          ss_asset_type: MeshAsset
+          asset_file_path: ${assets.assets_dir_path}/baby.glb
+          ss_params:
+            scale: 1
+            origin:
+            - com
+            - com
+            - bottom
+        cerealsForSS:
+          ss_asset_type: MeshAsset
+          asset_file_path: ${assets.assets_dir_path}/cerealsForSS.glb
+          ss_params:
+            scale: 1
+            origin:
+            - com
+            - com
+            - bottom
+        cerealescornflakescora:
+          asset_file_path: ${assets.assets_dir_path}/cerealescornflakescora.glb
+          ss_params:
+            height: 0.25
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        cornFlakesRetroEditionSmall:
+          asset_file_path: ${assets.assets_dir_path}/cornFlakesRetroEditionSmall.glb
+          ss_params:
+            height: 0.3
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 1
+            - 0
+            - 0
+            origin:
+            - center
+            - bottom
+            - center
+        nestleFitnessChocolateCerealBox:
+          asset_file_path: ${assets.assets_dir_path}/nestleFitnessChocolateCerealBox.glb
+          ss_params:
+            height: 0.275
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - -1
+            - 0
+            - 0
+            origin:
+            - center
+            - bottom
+            - center
+      dairy_products:
+        milk:
+          asset_file_path: ${assets.assets_dir_path}/milk.glb
+          ss_params:
+            height: 0.26
+            up:
+            - 0
+            - 0
+            - 1
+            front:
+            - -1
+            - 0
+            - 0
+            origin:
+            - center
+            - center
+            - bottom
+        milkHandle:
+          asset_file_path: ${assets.assets_dir_path}/milkHandle.glb
+          ss_params:
+            height: 0.25
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        milkCarton:
+          asset_file_path: ${assets.assets_dir_path}/milkCarton.glb
+          ss_params:
+            height: 0.24
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - -1
+            - 0
+            - 0
+            origin:
+            - center
+            - bottom
+            - center
+      drinks:
+        cocaColaCan:
+          asset_file_path: ${assets.assets_dir_path}/cocaColaCan.glb
+          ss_params:
+            height: 0.15
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        pepsi:
+          asset_file_path: ${assets.assets_dir_path}/pepsi.glb
+          ss_params:
+            height: 0.18
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 1
+            - 0
+            - 0
+            origin:
+            - center
+            - bottom
+            - center
+        fanta:
+          asset_file_path: ${assets.assets_dir_path}/fanta.glb
+          ss_params:
+            height: 0.15
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 1
+            - 0
+            - 0
+            origin:
+            - center
+            - bottom
+            - center
+        mountainDew:
+          asset_file_path: ${assets.assets_dir_path}/mountainDew.glb
+          ss_params:
+            height: 0.15
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - 1
+            origin:
+            - center
+            - bottom
+            - center
+        chaosCola2l:
+          asset_file_path: ${assets.assets_dir_path}/chaosCola2l.glb
+          ss_params:
+            height: 0.18
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        cocaColaNoSugar1p5l:
+          asset_file_path: ${assets.assets_dir_path}/cocaColaNoSugar1p5l.glb
+          ss_params:
+            height: 0.2
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        sprite2p25l:
+          asset_file_path: ${assets.assets_dir_path}/sprite2p25l.glb
+          ss_params:
+            height: 0.23
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        fantaNaranja1p35l:
+          asset_file_path: ${assets.assets_dir_path}/fantaNaranja1p35l.glb
+          ss_params:
+            height: 0.25
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        coffeePackaging:
+          asset_file_path: ${assets.assets_dir_path}/coffeePackaging.glb
+          ss_params:
+            height: 0.2
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        coffeePaperBag:
+          asset_file_path: ${assets.assets_dir_path}/coffeePaperBag.glb
+          ss_params:
+            height: 0.23
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        coffeePackaging1:
+          asset_file_path: ${assets.assets_dir_path}/coffeePackaging1.glb
+          ss_params:
+            height: 0.25
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        coffeeCapsulesDolceGusto:
+          asset_file_path: ${assets.assets_dir_path}/coffeeCapsulesDolceGusto.glb
+          ss_params:
+            height: 0.18
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - -1
+            - 0
+            - 0
+            origin:
+            - center
+            - bottom
+            - center
+        nescafesimple:
+          asset_file_path: ${assets.assets_dir_path}/nescafesimple.glb
+          ss_params:
+            height: 0.15
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        pgTipsTeaBox:
+          asset_file_path: ${assets.assets_dir_path}/pgTipsTeaBox.glb
+          ss_params:
+            height: 0.13
+            up:
+            - 0
+            - 1
+            - 0
+            front:
+            - 0
+            - 0
+            - -1
+            origin:
+            - center
+            - bottom
+            - center
+        sirWinstonTea:
+          asset_file_path: ${assets.assets_dir_path}/sirWinstonTea.glb
+          ss_params:
+            height: 0.08
+            up:
+            - 0
+            - 0
+            - 1
+            front:
+            - 0
+            - 1
+            - 0
+            origin:
+            - center
+            - center
+            - bottom
+      fruits:
+        banana:
+          ss_asset_type: USDAsset
+          asset_file_path: ${assets.assets_dir_path}/banana.usdc
+          ss_params:
+            scale: 1.5
+            origin:
+            - com
+            - com
+            - bottom
+  fixtures:
+    shelf:
+      asset_file_path: ${assets.assets_dir_path}/shelf_woodenglb.glb
+      ms_is_static: true
+      ms_is_nonconvex_collision: true
+    lamp:
+      asset_file_path: ${assets.assets_dir_path}/lamp1.glb
+      ms_is_static: true
+  scene_assets:
+    shoppingCart:
+      asset_file_path: ${assets.assets_dir_path}/smallShoppingCart2.glb
+      ms_is_static: true

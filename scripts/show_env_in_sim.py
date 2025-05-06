@@ -47,7 +47,7 @@ def main(args):
     gui = args.gui
 
     env = gym.make('PickToCartEnv', 
-                   robot_uids='fetch', 
+                   robot_uids='panda_wristcam', 
                    config_dir_path = args.scene_dir,
                    num_envs=1, 
                    viewer_camera_configs={'shader_pack': args.shader}, 
@@ -75,37 +75,38 @@ def main(args):
     print("Video path:", video_path)
     print("Trajectoty name:", new_traj_name)
 
+    for _ in range(4):
     # step through the environment with random actions
-    obs, _ = env.reset()
+        obs, _ = env.reset(options={'reconfigure': True})
 
 
-    viewer = env.render()
-    if isinstance(viewer, sapien.utils.Viewer):
-        viewer.paused = False
-    # env.render()
+        viewer = env.render()
+        if isinstance(viewer, sapien.utils.Viewer):
+            viewer.paused = False
+        # env.render()
 
-    action = torch.zeros_like(torch.from_numpy(env.action_space.sample()))
-    # action[-1] = -1
+        action = torch.zeros_like(torch.from_numpy(env.action_space.sample()))
+        # action[-1] = -1
 
-    for i in tqdm(range(args.episode_length)):
-        # action = env.action_space.sample()
-        obs, reward, terminated, truncated, info = env.step(action)
+        for i in tqdm(range(args.episode_length)):
+            # action = env.action_space.sample()
+            obs, reward, terminated, truncated, info = env.step(action)
 
-        # rgb_image = obs["sensor_data"]["base_camera"]["rgb"]
-        # rgb_image = rgb_image.permute((0, 3, 1, 2))
+            # rgb_image = obs["sensor_data"]["base_camera"]["rgb"]
+            # rgb_image = rgb_image.permute((0, 3, 1, 2))
 
+            if gui:
+                env.render_human()
+
+        # render wait
         if gui:
-            env.render_human()
-
-    # render wait
-    if gui:
-        viewer = env.render_human()
-        while True:
-            if viewer.closed:
-                exit()
-            if viewer.window.key_down("c"):
-                break
-            env.render_human()
+            viewer = env.render_human()
+            while True:
+                if viewer.closed:
+                    exit()
+                if viewer.window.key_down("c"):
+                    break
+                env.render_human()
 
     env.close()
 

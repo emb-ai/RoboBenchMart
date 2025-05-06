@@ -1,0 +1,16 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: 'mp_test'
+filling_type: BLOCKWISE_AUTO_INFINITE
+queries:
+- food.dairy_products.milkCarton
+- food.dairy_products.milk
+- food.grocery.baby
+- food.grocery.cornFlakesRetroEditionSmall
+num_products_per_block: 18
+num_products_per_board: 27
+
+start_filling_board: 0
+end_filling_from_board: 3

@@ -34,7 +34,12 @@ class ShelfConfig:
     num_boards: int = 5
 
     board_product_numcol: Dict[int, Dict[str, int]] = field(default_factory=lambda: {})
-    gap: float = 0.002
+    x_gap: float = 0.002
+    y_gap: float = 0.002
+    delta_x: float = 0.
+    delta_y: float = 0.
+    start_point_x: float = -1.
+    start_point_y: float = -1.
 
 @dataclass    
 class DsConfig:

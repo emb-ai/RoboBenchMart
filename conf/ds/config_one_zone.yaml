@@ -1,0 +1,15 @@
+defaults:
+  - main_darkstore_config_base
+  - /ds@zones: one_zone
+  - _self_
+
+
+name: ds
+size_n: 3
+size_m: 2
+num_scenes: 6
+num_workers: 1
+layout_gen_type: CONNECTED_ZONES
+randomize_layout: true
+randomize_arrangements: true
+random_seed: 42

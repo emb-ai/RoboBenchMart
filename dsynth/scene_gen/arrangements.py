@@ -21,19 +21,16 @@ DEFAULT_ROOM_HEIGHT = 2.7
 
 
 def set_shelf(
-    scene, shelf, x: float, y: float, rotation: bool, name: str, support_name: str
+    scene, shelf, x: float, y: float, rotation_angle: bool, name: str, support_name: str
 ):
-    if not (rotation):
-        scene.add_object(
+    scene.add_object(
             shelf,
             name,
             transform=np.dot(
                 tra.translation_matrix((x, y, 0.0)),
-                tra.rotation_matrix(np.radians(90), [0, 0, 1]),
+                tra.rotation_matrix(np.radians(rotation_angle), [0, 0, 1]),
             ),
         )
-    else:
-        scene.add_object(shelf, name, transform=tra.translation_matrix((x, y, 0.0)))
     support_data = scene.label_support(
         erosion_distance=0.05,
         label=support_name,
@@ -142,20 +139,33 @@ def add_objects_to_shelf_v2(
     product_placement: dict,
     product_assets_lib,
     support_data,
-    gap,
+    x_gap,
+    y_gap,
+    delta_x,
+    delta_y,
+    start_point_x,
+    start_point_y,
     filling_type
 ):
     if filling_type == FillingType.BOARDWISE_COLUMNS:
-        for board_idx, board_arrangement in product_placement.items():
-            current_point = np.array([-1.0, -1.0])
-            for product, num_col in board_arrangement.items():
+        for board_idx, board_arrangement in enumerate(product_placement):
+            start_point = np.array([start_point_x, start_point_y])
+            board_arrangement = [(arr_value.split(':')[0], int(arr_value.split(':')[1])) for arr_value in board_arrangement]
+            for product, num_col in board_arrangement:
                 obj = product_assets_lib[product].ss_asset
                 dims = obj.get_extents()
                 scene.place_objects(
                     obj_id_iterator=utils.object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:"),
                     obj_asset_iterator=(obj for _ in range(int(np.ceil(support_data[0].polygon.bounds[3]/min(dims[0], dims[1]))*num_col))), #upperbound on how many objects can fit
                     obj_support_id_iterator=utils.cycle_list(support_data, [board_idx]),
-                    obj_position_iterator=PositionIteratorGridColumns(obj_width=dims[0], obj_depth=dims[1], x_gap=gap, y_gap=gap, current_point=current_point, num_cols = num_col),
+                    obj_position_iterator=PositionIteratorGridColumns(obj_width=dims[0], 
+                                                                      obj_depth=dims[1], 
+                                                                      x_gap=x_gap, 
+                                                                      y_gap=y_gap, 
+                                                                      delta_x=delta_x,
+                                                                      delta_y=delta_y,
+                                                                      current_point=start_point, 
+                                                                      num_cols = num_col),
                     obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0,0),
                 )
     else:
@@ -183,7 +193,7 @@ def add_objects_to_shelf_v2(
 def shelf_placement_v2(
         product_filling_flattened,
         darkstore: list[list],
-        is_rotate: list[list],
+        rotations: list[list],
         product_assets_lib,
         zones_cfg,
         is_showed: bool = False,
@@ -209,7 +219,7 @@ def shelf_placement_v2(
                 shelf,
                 x * 1.55,
                 y * 1.55,
-                is_rotate[x][y],
+                rotations[x][y],
                 f'SHELF_{cnt}_{shelf_name}',
                 f'support_SHELF_{cnt}_{shelf_name}',
             )
@@ -221,7 +231,12 @@ def shelf_placement_v2(
                 product_filling_flattened[shelf_name],
                 product_assets_lib,
                 support_data,
-                zones_cfg[z_name][s_name].gap,
+                zones_cfg[z_name][s_name].x_gap,
+                zones_cfg[z_name][s_name].y_gap,
+                zones_cfg[z_name][s_name].delta_x,
+                zones_cfg[z_name][s_name].delta_y,
+                zones_cfg[z_name][s_name].start_point_x,
+                zones_cfg[z_name][s_name].start_point_y,
                 zones_cfg[z_name][s_name].filling_type
             )
             cnt += 1
@@ -236,9 +251,9 @@ def shelf_placement_v2(
     data = json.loads(json_str)
     del data["geometry"]
     if type(product_filling_flattened) == list:
-        data["meta"] = {"n": n, "m": m, "room": darkstore, "filling": product_filling_flattened}
+        data["meta"] = {"n": n, "m": m, "room": darkstore, "rotations": rotations, "filling": product_filling_flattened}
     else:
-        data["meta"] = {"n": n, "m": m, "room": darkstore}
+        data["meta"] = {"n": n, "m": m, "room": darkstore, "rotations": rotations}
     return data
 
 def one_shelf_placement_with(

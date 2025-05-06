@@ -34,6 +34,8 @@ class Asset:
     _ms_scale: Any = None
     _ms_origin: Any = None
 
+    asset_name: str = 'asset'
+
     def __post_init__(self):
         if not Path(self.asset_file_path).exists():
             logger.warning(f'Asset path {str(self.asset_file_path)} does not exist!')
@@ -117,7 +119,6 @@ class Asset:
         builder.set_scene_idxs(scene_idxs)
         builder.add_visual_from_file(filename=self.asset_file_path, scale=scale)
         builder.set_initial_pose(pose)
-
         if self.ms_is_nonconvex_collision:
             builder.add_nonconvex_collision_from_file(filename=self.asset_file_path, scale=scale)
         else:
@@ -127,7 +128,9 @@ class Asset:
             actor = builder.build_static(name=obj_name)
         else:
             actor = builder.build(name=obj_name)
-        
+            if actor.get_mass().item() > 0.7:
+                actor.set_mass(0.7)
+
         return actor
 
 def load_assets_lib(products_hierarchy_dict: DictConfig):
