@@ -29,15 +29,20 @@ class MoveFromBoardToBoardStaticEnv(DarkstoreCellBaseEnv):
                     shelf_i, shelf_j = i, j
                     break
         if rot == 0:
-            origin, angle = np.array([shelf_i, shelf_j - 1, 0.]), np.pi / 2
+            origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j - 1, 0.]), np.pi / 2, np.array([0, 1, 0])
         if rot == -90:
-            origin, angle = np.array([shelf_i - 1, shelf_j, 0.]), 0 
+            origin, angle, direction_to_shelf = np.array([shelf_i - 1, shelf_j, 0.]), 0 , np.array([1, 0, 0])
         if rot == 90:
-            origin, angle = np.array([shelf_i + 1, shelf_j, 0.]), np.pi
+            origin, angle, direction_to_shelf = np.array([shelf_i + 1, shelf_j, 0.]), np.pi, np.array([-1, 0, 0])
         if rot == 180:
-            origin, angle = np.array([shelf_i, shelf_j + 1, 0.]), - np.pi / 2
+            origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j + 1, 0.]), - np.pi / 2, np.array([0, -1, 0])
+        self.direction_to_shelf = direction_to_shelf
+
         origin = origin * CELL_SIZE
         origin[:2] += CELL_SIZE / 2
+
+        origin += direction_to_shelf * CELL_SIZE * 0.2
+
         return origin, angle
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
@@ -63,7 +68,7 @@ class MoveFromBoardToBoardStaticEnv(DarkstoreCellBaseEnv):
         elif self.robot_uids == "ds_fetch":
             qpos = np.array(
                 [
-                 0.2 * CELL_SIZE,
+                    0,
                     0,
                     0,#np.random.rand() * 6.2832 - 3.1416,
                     0.36,
@@ -127,3 +132,39 @@ class MoveFromBoardToBoardStaticEnv(DarkstoreCellBaseEnv):
     def _default_sensor_configs(self):
         pose = sapien_utils.look_at([0.1, 0.1, 2.75], [1.8, 1.8, 0])
         return [CameraConfig("base_camera", pose, 512, 512, np.pi / 2, 0.01, 100)]
+    
+
+@register_env('MoveFromBoardToBoardEnv', max_episode_steps=200000)
+class MoveFromBoardToBoardEnv(MoveFromBoardToBoardStaticEnv):
+
+    def _compute_robot_init_pose(self, env_idx = None): #TODO: redo this shit
+        target_shelf = 'zone1.shelf1'
+        for i in range(len(self.scene_builder.room[0])):
+            for j in range(len(self.scene_builder.room[0][i])):
+                if self.scene_builder.room[0][i][j] == target_shelf:
+                    rot = self.scene_builder.rotations[0][i][j]
+                    shelf_i, shelf_j = i, j
+                    break
+        if rot == 0:
+            origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j - 1, 0.]), np.pi / 2, np.array([0, 1, 0])
+        if rot == -90:
+            origin, angle, direction_to_shelf = np.array([shelf_i - 1, shelf_j, 0.]), 0 , np.array([1, 0, 0])
+        if rot == 90:
+            origin, angle, direction_to_shelf = np.array([shelf_i + 1, shelf_j, 0.]), np.pi, np.array([-1, 0, 0])
+        if rot == 180:
+            origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j + 1, 0.]), - np.pi / 2, np.array([0, -1, 0])
+        origin = origin * CELL_SIZE
+        origin[:2] += CELL_SIZE / 2
+
+        perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
+
+        delta_par = self._batched_episode_rng[0].rand() * CELL_SIZE * 0.3
+        delta_perp = (self._batched_episode_rng[0].rand() - 0.5) * 2 * CELL_SIZE * 0.3
+
+        origin += - direction_to_shelf * delta_par + perp_direction * delta_perp
+
+        angle += (self._batched_episode_rng[0].rand() - 0.5) * np.pi / 4
+
+        self.direction_to_shelf = direction_to_shelf
+
+        return origin, angle

@@ -871,7 +871,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
     def follow_path(self, result, refine_steps:int = 0, refine: bool = False):
         return self.follow_forward_path_w_refinement(result, refine)
 
-    def follow_forward_path_w_refinement(self, result, refine: bool = False):
+    def follow_forward_path_w_refinement(self, result, refine: bool = False, static=False):
         qpos_final = result["position"][-1]
         qpos_dict_final = {}
         for idx, q in zip(self.planner.move_group_joint_indices, qpos_final):
