@@ -215,9 +215,6 @@ class DarkstoreCellBaseEnv(BaseEnv):
         else:
             raise NotImplementedError
 
-    def _get_obs_extra(self, info: Dict):
-        return dict()
-
     def evaluate(self):
         target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
         target_pos[0][2] -= self.target_sizes[2]/2
