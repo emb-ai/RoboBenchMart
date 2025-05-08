@@ -30,6 +30,7 @@ cd darkstore-synthesizer
 conda create -n dsynth python=3.10
 conda activate dsynth
 pip install -r requirements.txt
+pip install mplib==0.2.1
 ```
 
 Test your ManiSkill installation:
