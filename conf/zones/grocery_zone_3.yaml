@@ -1,0 +1,6 @@
+defaults:
+  - /shelves@full_grocery1: full_grocery
+  - /shelves@full_grocery2: full_grocery
+  - /shelves@full_grocery3: full_grocery
+
+

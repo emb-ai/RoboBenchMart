@@ -1,0 +1,7 @@
+defaults:
+  - /zones@drinks_zone: drinks_zone_3
+  - /zones@grocery_zone: grocery_zone_3
+  - /zones@milk_zone: milk_zone_3
+
+
+    
