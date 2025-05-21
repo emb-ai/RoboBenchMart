@@ -138,7 +138,7 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
     
     # WTF: idk why this collision happens
     planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
-        get_fcl_object_name(target), 'scene-0-ds_fetch_gripper_link', True
+        get_fcl_object_name(target), 'scene-0-ds_fetch_basket_gripper_link', True
     )
     # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
     #     get_fcl_object_name(target), True
@@ -166,7 +166,7 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
     res = planner.close_gripper()
     planner.planner.update_from_simulation()
     
-    kwargs = {"name": get_fcl_object_name(target), "art_name": 'scene-0_ds_fetch_1', "link_id": planner.planner.move_group_link_id}
+    kwargs = {"name": get_fcl_object_name(target), "art_name": 'scene-0_ds_fetch_basket_1', "link_id": planner.planner.move_group_link_id}
     planner.planner.planning_world.attach_object(**kwargs)
     planner.planner.update_from_simulation()
 

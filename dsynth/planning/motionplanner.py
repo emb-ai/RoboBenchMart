@@ -598,7 +598,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
         planner = SapienPlannerV2(
             planning_world,
-            "scene-0-ds_fetch_gripper_link",
+            f"scene-0-{self.robot.name}_gripper_link",
             joint_vel_limits=np.ones(11) * self.joint_vel_limits,
             joint_acc_limits=np.ones(11) * self.joint_acc_limits
         )
@@ -893,12 +893,12 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
                 qpos_dict[joint_name] = q
 
             for n, joint_name in enumerate(self.env_agent.controller.controllers['arm'].config.joint_names):
-                arm_action[n] = qpos_dict[f'scene-0-ds_fetch_{joint_name}']
+                arm_action[n] = qpos_dict[f'scene-0-{self.robot.name}_{joint_name}']
 
             assert self.control_mode == "pd_joint_pos"
 
             body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
-            body_action[2] = qpos_dict['scene-0-ds_fetch_torso_lift_joint']
+            body_action[2] = qpos_dict[f'scene-0-{self.robot.name}_torso_lift_joint']
 
             base_action = np.array([0., 0.])
             base_action[0] =  np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
@@ -937,7 +937,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
                     break
 
                 body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
-                body_action[2] = qpos_dict_final['scene-0-ds_fetch_torso_lift_joint']
+                body_action[2] = qpos_dict_final[f'scene-0-{self.robot.name}_torso_lift_joint']
                 body_action[0] = body_action[1] = 0.
 
                 base_action = np.array([0., 0.])
@@ -967,24 +967,24 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
     def check_body_base_close_to_target(self, target_dict, eps=1e-2):
         body_qpos = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2]
-        target_lift_joint_height = target_dict['scene-0-ds_fetch_torso_lift_joint']
+        target_lift_joint_height = target_dict[f'scene-0-{self.robot.name}_torso_lift_joint']
 
         base_xy = self.env_agent.controller.controllers['base'].qpos[0].cpu().numpy()[0:2]
         target_base = np.array([
-            target_dict['scene-0-ds_fetch_root_x_axis_joint'],
-            target_dict['scene-0-ds_fetch_root_y_axis_joint']
+            target_dict[f'scene-0-{self.robot.name}_root_x_axis_joint'],
+            target_dict[f'scene-0-{self.robot.name}_root_y_axis_joint']
         ])
 
         robot_qpos = self.robot.get_qpos().cpu().numpy()[0]
         arm_pos = robot_qpos[self.env_agent.controller.controllers['arm'].active_joint_indices.cpu().numpy()]
         target_arm_pos = np.array([
-            target_dict['scene-0-ds_fetch_shoulder_pan_joint'],
-            target_dict['scene-0-ds_fetch_shoulder_lift_joint'],
-            target_dict['scene-0-ds_fetch_upperarm_roll_joint'],
-            target_dict['scene-0-ds_fetch_elbow_flex_joint'],
-            target_dict['scene-0-ds_fetch_forearm_roll_joint'],
-            target_dict['scene-0-ds_fetch_wrist_flex_joint'],
-            target_dict['scene-0-ds_fetch_wrist_roll_joint']
+            target_dict[f'scene-0-{self.robot.name}_shoulder_pan_joint'],
+            target_dict[f'scene-0-{self.robot.name}_shoulder_lift_joint'],
+            target_dict[f'scene-0-{self.robot.name}_upperarm_roll_joint'],
+            target_dict[f'scene-0-{self.robot.name}_elbow_flex_joint'],
+            target_dict[f'scene-0-{self.robot.name}_forearm_roll_joint'],
+            target_dict[f'scene-0-{self.robot.name}_wrist_flex_joint'],
+            target_dict[f'scene-0-{self.robot.name}_wrist_roll_joint']
         ])
         return np.allclose(body_qpos, target_lift_joint_height, atol=eps) and \
             np.allclose(base_xy, target_base, atol=eps) and \

@@ -293,6 +293,10 @@ class DSFetch(Fetch):
         # Make a deepcopy in case users modify any config
         return deepcopy_dict(controller_configs)
 
+@register_agent()
+class DSFetchBasket(DSFetch):
+    uid = "ds_fetch_basket"
+    urdf_path = f"{PACKAGE_DIR}/assets/urdf/fetch/fetch_basket.urdf"
 
 @register_agent()
 class DSFetchQuasiStatic(Fetch):

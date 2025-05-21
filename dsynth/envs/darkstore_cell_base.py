@@ -189,7 +189,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.0, 0.0, 0.0]))
 
-        elif self.robot_uids == "ds_fetch":
+        elif self.robot_uids in ["ds_fetch", "ds_fetch_basket"]:
             qpos = np.array(
                 [
                  0,
