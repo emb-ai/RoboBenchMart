@@ -121,9 +121,9 @@ class DarkstoreScene(RoboCasaSceneBuilder):
         lamps_coords = []
 
         # TODO: max number of light sources can be reached
-        for i, j in itertools.product(range(x_cells), range(y_cells)):
-            x = CELL_SIZE / 2 + CELL_SIZE * i
-            y = CELL_SIZE / 2 + CELL_SIZE * j
+        for i, j in itertools.product(range(x_cells // 2), range(y_cells // 2)):
+            x = CELL_SIZE / 2 + CELL_SIZE * i * 2
+            y = CELL_SIZE / 2 + CELL_SIZE * j * 2
             lamps_coords.append((x, y))
         
         return lamps_coords
