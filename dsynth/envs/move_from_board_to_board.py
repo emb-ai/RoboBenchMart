@@ -168,3 +168,16 @@ class MoveFromBoardToBoardEnv(MoveFromBoardToBoardStaticEnv):
         self.direction_to_shelf = direction_to_shelf
 
         return origin, angle
+
+
+@register_env('MoveFromBoardToBoardStaticOneProdEnv', max_episode_steps=200000)
+class MoveFromBoardToBoardStaticOneProdEnv(MoveFromBoardToBoardStaticEnv):
+    def setup_target_object(self):
+        self.target_product_name = sorted(list(self.actors['products'].keys()))[2] # pick sprite
+        obb = get_actor_obb(self.actors['products'][self.target_product_name])
+        center = np.array(obb.primitive.transform)[:3, 3]
+
+        self.target_product_marker.set_pose(sapien.Pose(center))
+
+        target_product_name = 'products_hierarchy.' + self.target_product_name.split(':')[0]
+        self.target_product_str = self.assets_lib[target_product_name].asset_name
