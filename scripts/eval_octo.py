@@ -166,7 +166,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
             
             actions = policy_fn(tree_map(lambda x: x[None], obs), task)
             actions = actions[0]
-            actions[:, 7] = -(actions[:, -7] - 0.5) * 2
+            actions[:, 7] = -(actions[:, 7] - 0.5) * 2
 
             obs, reward, done, trunc, info = env.step(actions)
             if args.vis:
@@ -180,7 +180,6 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
         solution_episode_lengths.append(elapsed_steps)
 
         successes.append(success)
-        seed += 1
 
         env.flush_trajectory()
         if args.save_video:
