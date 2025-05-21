@@ -51,7 +51,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     record_dir = args.scene_dir + '/demos'
     
     env = gym.make(env_id, 
-                    robot_uids='ds_fetch',
+                    robot_uids='ds_fetch_basket',
                    config_dir_path = scene_dir,
                    num_envs=1, 
                    control_mode="pd_joint_pos",
