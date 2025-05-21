@@ -117,8 +117,8 @@ class PickToCartStaticEnv(DarkstoreCellBaseEnv):
 class PickToCartEnv(PickToCartStaticEnv):
     pass
 
-@register_env('PickToCartStatiсOneProdEnv', max_episode_steps=200000)
-class PickToCartStatiсOneProdEnv(PickToCartStaticEnv):
+@register_env('PickToCartStaticOneProdEnv', max_episode_steps=200000)
+class PickToCartStaticOneProdEnv(PickToCartStaticEnv):
     def setup_target_object(self):
         self.target_product_name = sorted(list(self.actors['products'].keys()))[2] # pick sprite
         obb = get_actor_obb(self.actors['products'][self.target_product_name])
