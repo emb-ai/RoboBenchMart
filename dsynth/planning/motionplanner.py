@@ -1017,3 +1017,18 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         
     def open_gripper(self, t=6):
         return self.change_gripper_state(t=t, gripper_state = OPEN)
+    
+    def idle_steps(self, t=20):
+        arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
+        body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
+        base_action = np.array([0, 0])
+        for i in range(t):
+            if self.control_mode == "pd_joint_pos":
+                # action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
+                action = np.hstack([arm_action, self.gripper_state, body_action, base_action])
+            else:
+                raise NotImplementedError
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            if self.vis:
+                self.base_env.render_human()
+        return obs, reward, terminated, truncated, info

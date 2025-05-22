@@ -112,16 +112,17 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
     # goal_pose = env.agent.build_grasp_pose(goal_approaching, goal_closing, goal_center)
 
     goal_center = env.target_volume.pose.sp.p
-    goal_center = goal_center + np.array([0.2, 0., 0.15])
+    goal_center = goal_center + np.array([0.1, 0., 0.45])
 
     goal_approaching = np.array([0, 0., -1.])
     goal_approaching /= np.linalg.norm(goal_approaching)
 
 
-    goal_closing = np.array([1., 0., 0.])
+    goal_closing = np.array([1., -1., 0.])
     # goal_closing = tcp_closing - goal_approaching * (goal_approaching @ tcp_closing)
     goal_closing /= np.linalg.norm(goal_closing)
     goal_pose = env.agent.build_grasp_pose(goal_approaching, goal_closing, goal_center)
+    goal_pose = goal_pose* sapien.Pose([0., 0., 0.2])
     
     if is_mesh_cylindrical(target):
         approaching = center - tcp_center
@@ -139,6 +140,10 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
     # WTF: idk why this collision happens
     planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
         get_fcl_object_name(target), 'scene-0-ds_fetch_basket_gripper_link', True
+    )
+
+    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+        get_fcl_object_name(target), 'scene-0_floor_room_0_43', True
     )
     # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
     #     get_fcl_object_name(target), True
@@ -201,9 +206,9 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
     # Place
     # -------------------------------------------------------------------------- #
 
-    res = planner.static_manipulation(goal_pose * sapien.Pose([0.05, 0., 0.]), n_init_qpos=200, disable_lift_joint=False)
-    planner.planner.update_from_simulation()
     res = planner.open_gripper()
+
+    res = planner.idle_steps(t=40)
 
 
     planner.render_wait()

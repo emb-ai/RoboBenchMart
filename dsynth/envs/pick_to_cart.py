@@ -104,7 +104,7 @@ class PickToCartStaticEnv(DarkstoreCellBaseEnv):
             self.agent.robot.set_pose(sapien.Pose(p=robot_origin, q=euler2quat(0, 0, robot_angle)))
 
         robot_pose = self.agent.robot.get_pose()
-        cart_shift = sapien.Pose(p=[0.15, 0.25, 0.44])
+        cart_shift = sapien.Pose(p=[0.3, 0.25, 0.14])
         # cube_shift_up = np.array([0, 0.13, 0.35])
         new_cart_pose_p = robot_pose * cart_shift 
         
