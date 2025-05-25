@@ -63,7 +63,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="fetch_description/meshes/basket.obj"/>
+        <mesh filename="fetch_description/meshes/basket_full.obj"/>
       </geometry>
     </visual>
     <collision>
@@ -72,174 +72,65 @@
         <mesh filename="fetch_description/meshes/basket.obj"/>
       </geometry>
     </collision>
-  </link>
-  <link name="basket002">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="fetch_description/meshes/basket002.obj"/>
-      </geometry>
-    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="fetch_description/meshes/basket002.obj"/>
       </geometry>
     </collision>
-  </link>
-  <link name="basket003">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="fetch_description/meshes/basket003.obj"/>
-      </geometry>
-    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="fetch_description/meshes/basket003.obj"/>
       </geometry>
     </collision>
-  </link>
-  <link name="basket004">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="fetch_description/meshes/basket004.obj"/>
-      </geometry>
-    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="fetch_description/meshes/basket004.obj"/>
       </geometry>
     </collision>
-  </link>
-  <link name="basket005">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="fetch_description/meshes/basket005.obj"/>
-      </geometry>
-    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="fetch_description/meshes/basket005.obj"/>
       </geometry>
     </collision>
-  </link>
-  <link name="basket006">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="fetch_description/meshes/basket006.obj"/>
-      </geometry>
-    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="fetch_description/meshes/basket006.obj"/>
       </geometry>
     </collision>
-  </link>
-  <link name="basket007">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="fetch_description/meshes/basket007.obj"/>
-      </geometry>
-    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="fetch_description/meshes/basket007.obj"/>
       </geometry>
     </collision>
-  </link>
-  <link name="basket008">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="fetch_description/meshes/basket008.obj"/>
-      </geometry>
-    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="fetch_description/meshes/basket008.obj"/>
       </geometry>
     </collision>
-  </link>
-  <link name="basket009">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="fetch_description/meshes/basket009.obj"/>
-      </geometry>
-    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="fetch_description/meshes/basket009.obj"/>
       </geometry>
     </collision>
+
   </link>
+
+
   <joint name="basket_joint_base" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="base_link"/>
     <child link="basket"/>
     <axis xyz="0 1 0"/>
   </joint>
-  <joint name="basket002" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="basket"/>
-    <child link="basket002"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-  <joint name="basket003" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="basket"/>
-    <child link="basket003"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-  <joint name="basket004" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="basket"/>
-    <child link="basket004"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-  <joint name="basket005" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="basket"/>
-    <child link="basket005"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-  <joint name="basket006" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="basket"/>
-    <child link="basket006"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-  <joint name="basket007" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="basket"/>
-    <child link="basket007"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-  <joint name="basket008" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="basket"/>
-    <child link="basket008"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-  <joint name="basket009" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="basket"/>
-    <child link="basket009"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-
+  
   <link name="r_wheel_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>

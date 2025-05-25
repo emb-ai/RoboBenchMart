@@ -25,15 +25,6 @@
   <disable_collisions link1="forearm_roll_link" link2="wrist_flex_link" reason="Default"/> 
   <disable_collisions link1="wrist_flex_link" link2="wrist_roll_link" reason="Default"/>
 
-  <disable_collisions link1="basket002" link2="basket003" reason="Default"/>
-  <disable_collisions link1="basket003" link2="basket004" reason="Default"/>
-  <disable_collisions link1="basket004" link2="basket005" reason="Default"/>
-  <disable_collisions link1="basket005" link2="basket006" reason="Default"/>
-  <disable_collisions link1="basket006" link2="basket007" reason="Default"/>
-  <disable_collisions link1="basket007" link2="basket008" reason="Default"/>
-  <disable_collisions link1="basket008" link2="basket009" reason="Default"/>
-  <disable_collisions link1="basket009" link2="basket002" reason="Default"/>
-  
 
 <disable_collisions link1="wrist_roll_link" link2="gripper_link" reason="Default"/> 
 </robot>
