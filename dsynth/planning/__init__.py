@@ -5,5 +5,6 @@ MP_SOLUTIONS = {
     "MoveFromBoardToBoardStaticEnv": solve_fetch_static_from_board_to_board,
     "MoveFromBoardToBoardStaticOneProdEnv": solve_fetch_static_from_board_to_board,
     "MoveFromBoardToBoardEnv": solve_fetch_move_from_board_to_board,
-    "PickToCartStaticOneProdEnv": solve_fetch_pick_to_basket_static 
+    "PickToCartStaticOneProdEnv": solve_fetch_pick_to_basket_static_one_prod,
+    "PickToCartOneProdEnv": solve_fetch_pick_to_basket_one_prod
 }

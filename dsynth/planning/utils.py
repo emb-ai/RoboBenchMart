@@ -209,8 +209,8 @@ def is_mesh_cylindrical(actor, to_world_frame=True):
 
     h_obb, w_obb = obb.primitive.extents[:2]
     h_c_obb, w_c_obb = cylinder_obb.primitive.extents[:2]
-    if np.abs(h_obb * w_obb - h_c_obb * w_c_obb) < 1e-3 and \
-        np.abs(h_obb + w_obb - h_c_obb - w_c_obb) < 1e-3:
+    if np.abs(h_obb * w_obb - h_c_obb * w_c_obb) < 5e-3 and \
+        np.abs(h_obb + w_obb - h_c_obb - w_c_obb) < 5e-3:
         return True
     return False
     

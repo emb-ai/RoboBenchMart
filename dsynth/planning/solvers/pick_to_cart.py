@@ -10,6 +10,7 @@ import os.path as osp
 import numpy as np
 np.set_printoptions(suppress=True)
 import mplib
+from transforms3d.euler import euler2quat, quat2euler
 from mplib.sapien_utils.conversion import convert_object_name
 from mplib.collision_detection.fcl import CollisionGeometry
 from mplib.sapien_utils import SapienPlanner, SapienPlanningWorld
@@ -56,7 +57,7 @@ from dsynth.planning.utils import (
     is_mesh_cylindrical
 )
 
-def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug=False, vis=False):
+def solve_fetch_pick_to_basket_static_one_prod(env: PickToCartStaticOneProdEnv, seed=None, debug=False, vis=False):
     env.reset(seed=seed, options={'reconfigure': True})
     planner = FetchMotionPlanningSapienSolver(
         env,
@@ -70,19 +71,30 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
     FINGER_LENGTH = 0.07
     env = env.unwrapped
     
-    target = env.actors['products'][env.target_product_name]
+    tcp_pose = env.agent.tcp.pose
+
+    #find the closest to gripper as target product
+    max_dist = np.inf
+    target_product_name = ''
+    for target_actor_name in env.target_product_names:
+        prod_pos = env.actors['products'][target_actor_name].pose.sp.p
+        if np.linalg.norm(prod_pos - tcp_pose.sp.p) < max_dist:
+            max_dist = np.linalg.norm(prod_pos - tcp_pose.sp.p)
+            target_product_name = target_actor_name
+
+    target = env.actors['products'][target_product_name]
     # retrieves the object oriented bounding box (trimesh box object)
 
-    target_closing = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
-    target_approaching = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
-    ee_direction = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
-    tcp_center = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 3].cpu().numpy()
-    tcp_closing = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    target_closing = tcp_pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    target_approaching = tcp_pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    ee_direction = tcp_pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    tcp_center = tcp_pose.to_transformation_matrix()[0, :3, 3].cpu().numpy()
+    tcp_closing = tcp_pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
 
     obb = get_actor_obb(target)
 
     # get transformation matrix of the tcp pose, is default batched and on torch
-    target_closing = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    target_closing = tcp_pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
     # we can build a simple grasp pose using this information for Panda
 
 
@@ -97,19 +109,6 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
     
     grasp_pose = grasp_pose * sapien.Pose([0, 0, -0.04])
     reach_pose = grasp_pose * sapien.Pose([0, 0, -0.2])
-
-    
-    
-    # goal_center = env.target_volume.pose.sp.p
-    # goal_center = goal_center + np.array([0.2, 0., 0.15])
-
-    # goal_approaching = np.array([-5., 0., -1.])
-    # goal_approaching /= np.linalg.norm(goal_approaching)
-
-    # goal_closing = tcp_closing - goal_approaching * (goal_approaching @ tcp_closing)
-    # goal_closing /= np.linalg.norm(goal_closing)
-    # goal_closing = -goal_closing
-    # goal_pose = env.agent.build_grasp_pose(goal_approaching, goal_closing, goal_center)
 
     goal_center = env.target_volume.pose.sp.p
     goal_center = goal_center + np.array([0.1, 0., 0.45])
@@ -138,13 +137,20 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
     pre_goal_pose = goal_pose * sapien.Pose([0, 0, -0.2])
     
     # WTF: idk why this collision happens
-    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
-        get_fcl_object_name(target), 'scene-0-ds_fetch_basket_gripper_link', True
+    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+    #     get_fcl_object_name(target), True
+    # )
+    planner.planner.planning_world.get_allowed_collision_matrix().set_default_entry(
+        get_fcl_object_name(target), True
     )
 
-    planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
-        get_fcl_object_name(target), 'scene-0_floor_room_0_43', True
-    )
+    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+    #     get_fcl_object_name(target), 'scene-0-ds_fetch_basket_gripper_link', True
+    # )
+
+    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+    #     get_fcl_object_name(target), get_fcl_object_name(env.scene.actors['floor_room_0']), True
+    # )
     # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
     #     get_fcl_object_name(target), True
     # )
@@ -213,5 +219,185 @@ def solve_fetch_pick_to_basket_static(env: PickToCartStaticEnv, seed=None, debug
 
     planner.render_wait()
     return res
+
+def solve_fetch_pick_to_basket_one_prod(env: PickToCartStaticOneProdEnv, seed=None, debug=False, vis=False):
+    env.reset(seed=seed, options={'reconfigure': True})
+    planner = FetchMotionPlanningSapienSolver(
+        env,
+        debug=debug,
+        vis=vis,
+        base_pose=env.unwrapped.agent.robot.pose,
+        visualize_target_grasp_pose=vis,
+        print_env_info=False,
+    )
+
+    FINGER_LENGTH = 0.07
+    env = env.unwrapped
+    
+    # -------------------------------------------------------------------------- #
+    # Drive
+    # -------------------------------------------------------------------------- #
+    
+    drive_pos = sapien.Pose(
+        p = env.target_drive_position
+    )
+
+    drive_pose_view = sapien.Pose(p=env.target_drive_position,
+                                  )
+    res = planner.drive_base(drive_pos, env.direction_to_shelf)
+    # planner.rotate_base_z(env.direction_to_shelf)
+    planner.planner.update_from_simulation()
+
+    
+    tcp_pose = env.agent.tcp.pose
+
+    #find the closest to gripper as target product
+    max_dist = np.inf
+    target_product_name = ''
+    for target_actor_name in env.target_product_names:
+        prod_pos = env.actors['products'][target_actor_name].pose.sp.p
+        if np.linalg.norm(prod_pos - tcp_pose.sp.p) < max_dist:
+            max_dist = np.linalg.norm(prod_pos - tcp_pose.sp.p)
+            target_product_name = target_actor_name
+
+    target = env.actors['products'][target_product_name]
+    # retrieves the object oriented bounding box (trimesh box object)
+
+    target_closing = tcp_pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    target_approaching = tcp_pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    ee_direction = tcp_pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    tcp_center = tcp_pose.to_transformation_matrix()[0, :3, 3].cpu().numpy()
+    tcp_closing = tcp_pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+
+    obb = get_actor_obb(target)
+
+    # get transformation matrix of the tcp pose, is default batched and on torch
+    target_closing = tcp_pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    # we can build a simple grasp pose using this information for Panda
+
+
+    grasp_info = compute_box_grasp_thin_side_info(
+        obb,
+        target_closing=target_closing,
+        ee_direction=ee_direction,
+        depth=FINGER_LENGTH,
+    )
+    closing, center, approaching = grasp_info["closing"], grasp_info["center"], grasp_info["approaching"]
+    grasp_pose = env.agent.build_grasp_pose(approaching, closing, center)
+    
+    grasp_pose = grasp_pose * sapien.Pose([0, 0, -0.04])
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.2])
+
+    goal_center = env.target_volume.pose.sp.p
+    goal_center = goal_center + np.array([0.1, 0., 0.45])
+
+    goal_approaching = np.array([0, 0., -1.])
+    goal_approaching /= np.linalg.norm(goal_approaching)
+
+
+    goal_closing = np.array([1., -1., 0.])
+    # goal_closing = tcp_closing - goal_approaching * (goal_approaching @ tcp_closing)
+    goal_closing /= np.linalg.norm(goal_closing)
+    goal_pose = env.agent.build_grasp_pose(goal_approaching, goal_closing, goal_center)
+    goal_pose = goal_pose* sapien.Pose([0., 0., 0.2])
+    
+    if is_mesh_cylindrical(target):
+        approaching = center - tcp_center
+        approaching[2] = 0.
+        approaching = common.np_normalize_vector(approaching)
+        closing = np.cross(approaching, [0., 0., 1.])
+
+        grasp_pose = env.agent.build_grasp_pose(approaching, closing, center)
+
+        grasp_pose = grasp_pose * sapien.Pose([0, 0, -0.02])
+        reach_pose = grasp_pose * sapien.Pose([0, 0, -0.25])
+        
+    pre_goal_pose = goal_pose * sapien.Pose([0, 0, -0.2])
+    
+    # WTF: idk why this collision happens
+    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+    #     get_fcl_object_name(target), True
+    # )
+    planner.planner.planning_world.get_allowed_collision_matrix().set_default_entry(
+        get_fcl_object_name(target), True
+    )
+
+    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+    #     get_fcl_object_name(target), 'scene-0-ds_fetch_basket_gripper_link', True
+    # )
+
+    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+    #     get_fcl_object_name(target), get_fcl_object_name(env.scene.actors['floor_room_0']), True
+    # )
+    # planner.planner.planning_world.get_allowed_collision_matrix().set_entry(
+    #     get_fcl_object_name(target), True
+    # )
+
+
+    # -------------------------------------------------------------------------- #
+    # Reach
+    # -------------------------------------------------------------------------- #
+
+    res = planner.static_manipulation(reach_pose, n_init_qpos=200, disable_lift_joint=False)
+    if res == -1:
+        return res
+    # planner.move_base_x_and_manipulation(reach_pose, n_init_qpos=100)
+    res = planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Grasp
+    # -------------------------------------------------------------------------- #
+
+    res = planner.static_manipulation(grasp_pose, n_init_qpos=200, disable_lift_joint=False)
+    if res == -1:
+        return res
+    planner.planner.update_from_simulation()
+    
+    res = planner.close_gripper()
+    planner.planner.update_from_simulation()
+    
+    kwargs = {"name": get_fcl_object_name(target), "art_name": 'scene-0_ds_fetch_basket_1', "link_id": planner.planner.move_group_link_id}
+    planner.planner.planning_world.attach_object(**kwargs)
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Lift
+    # -------------------------------------------------------------------------- #
+    lift_pose = grasp_pose * sapien.Pose([0.06, 0., 0.])
+    res = planner.static_manipulation(lift_pose, n_init_qpos=200, disable_lift_joint=False)
+    if res == -1:
+        return res
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Pull
+    # -------------------------------------------------------------------------- #
+
+    res = planner.static_manipulation(reach_pose * sapien.Pose([0.06, 0., 0.]), n_init_qpos=200, disable_lift_joint=False)
+    if res == -1:
+        return res
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Move to goal pose
+    # -------------------------------------------------------------------------- #
+
+    res = planner.static_manipulation(goal_pose, n_init_qpos=200, disable_lift_joint=False)
+    if res == -1:
+        return res
+    planner.planner.update_from_simulation()
+
+    # -------------------------------------------------------------------------- #
+    # Place
+    # -------------------------------------------------------------------------- #
+
+    res = planner.open_gripper()
+
+    res = planner.idle_steps(t=40)
+
+
+    planner.render_wait()
+    return res
+
 
 

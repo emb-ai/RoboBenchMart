@@ -272,7 +272,7 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
         planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
         planner = SapienPlannerV2(
             planning_world,
-            "scene-0-ds_fetch_static_gripper_link",
+            f"scene-0-{self.robot.name}_gripper_link",
             joint_vel_limits=np.ones(8) * self.joint_vel_limits,
             joint_acc_limits=np.ones(8) * self.joint_acc_limits
         )
@@ -280,7 +280,10 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
     
-    def follow_path(self, result, refine_steps: int = 0):
+    def follow_path(self, result, refine_steps:int = 0, refine: bool = False):
+        return self.follow_forward_path_w_refinement(result, refine)
+
+    def follow_forward_path_w_refinement(self, result, refine: bool = False, static=False):
         qpos_final = result["position"][-1]
         qpos_dict_final = {}
         for idx, q in zip(self.planner.move_group_joint_indices, qpos_final):
@@ -288,29 +291,34 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
             qpos_dict_final[joint_name] = q
             
         n_step = result["position"].shape[0]
-        for i in range(n_step + refine_steps):
+
+        for i in range(n_step):
             arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
 
             qpos = result["position"][min(i, n_step - 1)]
+            qvel = result["velocity"][min(i, n_step - 1)]
 
             qpos_dict = {}
-
+            
             for idx, q in zip(self.planner.move_group_joint_indices, qpos):
                 joint_name = self.planner.user_joint_names[idx]
                 qpos_dict[joint_name] = q
 
             for n, joint_name in enumerate(self.env_agent.controller.controllers['arm'].config.joint_names):
-                arm_action[n] = qpos_dict[f'scene-0-ds_fetch_static_{joint_name}']
+                arm_action[n] = qpos_dict[f'scene-0-{self.robot.name}_{joint_name}']
 
             assert self.control_mode == "pd_joint_pos"
 
-            body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
-            body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint']
-            body_action[0] = body_action[1] = 0.
+            body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
+            body_action[2] = qpos_dict[f'scene-0-{self.robot.name}_torso_lift_joint']
+
+            # base_action = np.array([0., 0.])
+            # base_action[0] =  np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
 
             action = np.hstack([arm_action, self.gripper_state, body_action])
             print("arm Action:", np.round(arm_action, 4))
             print("body Action:", np.round(body_action, 4))
+            # print("base Action:", np.round(base_action, 4))
             print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
             obs, reward, terminated, truncated, info = self.env.step(action)
 
@@ -321,58 +329,71 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
                 )
             if self.vis:
                 self.base_env.render_human()
-            
-        # REFINEMENT!
-        # We refine only x position and lift at the end of the trajectory
-        passed_refine_steps = 0
-        last_lift_poses = deque(maxlen=10)
-        last_lift_vels = deque(maxlen=10)
-        print("==== REFINEMENT ====")
-        while not self.check_body_close_to_target(qpos_dict):
-            if (len(last_lift_vels) > 4 and np.std(last_lift_vels) < 1e-3) \
-                    and (len(last_lift_poses) > 4 and np.std(last_lift_poses) < 1e-3):
-                # robot is stuck
-                print("Robot is stuck")
-                break
 
-            body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
-            body_action[2] = qpos_dict_final['scene-0-ds_fetch_static_torso_lift_joint']
-            body_action[0] = body_action[1] = 0.
-         
-            last_lift_poses.append(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2])
-            
-            last_lift_vels.append(self.env_agent.controller.controllers['body'].qvel[0].cpu().numpy()[2])
-            
-            action = np.hstack([arm_action, self.gripper_state, body_action])
-            print("arm Action:", np.round(arm_action, 4))
-            print("body Action:", np.round(body_action, 4))
-            print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
-            obs, reward, terminated, truncated, info = self.env.step(action)
-            passed_refine_steps += 1
-            self.elapsed_steps += 1
-            if self.print_env_info:
-                print(
-                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
-                )
-            if self.vis:
-                self.base_env.render_human()
+        if refine:
+            # REFINEMENT!
+            passed_refine_steps = 0
+            last_lift_poses = deque(maxlen=10)
+            last_x_base_poses = deque(maxlen=10)
+            last_lift_vels = deque(maxlen=10)
+            last_x_base_vels = deque(maxlen=10)
+            print("==== REFINEMENT ====")
+    
+            while not self.check_body_close_to_target(qpos_dict_final):
+                if (len(last_lift_vels) > 4 and np.std(last_lift_vels) < 1e-3) \
+                        and (len(last_x_base_vels) > 4 and np.std(last_x_base_vels) < 1e-3) \
+                        and (len(last_lift_poses) > 4 and np.std(last_lift_poses) < 1e-3) \
+                        and (len(last_x_base_poses) > 4 and np.std(last_x_base_poses) < 1e-3):
+                    # robot is stuck
+                    print("Robot is stuck")
+                    break
+
+                body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
+                body_action[2] = qpos_dict_final[f'scene-0-{self.robot.name}_torso_lift_joint']
+                body_action[0] = body_action[1] = 0.
+
+                # base_action = np.array([0., 0.])
+                                    
+                last_lift_poses.append(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2])
+                last_lift_vels.append(self.env_agent.controller.controllers['body'].qvel[0].cpu().numpy()[2])
+                
+                action = np.hstack([arm_action, self.gripper_state, body_action])
+                print("arm Action:", np.round(arm_action, 4))
+                print("body Action:", np.round(body_action, 4))
+                # print("base Action:", np.round(base_action, 4))
+                print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+                obs, reward, terminated, truncated, info = self.env.step(action)
+                passed_refine_steps += 1
+                self.elapsed_steps += 1
+                if self.print_env_info:
+                    print(
+                        f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
+                    )
+                if self.vis:
+                    self.base_env.render_human()
 
         return obs, reward, terminated, truncated, info
 
-
-    def check_body_close_to_target(self, target_dict, eps=1e-2):
+    def check_body_close_to_target(self, target_dict, eps=1e-3):
         body_qpos = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2]
-        target_lift_joint_height = target_dict['scene-0-ds_fetch_static_torso_lift_joint']
+        target_lift_joint_height = target_dict[f'scene-0-{self.robot.name}_torso_lift_joint']
+
+        # base_xy = self.env_agent.controller.controllers['base'].qpos[0].cpu().numpy()[0:2]
+        # target_base = np.array([
+        #     target_dict[f'scene-0-{self.robot.name}_root_x_axis_joint'],
+        #     target_dict[f'scene-0-{self.robot.name}_root_y_axis_joint']
+        # ])
+
         robot_qpos = self.robot.get_qpos().cpu().numpy()[0]
         arm_pos = robot_qpos[self.env_agent.controller.controllers['arm'].active_joint_indices.cpu().numpy()]
         target_arm_pos = np.array([
-            target_dict['scene-0-ds_fetch_static_shoulder_pan_joint'],
-            target_dict['scene-0-ds_fetch_static_shoulder_lift_joint'],
-            target_dict['scene-0-ds_fetch_static_upperarm_roll_joint'],
-            target_dict['scene-0-ds_fetch_static_elbow_flex_joint'],
-            target_dict['scene-0-ds_fetch_static_forearm_roll_joint'],
-            target_dict['scene-0-ds_fetch_static_wrist_flex_joint'],
-            target_dict['scene-0-ds_fetch_static_wrist_roll_joint']
+            target_dict[f'scene-0-{self.robot.name}_shoulder_pan_joint'],
+            target_dict[f'scene-0-{self.robot.name}_shoulder_lift_joint'],
+            target_dict[f'scene-0-{self.robot.name}_upperarm_roll_joint'],
+            target_dict[f'scene-0-{self.robot.name}_elbow_flex_joint'],
+            target_dict[f'scene-0-{self.robot.name}_forearm_roll_joint'],
+            target_dict[f'scene-0-{self.robot.name}_wrist_flex_joint'],
+            target_dict[f'scene-0-{self.robot.name}_wrist_roll_joint']
         ])
         return np.allclose(body_qpos, target_lift_joint_height, atol=eps) and \
             np.allclose(arm_pos, target_arm_pos, atol=eps)
@@ -681,20 +702,20 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
         return self.follow_rotation(result)
     
-    def drive_base(self, target_pos, target_view_pos):
-        moving_direction = target_pos.p - self.base_env.agent.base_link.pose.sp.p
+    def drive_base(self, target_pose, target_view_vec):
+        moving_direction = target_pose.p - self.base_env.agent.base_link.pose.sp.p
         moving_direction[2] = 0.
 
         self.rotate_base_z(moving_direction)
         self.planner.update_from_simulation()
 
-        self.move_base_forward(target_pos.p, n_init_qpos=100)
+        self.move_base_forward(target_pose.p, n_init_qpos=100)
         self.planner.update_from_simulation()
         
-        view_direction = target_view_pos.p - self.base_env.agent.base_link.pose.sp.p
-        view_direction[2] = 0.
+        # view_direction = target_view_pos.p - self.base_env.agent.base_link.pose.sp.p
+        assert target_view_vec[-1] == 0
 
-        return self.rotate_base_z(view_direction)
+        return self.rotate_base_z(target_view_vec)
     
     def move_base_forward(self, new_base_pose, n_init_qpos=20):
         tcp_pose = self.base_env.agent.tcp.pose.sp
