@@ -7,3 +7,6 @@ generated_envs
 .ipynb_checkpoints
 .hydra
 outputs
+*.json
+*.mp4
+*.h5
