@@ -32,7 +32,7 @@ class ShelfConfig:
     is_dynamic: bool = True
 
     num_boards: int = 5
-
+    shuffle_boards: bool = False
     board_product_numcol: Dict[int, Dict[str, int]] = field(default_factory=lambda: {})
     x_gap: float = 0.002
     y_gap: float = 0.002

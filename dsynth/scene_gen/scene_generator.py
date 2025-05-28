@@ -177,9 +177,13 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
             rng.shuffle(cur_board_arrangement)
 
             filling.append([f'{key}:{val}' for key, val in cur_board_arrangement])
-
+        
     for _ in range(shelf_config.end_filling_from_board, shelf_config.num_boards):
         filling.append([])
+    
+    if shelf_config.shuffle_boards:
+        rng.shuffle(filling)
+
     return filling
 
 
