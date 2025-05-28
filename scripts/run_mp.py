@@ -108,7 +108,6 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
             elapsed_steps = res[-1]["elapsed_steps"].item()
             solution_episode_lengths.append(elapsed_steps)
         successes.append(success)
-        seed += 1
 
         if args.only_count_success and not success:
             seed += 1
