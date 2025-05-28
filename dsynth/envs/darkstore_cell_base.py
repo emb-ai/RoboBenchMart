@@ -211,6 +211,25 @@ class DarkstoreCellBaseEnv(BaseEnv):
             )
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([3.7, 1, 0]))
+        elif self.robot_uids in ["ds_fetch_static", "ds_fetch_basket_static"]:
+            qpos = np.array(
+                [
+                    0.386,
+                    0,
+                    0,
+                    0,
+                    -np.pi / 4,
+                    0,
+                    np.pi / 4,
+                    0,
+                    np.pi / 3,
+                    0,
+                    0.015,
+                    0.015,
+                ]
+            )
+            self.agent.reset(qpos)
+            self.agent.robot.set_pose(sapien.Pose([3.7, 1, 0]))
 
         else:
             raise NotImplementedError
