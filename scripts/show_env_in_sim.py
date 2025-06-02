@@ -15,12 +15,15 @@ from mani_skill.utils.wrappers import RecordEpisode
 
 import sys 
 sys.path.append('.')
-from dsynth.envs.pick_to_cart import PickToCartEnv
+from dsynth.envs import *
+from dsynth.robots import *
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets> <style id (0-11)> [mapping_file]"
     )
+    parser.add_argument("-e", "--env-id", type=str, default="PickToCartEnv", help=f"Environment to run")
+    parser.add_argument("-r", "--robot-uids", type=str, default="ds_fetch", help=f"Robot id")
     parser.add_argument("scene_dir", help="Путь к директории с JSON конфигом сцены")
     parser.add_argument("--style_id", type=int, default=0, help="Style id (0-11)")
     parser.add_argument('--shader',
@@ -46,8 +49,8 @@ def main(args):
     style_id = args.style_id
     gui = args.gui
 
-    env = gym.make('PickToCartEnv', 
-                   robot_uids='panda_wristcam', 
+    env = gym.make(args.env_id, 
+                   robot_uids=args.robot_uids, 
                    config_dir_path = args.scene_dir,
                    num_envs=1, 
                    viewer_camera_configs={'shader_pack': args.shader}, 
