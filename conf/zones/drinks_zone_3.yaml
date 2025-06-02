@@ -3,4 +3,4 @@ defaults:
   - /shelves@full_drinks2: full_drinks
   - /shelves@full_drinks3: full_drinks
 
-
+name: 'beverage zone'

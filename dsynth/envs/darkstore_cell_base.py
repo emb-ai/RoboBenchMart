@@ -89,6 +89,16 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.scene_builder.build()
         print("built")
 
+        self.room = self.scene_builder.room[0]
+        self.shelves_placement = {}
+        for i, j in itertools.product(range(len(self.room)), range(len(self.room[0]))):
+            if self.room[i][j] != 0:
+                zone_name, shelf_name = self.room[i][j].split('.')
+                if not zone_name in self.shelves_placement:
+                    self.shelves_placement[zone_name] = {}
+                assert not shelf_name in self.shelves_placement[zone_name], "Duplicate names of shelves found"
+                self.shelves_placement[zone_name][shelf_name] = (i, j)
+
         self.target_product_marker = actors.build_sphere(
             self.scene,
             radius=0.05,

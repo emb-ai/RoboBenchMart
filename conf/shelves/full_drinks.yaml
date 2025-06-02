@@ -2,9 +2,21 @@ defaults:
   - base_shelf_config
   - _self_
   
-name: 'full_drinks'
-filling_type: BOARDWISE_AUTO_INFINITE
-queries:
-- food.drinks
-num_products_per_block: 20
-num_products_per_board: 40
+name: 'beverage shelf'
+filling_type: BOARDWISE_COLUMNS
+
+x_gap: 0.06
+y_gap: 0.02
+delta_x: 0.1
+shuffle_boards: true
+board_product_numcol:
+  0:
+    food.drinks.cocaColaCan: 10
+  1:
+    food.drinks.fanta: 10
+  2:
+    food.drinks.chaosCola2l: 10
+  3:   
+    food.drinks.cocaColaNoSugar1p5l: 10
+  4:
+    food.drinks.sprite2p25l: 10
