@@ -82,7 +82,7 @@ class DarkstoreScene(RoboCasaSceneBuilder):
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
     def __init__(self, *args, config_dir_path=None, **kwargs):
         self.config_dir_path = config_dir_path
-        self.scene_config_paths = sorted(list(Path(self.config_dir_path).glob('scene_config_*.json')))
+        self.scene_config_paths = sorted(list(Path(self.config_dir_path).glob('*.json')))
         self.num_generated_scenes = len(self.scene_config_paths)
         
         self.x_cells = []
@@ -92,6 +92,7 @@ class DarkstoreScene(RoboCasaSceneBuilder):
         self.height = []
         self.room = []
         self.rotations = []
+        self.ds_names = []
 
         super().__init__(*args, **kwargs)
 
@@ -180,6 +181,8 @@ class DarkstoreScene(RoboCasaSceneBuilder):
             self.height.append(arena_data['meta']['height'])
             self.room.append(scene_data['meta']['room'])
             self.rotations.append(scene_data['meta']['rotations'])
+
+            self.ds_names.append(scene_data['meta']['ds_names'])
 
 
             arena_config = arena_data['arena_config']

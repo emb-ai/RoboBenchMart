@@ -702,20 +702,21 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
         return self.follow_rotation(result)
     
-    def drive_base(self, target_pose, target_view_vec):
-        moving_direction = target_pose.p - self.base_env.agent.base_link.pose.sp.p
-        moving_direction[2] = 0.
+    def drive_base(self, target_pos=None, target_view_vec=None):
+        if not target_pos is None:
+            moving_direction = target_pos - self.base_env.agent.base_link.pose.sp.p
+            moving_direction[2] = 0.
 
-        self.rotate_base_z(moving_direction)
-        self.planner.update_from_simulation()
+            self.rotate_base_z(moving_direction)
+            self.planner.update_from_simulation()
 
-        self.move_base_forward(target_pose.p, n_init_qpos=100)
-        self.planner.update_from_simulation()
+            res = self.move_base_forward(target_pos, n_init_qpos=100)
+            self.planner.update_from_simulation()
         
         # view_direction = target_view_pos.p - self.base_env.agent.base_link.pose.sp.p
-        assert target_view_vec[-1] == 0
-
-        return self.rotate_base_z(target_view_vec)
+        if not target_view_vec is None:
+            res = self.rotate_base_z(target_view_vec)
+        return res
     
     def move_base_forward(self, new_base_pose, n_init_qpos=20):
         tcp_pose = self.base_env.agent.tcp.pose.sp

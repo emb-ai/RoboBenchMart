@@ -14,8 +14,6 @@ from mani_skill.agents.robots.fetch import FETCH_WHEELS_COLLISION_BIT
 from dsynth.scene_gen.arrangements import CELL_SIZE
 import copy
 
-LANGUAGE_INSTRUCTION = 'pick a milk from the shelf and put it on the cart'
-
 @register_env('PickToCartStaticEnv', max_episode_steps=200000)
 class PickToCartStaticEnv(DarkstoreCellBaseEnv):
 
@@ -266,3 +264,7 @@ class PickToCartOneProdEnv(PickToCartStaticOneProdEnv):
         cart_shift = sapien.Pose(p=[0.3, 0.25, 0.14])
         new_cart_pose_p = robot_pose * cart_shift
         self.target_volume.set_pose(new_cart_pose_p)
+
+    def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
+        super()._initialize_episode(env_idx, options)
+        self.language_instruction = f'move to the shelf and pick {self.target_product_str} and put to the basket'

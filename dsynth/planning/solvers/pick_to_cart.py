@@ -238,14 +238,9 @@ def solve_fetch_pick_to_basket_one_prod(env: PickToCartStaticOneProdEnv, seed=No
     # Drive
     # -------------------------------------------------------------------------- #
     
-    drive_pos = sapien.Pose(
-        p = env.target_drive_position
-    )
+    drive_pos = env.target_drive_position
 
-    drive_pose_view = sapien.Pose(p=env.target_drive_position,
-                                  )
     res = planner.drive_base(drive_pos, env.direction_to_shelf)
-    # planner.rotate_base_z(env.direction_to_shelf)
     planner.planner.update_from_simulation()
 
     
