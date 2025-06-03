@@ -77,7 +77,7 @@ class PickToCartStaticEnv(DarkstoreCellBaseEnv):
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.5, 1.7, 0.0]))
 
-        elif self.robot_uids in ["ds_fetch_basket", "ds_fetch"]:
+        elif self.robot_uids in ["ds_fetch_basket", "ds_fetch", "fetch"]:
             qpos = np.array(
                 [
                     0,

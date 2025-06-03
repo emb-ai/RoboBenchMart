@@ -161,7 +161,6 @@ class DarkstoreScene(RoboCasaSceneBuilder):
         if build_config_idxs is None:
             build_config_idxs = []
             for i in range(self.env.num_envs):
-                # Total number of configs is 10 * 12 = 120
                 config_idx = self.env._batched_episode_rng[i].randint(0, self.num_generated_scenes * 12)
                 build_config_idxs.append(config_idx)
 
