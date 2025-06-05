@@ -226,7 +226,7 @@ def solve(env: BaseEnv, debug=False, vis=False):
             transform_window.update_ghost_objects()
         if execute_current_pose:
             # z-offset of end-effector gizmo to TCP position is hardcoded for the fetch robot here
-            result = planner.move_to_pose_with_screw(transform_window._gizmo_pose * sapien.Pose([0, 0, 0.1]), dry_run=True)
+            result = planner.move_to_pose_with_screw(transform_window._gizmo_pose, dry_run=True)
             if result != -1 and len(result["position"]) < 150:
                 _, reward, _ ,_, info = planner.follow_path(result, refine=True)
                 print(f"Reward: {reward}, Info: {info}")
