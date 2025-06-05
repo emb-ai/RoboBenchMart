@@ -27,10 +27,11 @@ class PickToCartStaticEnv(DarkstoreCellBaseEnv):
             half_sizes=list(self.target_sizes/2),
             color=[0, 1, 0, 0.5],
             name="target_box",
-            body_type="static",
+            body_type="kinematic",
             add_collision=False,
             initial_pose=sapien.Pose(p=[0, 0, 0]),
         )
+        self._hidden_objects.append(self.target_volume)
     
     def _compute_robot_init_pose(self, env_idx = None): #TODO: redo this shit
         target_shelf = 'zone1.shelf1'
@@ -168,6 +169,7 @@ class PickToCartStaticOneProdEnv(PickToCartStaticEnv):
                         )
                     )
                     i += 1
+                    self._hidden_objects.append(self.target_markers[-1])
 
         self.target_product_str = self.TARGET_PRODUCT_NAME
 
