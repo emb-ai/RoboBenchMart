@@ -180,7 +180,7 @@ class NavMoveToZoneEnv(DarkstoreCellBaseEnv):
         is_target_in_view = torch.tensor([is_target_in_view])
         product_displaced = torch.tensor([self.product_displaced])
 
-        print("is_robot_placed", is_robot_placed, "is_target_in_view", is_target_in_view, "product_displaced", self.product_displaced)
+        # print("is_robot_placed", is_robot_placed, "is_target_in_view", is_target_in_view, "product_displaced", self.product_displaced)
         return {
             "success": is_robot_placed & is_target_in_view,
             "is_robot_placed": is_robot_placed,

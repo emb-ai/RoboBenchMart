@@ -276,7 +276,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
         
         is_object_grasped = self.agent.is_grasping(self.actors['products'][self.target_product_name])
 
-        print("is_obj_placed", is_obj_placed.item(), "product_displaced", self.product_displaced, "is_object_grasped", is_object_grasped.item())
+        # print("is_obj_placed", is_obj_placed.item(), "product_displaced", self.product_displaced, "is_object_grasped", is_object_grasped.item())
         return {
             "first" : target_product_pos,
             "second" : target_pos,
