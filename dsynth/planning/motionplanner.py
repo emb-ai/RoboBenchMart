@@ -4,7 +4,7 @@ from collections import deque
 import sapien
 import trimesh
 import sapien.physx as physx
-from transforms3d.euler import euler2quat
+from transforms3d.euler import euler2quat, euler2mat
 from mani_skill.agents.base_agent import BaseAgent
 from mani_skill.envs.sapien_env import BaseEnv
 from mani_skill.envs.scene import ManiSkillScene
@@ -279,9 +279,63 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
         
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
+
+    def move_to_pose_with_screw_static_body(
+        self, pose: sapien.Pose, dry_run: bool = False, refine_steps: int = 0
+    ):
+        pose = to_sapien_pose(pose)
+        # try screw two times before giving up
+        if self.grasp_pose_visual is not None:
+            self.grasp_pose_visual.set_pose(pose)
+        pose = sapien.Pose(p=pose.p , q=pose.q)
+        result = self.planner.plan_screw(
+            mplib.Pose(pose.p, pose.q),
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True,
+            masked_joints=[False] + [True] * 11
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            result = self.planner.plan_screw(
+                mplib.Pose(pose.p, pose.q),
+                self.robot.get_qpos().cpu().numpy()[0],
+                time_step=self.base_env.control_timestep,
+                masked_joints=[False] + [True] * 11
+
+                # # use_point_cloud=self.use_point_cloud,
+            )
+            if result["status"] != "Success":
+                print(result["status"])
+                self.render_wait()
+                return -1
+        self.render_wait()
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
     
     def follow_path(self, result, refine_steps:int = 0, refine: bool = False):
         return self.follow_forward_path_w_refinement(result, refine)
+    
+    def lift_hand(self, delta_h = 0., dry_run: bool = False, refine_steps: int = 0):
+        cur_pose = self.base_env.agent.tcp.pose.sp
+        taget_pose = mplib.Pose(p=cur_pose.p + np.array([0., 0., delta_h]),
+                                q=cur_pose.q)
+        result = self.planner.plan_screw(
+            taget_pose,
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
+
 
     def follow_forward_path_w_refinement(self, result, refine: bool = False, static=False):
         qpos_final = result["position"][-1]
@@ -627,7 +681,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
     
-    def rotate_base_z(self, new_direction, n_init_qpos=20):
+    def rotate_base_z(self, new_direction, n_init_qpos=20, dry_run=False):
         assert new_direction[2] == 0.
         tcp_pose = self.base_env.agent.tcp.pose.sp
         base_link_pose = self.base_env.agent.base_link.pose.sp
@@ -700,6 +754,9 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             self.render_wait()
             return -1
 
+        if dry_run:
+            return result
+
         return self.follow_rotation(result)
     
     def drive_base(self, target_pos=None, target_view_vec=None):
@@ -718,7 +775,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             res = self.rotate_base_z(target_view_vec)
         return res
     
-    def move_base_forward(self, new_base_pose, n_init_qpos=20):
+    def move_base_forward(self, new_base_pose, n_init_qpos=20, dry_run = False):
         tcp_pose = self.base_env.agent.tcp.pose.sp
         base_link_pose = self.base_env.agent.base_link.pose.sp
         delta = new_base_pose - base_link_pose.p
@@ -766,6 +823,9 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             print(result["status"])
             self.render_wait()
             return -1
+        
+        if dry_run:
+            return result
 
         return self.follow_moving_forward(result)
 
@@ -830,6 +890,87 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
         return self.follow_forward_path_w_refinement(result, refine=True)
 
+    def move_to_pose_with_screw_static_body(
+        self, pose: sapien.Pose, dry_run: bool = False, refine_steps: int = 0
+    ):
+        pose = to_sapien_pose(pose)
+        # try screw two times before giving up
+        if self.grasp_pose_visual is not None:
+            self.grasp_pose_visual.set_pose(pose)
+        pose = sapien.Pose(p=pose.p , q=pose.q)
+        result = self.planner.plan_screw(
+            mplib.Pose(pose.p, pose.q),
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True,
+            masked_joints=[False, False, False, False] + [True] * 11
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            result = self.planner.plan_screw(
+                mplib.Pose(pose.p, pose.q),
+                self.robot.get_qpos().cpu().numpy()[0],
+                time_step=self.base_env.control_timestep,
+                masked_joints=[False, False, False, False] + [True] * 11
+                # # use_point_cloud=self.use_point_cloud,
+            )
+            if result["status"] != "Success":
+                print(result["status"])
+                self.render_wait()
+                return -1
+        self.render_wait()
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
+
+    def lift_hand(self, delta_h = 0., dry_run: bool = False, refine_steps: int = 0):
+        cur_pose = self.base_env.agent.tcp.pose.sp
+        taget_pose = mplib.Pose(p=cur_pose.p + np.array([0., 0., delta_h]),
+                                q=cur_pose.q)
+        result = self.planner.plan_screw(
+            taget_pose,
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
+    
+    def move_forward_delta(self, delta = 0., dry_run: bool = False):
+        cur_pose = self.base_env.agent.base_link.pose.sp
+        direction = cur_pose.to_transformation_matrix()[:3, 0]
+        direction[2] = 0.
+        shift = direction * delta
+        taget_pose = mplib.Pose(p=cur_pose.p + shift,
+                                q=cur_pose.q)
+        result = self.move_base_forward(taget_pose.p, dry_run=dry_run)
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+        return result
+
+    def rotate_z_delta(self, delta = 0., dry_run: bool = False):
+        cur_pose = self.base_env.agent.base_link.pose.sp
+        direction = cur_pose.to_transformation_matrix()[:3, 0]
+        direction[2] = 0.
+
+        rot_matrix = euler2mat(0, 0, delta)
+
+        new_direction = rot_matrix @ direction
+        
+        result = self.rotate_base_z(new_direction, dry_run=dry_run)
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+        return result
 
     def follow_rotation(self, result, refine_steps: int = 0):
         qpos_final = result["position"][-1]
@@ -866,6 +1007,8 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
     def follow_moving_forward(self, result, refine_steps: int = 0):
         n_step = result["position"].shape[0]
+        base_direction = self.env_agent.base_link.pose.sp.to_transformation_matrix()[:3, 0]
+        root_to_world = self.env_agent.robot.root_pose.sp.to_transformation_matrix()[:3, :3]
         for i in range(n_step + refine_steps):
             arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
             body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
@@ -873,7 +1016,10 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             base_action = np.array([0., 0.])
 
             qvel = result["velocity"][min(i, n_step - 1)]
-            base_action[0] = np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
+            base_vel = np.array([qvel[0], qvel[1], 0.])
+            base_vel_wrt_world = root_to_world @ base_vel
+            is_forward = 1 if np.dot(base_vel_wrt_world, base_direction) > 0 else -1
+            base_action[0] = is_forward * np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
 
             action = np.hstack([arm_action, self.gripper_state, body_action, base_action])
             print("base Action:", np.round(base_action, 4))
