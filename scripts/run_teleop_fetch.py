@@ -14,20 +14,67 @@ from mani_skill.utils import sapien_utils
 from mani_skill.utils.wrappers.record import RecordEpisode
 import tyro
 from dataclasses import dataclass
+import xmltodict
+
+from mplib.sapien_utils.srdf_exporter import export_srdf
+from mplib.sapien_utils.urdf_exporter import export_kinematic_chain_urdf
+from mplib.sapien_utils.conversion import ArticulatedModel
 
 import sys
 sys.path.append('.')
-from dsynth.planning.motionplanner import FetchStaticArmMotionPlanningSapienSolver
+from dsynth.planning.motionplanner import FetchMotionPlanningSapienSolver
 from dsynth.envs import *
 from dsynth.robots import *
+from dsynth.planning.utils import SapienPlanningWorldV2
+
+#=============================
+import numpy as np
+import sapien
+from sapien import internal_renderer as R
+from sapien.utils.viewer.transform_window import TransformWindow
+from sapien.utils.viewer.plugin import Plugin
+
+class TransformWindowFetchStatic(TransformWindow):
+    def compute_ik(self):
+        if (
+            self.selected_entity is not None
+            and self.ik_enabled
+            and self.get_articulation(self.selected_entity)
+        ):
+            link_idx = self.ik_articulation.get_links().index(
+                next(
+                    c
+                    for c in self.selected_entity.components
+                    if isinstance(c, sapien.physx.PhysxArticulationLinkComponent)
+                )
+            )
+            mask = np.array(
+                [
+                    self.move_group_selection[j]
+                    for j in range(len(self.move_group_joints))
+                ]
+            ).astype(int)
+            mask[0] = mask[1] = mask[2] = mask[3] = 0
+            pose = self.ik_articulation.pose.inv() * self._gizmo_pose
+            result, success, error = self.pinocchio_model.compute_inverse_kinematics(
+                link_idx,
+                pose,
+                initial_qpos=self.ik_articulation.get_qpos(),
+                active_qmask=mask,
+                max_iterations=100,
+            )
+            return result, success, error
+
+#=============================
+
 
 
 @dataclass
 class Args:
     scene_dir: str = None
-    env_id: Annotated[str, tyro.conf.arg(aliases=["-e"])] = "PickToCartStaticOneProdEnv"
+    env_id: Annotated[str, tyro.conf.arg(aliases=["-e"])] = "PickToCartOneProdEnv"
     obs_mode: str = "none"
-    robot_uid: Annotated[str, tyro.conf.arg(aliases=["-r"])] = "ds_fetch_basket_static"
+    robot_uid: Annotated[str, tyro.conf.arg(aliases=["-r"])] = "ds_fetch_basket"
     """The robot to use. Robot setups supported for teleop in this script are ds_fetch_static and ds_fetch_basket_static"""
     record_dir: str = "demos"
     """directory to record the demonstration data and optionally videos"""
@@ -130,7 +177,7 @@ def solve(env: BaseEnv, debug=False, vis=False):
     ], env.unwrapped.control_mode
     robot_has_gripper = False
     robot_has_gripper = True
-    planner = FetchStaticArmMotionPlanningSapienSolver(
+    planner = FetchMotionPlanningSapienSolver(
         env,
         debug=debug,
         vis=vis,
@@ -146,9 +193,14 @@ def solve(env: BaseEnv, debug=False, vis=False):
     gripper_open = True
     def select_fetch_hand():
         viewer.select_entity(sapien_utils.get_obj_by_name(env.agent.robot.links, "gripper_link")._objs[0].entity)
-    select_fetch_hand()
+
+    viewer.plugins = viewer.plugins + [TransformWindowFetchStatic()]
+    viewer.init_plugins(viewer.plugins)
+    
+    # select_fetch_hand()
+
     for plugin in viewer.plugins:
-        if isinstance(plugin, sapien.utils.viewer.viewer.TransformWindow):
+        if isinstance(plugin, TransformWindowFetchStatic):
             transform_window = plugin
     while True:
 
@@ -210,23 +262,67 @@ def solve(env: BaseEnv, debug=False, vis=False):
             transform_window.update_ghost_objects()
         elif viewer.window.key_press("down"):
             select_fetch_hand()
-            transform_window.gizmo_matrix = (transform_window._gizmo_pose * sapien.Pose(p=[+0.01, 0, 0])).to_transformation_matrix()
+            result = planner.move_forward_delta(delta=-0.05, dry_run=True)
+            if result != -1 and len(result["position"]) < 150:
+                _, reward, _ ,_, info = planner.follow_moving_forward(result)
+                print(f"Reward: {reward}, Info: {info}")
+            else:
+                if result == -1: print("Plan failed")
+                else: print("Generated motion plan was too long. Try a closer sub-goal")
             transform_window.update_ghost_objects()
         elif viewer.window.key_press("up"):
             select_fetch_hand()
-            transform_window.gizmo_matrix = (transform_window._gizmo_pose * sapien.Pose(p=[-0.01, 0, 0])).to_transformation_matrix()
+            result = planner.move_forward_delta(delta=0.05, dry_run=True)
+            if result != -1 and len(result["position"]) < 150:
+                _, reward, _ ,_, info = planner.follow_moving_forward(result)
+                print(f"Reward: {reward}, Info: {info}")
+            else:
+                if result == -1: print("Plan failed")
+                else: print("Generated motion plan was too long. Try a closer sub-goal")
             transform_window.update_ghost_objects()
         elif viewer.window.key_press("right"):
             select_fetch_hand()
-            transform_window.gizmo_matrix = (transform_window._gizmo_pose * sapien.Pose(p=[0, -0.01, 0])).to_transformation_matrix()
+            result = planner.rotate_z_delta(delta=-0.05, dry_run=True)
+            if result != -1 and len(result["position"]) < 150:
+                _, reward, _ ,_, info = planner.follow_rotation(result)
+                print(f"Reward: {reward}, Info: {info}")
+            else:
+                if result == -1: print("Plan failed")
+                else: print("Generated motion plan was too long. Try a closer sub-goal")
             transform_window.update_ghost_objects()
         elif viewer.window.key_press("left"):
             select_fetch_hand()
-            transform_window.gizmo_matrix = (transform_window._gizmo_pose * sapien.Pose(p=[0, +0.01, 0])).to_transformation_matrix()
+            result = planner.rotate_z_delta(delta=0.05, dry_run=True)
+            if result != -1 and len(result["position"]) < 150:
+                _, reward, _ ,_, info = planner.follow_rotation(result)
+                print(f"Reward: {reward}, Info: {info}")
+            else:
+                if result == -1: print("Plan failed")
+                else: print("Generated motion plan was too long. Try a closer sub-goal")
+            transform_window.update_ghost_objects()
+        elif viewer.window.key_press("z"):
+            select_fetch_hand()
+            result = planner.lift_hand(delta_h=0.05, dry_run=True)
+            if result != -1 and len(result["position"]) < 150:
+                _, reward, _ ,_, info = planner.follow_path(result, refine=True)
+                print(f"Reward: {reward}, Info: {info}")
+            else:
+                if result == -1: print("Plan failed")
+                else: print("Generated motion plan was too long. Try a closer sub-goal")
+            transform_window.update_ghost_objects()
+        elif viewer.window.key_press("x"):
+            select_fetch_hand()
+            result = planner.lift_hand(delta_h=-0.05, dry_run=True)
+            if result != -1 and len(result["position"]) < 150:
+                _, reward, _ ,_, info = planner.follow_path(result, refine=True)
+                print(f"Reward: {reward}, Info: {info}")
+            else:
+                if result == -1: print("Plan failed")
+                else: print("Generated motion plan was too long. Try a closer sub-goal")
             transform_window.update_ghost_objects()
         if execute_current_pose:
             # z-offset of end-effector gizmo to TCP position is hardcoded for the fetch robot here
-            result = planner.move_to_pose_with_screw(transform_window._gizmo_pose, dry_run=True)
+            result = planner.move_to_pose_with_screw_static_body(transform_window._gizmo_pose, dry_run=True)
             if result != -1 and len(result["position"]) < 150:
                 _, reward, _ ,_, info = planner.follow_path(result, refine=True)
                 print(f"Reward: {reward}, Info: {info}")
@@ -234,6 +330,7 @@ def solve(env: BaseEnv, debug=False, vis=False):
                 if result == -1: print("Plan failed")
                 else: print("Generated motion plan was too long. Try a closer sub-goal")
             execute_current_pose = False
+            transform_window.update_ghost_objects()
 
 
 
