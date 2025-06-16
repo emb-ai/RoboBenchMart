@@ -1,0 +1,6 @@
+defaults:
+  - /shelves@shelf1: full_milk_box
+  - /shelves@shelf2: full_milk_box
+  - /shelves@shelf3: full_milk_box
+
+

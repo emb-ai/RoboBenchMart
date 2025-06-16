@@ -1,0 +1,22 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: 'milk shelf'
+filling_type: BOARDWISE_COLUMNS
+
+x_gap: 0.06
+y_gap: 0.02
+delta_x: 0.1
+shuffle_boards: true
+board_product_numcol:
+  0:
+    food.dairy_products.milk: 10
+  1:
+    food.dairy_products.milk: 10
+  2:
+    food.dairy_products.milk: 10
+  3:   
+    food.dairy_products.milk: 10
+  4:
+    food.dairy_products.milk: 10
