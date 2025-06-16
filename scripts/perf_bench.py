@@ -1,4 +1,5 @@
 import itertools
+import datetime
 import gymnasium as gym
 import torch
 from tqdm import tqdm
@@ -29,7 +30,7 @@ def test(
         downscaled: bool = False,
         all_static: bool = False,
         episode_length: int = 50,
-        runs: int = 10
+        runs: int = 5
         ):
     h = nvmlDeviceGetHandleByIndex(0)
 
@@ -97,18 +98,18 @@ def main():
         {
             'clutered': 'low',
             'shader': 'default',
-            'num_envs': 2,
+            'num_envs': 1,
             'all_static': False,
             'downscaled': False,
         }
     ]
-    bench_configs = []
     options_shader = ['default', 'rt-fast', 'rt-med']
     options_all_static = [False, True]
     options_downscaled = [False, True]
     options_cluttered = ['low', 'med', 'high']
     options_num_envs = [1, 2, 4, 8]
 
+    bench_configs = []
     for options in itertools.product(options_shader, options_all_static, options_downscaled, options_cluttered, options_num_envs):
         shader, all_static, downscaled, cluttered, num_envs = options
         bench_configs.append({
@@ -118,12 +119,20 @@ def main():
             'all_static': all_static,
             'downscaled': downscaled,
         })
+    
     print(bench_configs)
+    now = datetime.datetime.now()
+    with open('benchmark_results.txt', 'a') as f:
+        print(now, file=f)
     for config in bench_configs:
         res = test(**config)
         print("====================")
         print(config)
         print(res)
+        with open('benchmark_results.txt', 'a') as f:
+            print("====================", file=f)
+            print(config, file=f)
+            print(res, file=f)
 
 
 if __name__ == '__main__':
