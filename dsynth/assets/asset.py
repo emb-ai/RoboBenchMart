@@ -99,7 +99,8 @@ class Asset:
         scene: ManiSkillScene,
         pose: Optional[sapien.Pose] = None,
         T: Optional[np.ndarray[tuple[Literal[4], Literal[4]], np.dtype[np.float32]]] = None,
-        scene_idxs: Optional[Union[List[int], Sequence[int], torch.Tensor, np.ndarray]] = None
+        scene_idxs: Optional[Union[List[int], Sequence[int], torch.Tensor, np.ndarray]] = None,
+        force_static: bool = False
     ):
         assert (pose is not None) != (T is not None), "Actor pose or (exclusive) transform must be specified"
         
@@ -124,7 +125,8 @@ class Asset:
         else:
             builder.add_convex_collision_from_file(filename=self.asset_file_path, scale=scale)
         
-        if self.ms_is_static:
+
+        if self.ms_is_static or force_static:
             actor = builder.build_static(name=obj_name)
         else:
             actor = builder.build(name=obj_name)
