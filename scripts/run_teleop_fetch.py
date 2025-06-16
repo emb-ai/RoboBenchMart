@@ -14,7 +14,6 @@ from mani_skill.utils import sapien_utils
 from mani_skill.utils.wrappers.record import RecordEpisode
 import tyro
 from dataclasses import dataclass
-import xmltodict
 
 from mplib.sapien_utils.srdf_exporter import export_srdf
 from mplib.sapien_utils.urdf_exporter import export_kinematic_chain_urdf
