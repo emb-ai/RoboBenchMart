@@ -115,8 +115,14 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                     continue
 
                 asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
-                actor = self.env.assets_lib[asset_name].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
-                self.env.actors["products"][obj_name] = actor
+                item_name = f'[ENV#{scene_idx}]_{obj_name}'
+                actor = self.env.assets_lib[asset_name].ms_build_actor(
+                    item_name, 
+                    self.env.scene, 
+                    pose=pose, 
+                    scene_idxs=[scene_idx],
+                    force_static=self.env.all_static)
+                self.env.actors["products"][item_name] = actor
     
     def _get_lamps_coords(self, x_cells, y_cells):
         lamps_coords = []

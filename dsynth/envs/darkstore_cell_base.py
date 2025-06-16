@@ -26,15 +26,22 @@ from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
 @register_env('DarkstoreCellBaseEnv', max_episode_steps=200000)
 class DarkstoreCellBaseEnv(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
+    NUM_MARKERS = 20
 
     def __init__(self, *args, 
                  config_dir_path,
                  user_target_product_name=None,
                  robot_uids="panda_wristcam",
+                 hidden_objects_enabled=False,
+                 all_static=False,
                  **kwargs):
         self.config_dir_path = Path(config_dir_path)
         self.is_rebuild = False
 
+        # hidden objects are broken in GPU simulation (https://github.com/haosulab/ManiSkill/issues/1134)
+        self.hidden_objects_enabled = hidden_objects_enabled
+
+        self.all_static = all_static
         with hydra.initialize_config_dir(config_dir=str(self.config_dir_path.absolute()), version_base=None):
             cfg = hydra.compose(config_name='input_config')
 
@@ -88,28 +95,19 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.scene_builder = DarkstoreScene(self, config_dir_path=self.config_dir_path)
         self.scene_builder.build()
         print("built")
+        print(f"Total {len(self.actors['products'])} products in {self.num_envs} scene(s)")
 
-        self.room = self.scene_builder.room[0]
-        self.shelves_placement = {}
-        for i, j in itertools.product(range(len(self.room)), range(len(self.room[0]))):
-            if self.room[i][j] != 0:
-                zone_name, shelf_name = self.room[i][j].split('.')
-                if not zone_name in self.shelves_placement:
-                    self.shelves_placement[zone_name] = {}
-                assert not shelf_name in self.shelves_placement[zone_name], "Duplicate names of shelves found"
-                self.shelves_placement[zone_name][shelf_name] = (i, j)
-
-        self.target_product_marker = actors.build_sphere(
-            self.scene,
-            radius=0.05,
-            color=[0, 1, 0, 1],
-            name="target_product",
-            body_type="kinematic",
-            add_collision=False,
-            initial_pose=sapien.Pose(),
-        )
-        self._hidden_objects.append(self.target_product_marker)
-        
+        self.room = self.scene_builder.room
+        self.shelves_placement = []
+        for room in self.room:
+            self.shelves_placement.append({})
+            for i, j in itertools.product(range(len(room)), range(len(room[0]))):
+                if room[i][j] != 0:
+                    zone_name, shelf_name = room[i][j].split('.')
+                    if not zone_name in self.shelves_placement[-1]:
+                        self.shelves_placement[-1][zone_name] = {}
+                    assert not shelf_name in self.shelves_placement[-1][zone_name], "Duplicate names of shelves found"
+                    self.shelves_placement[-1][zone_name][shelf_name] = (i, j)
 
     # def _get_lamps_coords(self):
     #     lamps_coords = []
@@ -244,58 +242,54 @@ class DarkstoreCellBaseEnv(BaseEnv):
         else:
             raise NotImplementedError
 
-    def evaluate(self):
-        target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
-        target_pos[0][2] -= self.target_sizes[2]/2
-        tolerance = torch.tensor(self.target_sizes/2, dtype=torch.float32)
-        target_product_pos = self.actors['products'][self.target_product_name].pose.p
+    # def evaluate(self):
+    #     target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
+    #     target_pos[0][2] -= self.target_sizes[2]/2
+    #     tolerance = torch.tensor(self.target_sizes/2, dtype=torch.float32)
+    #     target_product_pos = self.actors['products'][self.target_product_name].pose.p
         
-        is_obj_placed = torch.all(
-            (target_product_pos >= (target_pos - tolerance)) & 
-            (target_product_pos <= (target_pos + tolerance)),
-            dim=-1
-        )
-        #print("is_obj_placed", is_obj_placed, target_pos, target_product_pos, tolerance)
+    #     is_obj_placed = torch.all(
+    #         (target_product_pos >= (target_pos - tolerance)) & 
+    #         (target_product_pos <= (target_pos + tolerance)),
+    #         dim=-1
+    #     )
+    #     #print("is_obj_placed", is_obj_placed, target_pos, target_product_pos, tolerance)
 
-        is_robot_static = self.agent.is_static(0.2)
-        if not self.product_displaced:
-            for p, a in self.actors['products'].items():
-                if p != self.target_product_name:
-                    if not torch.all(torch.isclose(a.pose.raw_pose, self.products_initial_poses[p], rtol=0.1, atol=0.1)):
-                        self.product_displaced = True
-                        self.target_volume = actors.build_box(
-                            self.scene,
-                            half_sizes=list(self.target_sizes/2),
-                            color=[1, 0, 0, 0.9],
-                            name="target_box_red",
-                            body_type="static",
-                            add_collision=False,
-                            initial_pose=self.target_volume.pose,
-                        )
-                        break
+    #     is_robot_static = self.agent.is_static(0.2)
+    #     if not self.product_displaced:
+    #         for p, a in self.actors['products'].items():
+    #             if p != self.target_product_name:
+    #                 if not torch.all(torch.isclose(a.pose.raw_pose, self.products_initial_poses[p], rtol=0.1, atol=0.1)):
+    #                     self.product_displaced = True
+    #                     self.target_volume = actors.build_box(
+    #                         self.scene,
+    #                         half_sizes=list(self.target_sizes/2),
+    #                         color=[1, 0, 0, 0.9],
+    #                         name="target_box_red",
+    #                         body_type="static",
+    #                         add_collision=False,
+    #                         initial_pose=self.target_volume.pose,
+    #                     )
+    #                     break
         
-        is_object_grasped = self.agent.is_grasping(self.actors['products'][self.target_product_name])
+    #     is_object_grasped = self.agent.is_grasping(self.actors['products'][self.target_product_name])
 
-        # print("is_obj_placed", is_obj_placed.item(), "product_displaced", self.product_displaced, "is_object_grasped", is_object_grasped.item())
-        return {
-            "first" : target_product_pos,
-            "second" : target_pos,
-            "third" : target_pos - tolerance,
-            "fourth" : target_pos + tolerance,
-            "success": is_obj_placed & is_robot_static,
-            "is_obj_placed": is_obj_placed,
-            "is_robot_static": is_robot_static,
-            "is_object_grasped": is_object_grasped,
-            "product_displaced": self.product_displaced
-        }
+    #     # print("is_obj_placed", is_obj_placed.item(), "product_displaced", self.product_displaced, "is_object_grasped", is_object_grasped.item())
+    #     return {
+    #         "first" : target_product_pos,
+    #         "second" : target_pos,
+    #         "third" : target_pos - tolerance,
+    #         "fourth" : target_pos + tolerance,
+    #         "success": is_obj_placed & is_robot_static,
+    #         "is_obj_placed": is_obj_placed,
+    #         "is_robot_static": is_robot_static,
+    #         "is_object_grasped": is_object_grasped,
+    #         "product_displaced": self.product_displaced
+    #     }
 
-    
-    def _load_shopping_cart(self, options: dict):
-        self.shopping_cart = self.assets_lib['scene_assets.shoppingCart'].ms_build_actor(
-            "shopping_cart",
-            self.scene,
-            sapien.Pose(p=[11.0, 10.0, 0.0], q=np.array([1, 0, 0, 0]))
-        )
+    def hide_object(self, actor):
+        if self.hidden_objects_enabled:
+            self._hidden_objects.append(actor)
 
     @property
     def _default_human_render_camera_configs(self):
@@ -312,7 +306,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
     
     def _get_obs_extra(self, info: Dict):
         obs = {
-            'language_instruction_bytes': np.array([list(self.language_instruction.encode('utf8'))])
+            'language_instruction_bytes': np.array([np.frombuffer(language_instruction.encode('utf8'), dtype=np.uint8) for language_instruction in self.language_instruction])
         }
         return obs
 
