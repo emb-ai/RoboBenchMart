@@ -49,7 +49,7 @@ def main(args):
     scene_dir = Path(args.scene_dir)
     style_id = args.style_id
     gui = args.gui
-
+    parallel_in_single_scene = args.num_envs > 1 and gui
     env = gym.make(args.env_id, 
                    robot_uids=args.robot_uids, 
                    config_dir_path = args.scene_dir,
@@ -60,10 +60,10 @@ def main(args):
                 #    render_mode="rgb_array", 
                    control_mode=None,
                    enable_shadow=True,
-                #    sim_config={'spacing': 10},
+                   sim_config={'spacing': 10},
                    obs_mode='none' if gui else "rgbd",
-                   sim_backend='gpu',
-                   parallel_in_single_scene = False,
+                   sim_backend='auto',
+                   parallel_in_single_scene = parallel_in_single_scene,
                    )
 
     new_traj_name = time.strftime("%Y%m%d_%H%M%S")
@@ -86,14 +86,15 @@ def main(args):
     if gui:
         viewer = env.render()
         if isinstance(viewer, sapien.utils.Viewer):
-            viewer.paused = False
+            viewer.paused = True
         # env.render()
 
 
     for i in tqdm(range(args.episode_length)):
         action = torch.from_numpy(env.action_space.sample())
+        # action = torch.zeros_like(torch.from_numpy(env.action_space.sample()))
         obs, reward, terminated, truncated, info = env.step(action)
-
+        print(info)
         if gui:
             env.render_human()
 

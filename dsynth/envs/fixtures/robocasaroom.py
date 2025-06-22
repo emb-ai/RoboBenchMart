@@ -2,6 +2,7 @@ import numpy as np
 from pathlib import Path
 import itertools
 from typing import List, Optional
+import re
 
 import torch
 import yaml
@@ -73,6 +74,17 @@ def _get_absolute_matrix(node, nodes_dict):
             parent_name = parent_node[0]
         return current_matrix
 
+def _get_zone_shelf_ids(node, nodes_dict):
+        parent_name = node[0]
+        shelf_full_id = ''
+        while parent_name != "world":
+            shelf_full_id = parent_name
+            parent_node = nodes_dict[parent_name]
+            parent_name = parent_node[0]
+        shelf_full_id = re.sub(r"SHELF_\d+_", "", shelf_full_id) # replace SHELF_N
+        zone_id, shelf_id = shelf_full_id.split('.')
+        return zone_id, shelf_id
+
 def _get_pq(matrix, origin):
     matrix = np.array(matrix)
     q = quaternions.mat2quat(matrix[:3,:3])
@@ -123,6 +135,10 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                     scene_idxs=[scene_idx],
                     force_static=self.env.all_static)
                 self.env.actors["products"][item_name] = actor
+                
+                zone_id, shelf_id = _get_zone_shelf_ids(node, nodes_dict)
+                self.env.products2shelves[item_name] = (zone_id, shelf_id)
+                
     
     def _get_lamps_coords(self, x_cells, y_cells):
         lamps_coords = []

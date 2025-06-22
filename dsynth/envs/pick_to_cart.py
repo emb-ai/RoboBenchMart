@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import pandas as pd
 import os
 import sapien
 import sapien.physx as physx
@@ -16,70 +17,167 @@ from mani_skill.utils.structs.pose import Pose
 from dsynth.scene_gen.arrangements import CELL_SIZE
 import copy
 
-@register_env('PickToCartStaticEnv', max_episode_steps=200000)
-class PickToCartStaticEnv(DarkstoreCellBaseEnv):
+@register_env('PickToCartEnv', max_episode_steps=200000)
+class PickToCartEnv(DarkstoreCellBaseEnv):
+    TARGET_PRODUCT_NAME = None
+    ROBOT_INIT_POSE_RANDOM_ENABLED = True
+    
     def _load_scene(self, options: dict):
         super()._load_scene(options)
-        # self._load_shopping_cart(options)
         
         self.target_sizes = np.array([0.3, 0.3, 0.3])
-        self.target_volume = actors.build_box(
-            self.scene,
-            half_sizes=list(self.target_sizes/2),
-            color=[0, 1, 0, 0.5],
-            name="target_box",
-            body_type="kinematic",
-            add_collision=False,
-            initial_pose=sapien.Pose(p=[0, 0, 0]),
-        )
 
-        self.target_markers = {}
-        for n_env in range(self.num_envs):
-            self.target_markers[n_env] = []
-            for i in range(self.NUM_MARKERS):
-                self.target_markers[n_env].append(
-                                actors.build_sphere(
-                                    self.scene,
-                                    radius=0.05,
-                                    color=[0, 1, 0, 1],
-                                    name=f"target_product_{n_env}_{i}",
-                                    body_type="kinematic",
-                                    add_collision=False,
-                                    initial_pose=sapien.Pose(p=[0., 0., 0.]),
-                                    scene_idxs=[n_env]
+        if self.markers_enabled:
+            self.target_volumes = {scene_idx : actors.build_box(
+                self.scene,
+                half_sizes=list(self.target_sizes/2),
+                color=[0, 1, 0, 0.5],
+                name=f"target_box_{scene_idx}",
+                body_type="kinematic",
+                add_collision=False,
+                scene_idxs=[scene_idx],
+                initial_pose=sapien.Pose(p=[0, 0, 0]),
+            ) for scene_idx in range(self.num_envs)}
+        
+            self.target_markers = {}
+            for n_env in range(self.num_envs):
+                self.target_markers[n_env] = []
+                for i in range(self.NUM_MARKERS):
+                    self.target_markers[n_env].append(
+                                    actors.build_sphere(
+                                        self.scene,
+                                        radius=0.05,
+                                        color=[0, 1, 0, 1],
+                                        name=f"target_product_{n_env}_{i}",
+                                        body_type="kinematic",
+                                        add_collision=False,
+                                        initial_pose=sapien.Pose(p=[0., 0., 0.]),
+                                        scene_idxs=[n_env]
+                                    )
                                 )
-                            )
-                self.hide_object(self.target_markers[n_env][-1])
-
-        self.hide_object(self.target_volume)
+                    self.hide_object(self.target_markers[n_env][-1])
     
-    def _compute_robot_init_pose(self, env_idx = None): #TODO: redo this shit
-        target_shelf = 'zone1.shelf1' # TODO: redo 
-        for i in range(len(self.scene_builder.room[0])):
-            for j in range(len(self.scene_builder.room[0][i])):
-                if self.scene_builder.room[0][i][j] == target_shelf:
-                    rot = self.scene_builder.rotations[0][i][j]
-                    shelf_i, shelf_j = i, j
-                    break
-        if rot == 0:
-            origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j - 1, 0.]), np.pi / 2, np.array([0, 1, 0])
-        if rot == -90:
-            origin, angle, direction_to_shelf = np.array([shelf_i - 1, shelf_j, 0.]), 0 , np.array([1, 0, 0])
-        if rot == 90:
-            origin, angle, direction_to_shelf = np.array([shelf_i + 1, shelf_j, 0.]), np.pi, np.array([-1, 0, 0])
-        if rot == 180:
-            origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j + 1, 0.]), - np.pi / 2, np.array([0, -1, 0])
-        self.direction_to_shelf = direction_to_shelf
+    def setup_target_objects(self, env_idxs):
+        self.target_product_names = {}
+        self.target_zones = {}
+        self.target_shelves = {}
+        self.target_products_df = None
+        
+        if self.markers_enabled:
+            target_markers_iterator = {key: iter(val) for key, val in self.target_markers.items()}
 
-        origin = origin * CELL_SIZE
-        origin[:2] += CELL_SIZE / 2
+        self.target_product_names = {idx: self.TARGET_PRODUCT_NAME for idx in range(self.num_envs)}
 
-        origin += direction_to_shelf * CELL_SIZE * 0.2
+        for scene_idx in env_idxs:
+            scene_idx = scene_idx.cpu().item()
+            scene_prducts_df = self.products_df[self.products_df['scene_idx'] == scene_idx]
+            
+            if self.TARGET_PRODUCT_NAME is None:
+                # select random zone, shelf and product
+                zone_id = self._batched_episode_rng[scene_idx].choice(scene_prducts_df['zone_id'].unique())
+                self.target_zones[scene_idx] = zone_id
 
-        return origin, angle
+                zone_products_df = scene_prducts_df[scene_prducts_df['zone_id'] == zone_id]
+                shelf_id = self._batched_episode_rng[scene_idx].choice(zone_products_df['shelf_id'].unique())
+                self.target_shelves[scene_idx] = shelf_id
+
+                shelf_products_df = zone_products_df[zone_products_df['shelf_id'] == shelf_id]
+                product_name = self._batched_episode_rng[scene_idx].choice(shelf_products_df['product_name'].unique())
+                self.target_product_names[scene_idx] = product_name
+
+                if self.target_products_df is None:
+                    self.target_products_df = shelf_products_df[shelf_products_df['product_name'] == product_name]
+                else:
+                    self.target_products_df = pd.concat([self.target_products_df,
+                        shelf_products_df[shelf_products_df['product_name'] == product_name]
+                                                      ])
+            else:
+                # select random zone and shelf with self.TARGET_PRODUCT_NAME
+
+                if not self.TARGET_PRODUCT_NAME in scene_prducts_df['product_name'].unique():
+                    raise RuntimeError(f"Product {self.TARGET_PRODUCT_NAME} is not present on scene #{scene_idx}")
+                
+                zones_w_target_product = scene_prducts_df[scene_prducts_df['product_name'] == self.TARGET_PRODUCT_NAME]
+                zone_id = self._batched_episode_rng[scene_idx].choice(zones_w_target_product['zone_id'].unique())
+                self.target_zones[scene_idx] = zone_id
+
+                shelves_w_target_zone = zones_w_target_product[zones_w_target_product['zone_id'] == zone_id]
+                shelf_id = self._batched_episode_rng[scene_idx].choice(shelves_w_target_zone['shelf_id'].unique())
+                self.target_shelves[scene_idx] = shelf_id
+
+                if self.target_products_df is None:
+                    self.target_products_df = shelves_w_target_zone[shelves_w_target_zone['shelf_id'] == shelf_id]
+                else:
+                    self.target_products_df = pd.concat([self.target_products_df,
+                        shelves_w_target_zone[shelves_w_target_zone['shelf_id'] == shelf_id]
+                    ])
+
+            if self.markers_enabled:
+                target_products = self.target_products_df[self.target_products_df['scene_idx'] == scene_idx]
+                for actor_name in target_products['actor_name']:
+
+                    # select only 4th in each column - they are near the edge
+                    if int(actor_name.split(':')[-1]) % 4 == 0: # TODO: redo
+                        actor = self.actors['products'][actor_name]
+                        try:
+                            target_marker = next(target_markers_iterator[scene_idx])
+                        except StopIteration:
+                            raise RuntimeError(f"Number of target objects exceeds number of markers ({self.NUM_MARKERS}) for scene #{scene_idx}")
+                        target_marker.set_pose(actor.pose)
+
+    def _compute_robot_init_pose(self, env_idx = None):
+        origins = []
+        init_cells = []
+        angles = []
+        directions_to_shelf = []
+
+        for idx in env_idx:
+            idx = idx.cpu().item()
+            scene_target_products = self.target_products_df[self.target_products_df['scene_idx'] == idx].reset_index()
+            shelf_i, shelf_j = scene_target_products['i'][0], scene_target_products['j'][0]
+            rot = self.scene_builder.rotations[idx][shelf_i][shelf_j]
+
+            if rot == 0:
+                origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j - 1, 0.]), np.pi / 2, np.array([0, 1, 0])
+            if rot == -90:
+                origin, angle, direction_to_shelf = np.array([shelf_i - 1, shelf_j, 0.]), 0 , np.array([1, 0, 0])
+            if rot == 90:
+                origin, angle, direction_to_shelf = np.array([shelf_i + 1, shelf_j, 0.]), np.pi, np.array([-1, 0, 0])
+            if rot == 180:
+                origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j + 1, 0.]), - np.pi / 2, np.array([0, -1, 0])
+            
+            # self.target_drive_position = origin.copy() + direction_to_shelf * CELL_SIZE * 0.2
+            
+            init_cell = np.array([origin[0], origin[1]])
+            origin = origin * CELL_SIZE
+            origin[:2] += CELL_SIZE / 2
+
+            if self.ROBOT_INIT_POSE_RANDOM_ENABLED:
+                # base movement enabled, add initial pose randomization
+                perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
+
+                delta_par = self._batched_episode_rng[idx].rand() * CELL_SIZE * 0.3
+                delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 2 * CELL_SIZE * 0.3
+
+                origin += - direction_to_shelf * delta_par + perp_direction * delta_perp
+
+                angle += (self._batched_episode_rng[idx].rand() - 0.5) * np.pi / 4
+            else:
+                # move base closer to the shelf for static manipulation
+                origin = origin + direction_to_shelf * CELL_SIZE * 0.2
+
+            origins.append(origin)
+            init_cells.append(init_cell)
+            angles.append(angle)
+            directions_to_shelf.append(direction_to_shelf)
+
+        return np.array(origins), np.array(init_cells), np.array(angles), np.array(directions_to_shelf)
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         super()._initialize_episode(env_idx, options)
+        self.setup_target_objects(env_idx)
+        self.setup_language_instructions(env_idx)
+
         b = len(env_idx)
         if self.robot_uids == "panda_wristcam":
             qpos = np.array(
@@ -119,8 +217,9 @@ class PickToCartStaticEnv(DarkstoreCellBaseEnv):
                 ]
             )
             self.agent.reset(qpos)
-            robot_origin, robot_angle = self._compute_robot_init_pose()
-            self.agent.robot.set_pose(sapien.Pose(p=robot_origin, q=euler2quat(0, 0, robot_angle)))
+            self.robot_origins, self.init_cells, self.robot_angles, self.directions_to_shelf = self._compute_robot_init_pose(env_idx)
+            quats = np.array([euler2quat(0, 0, robot_angle) for robot_angle in self.robot_angles])
+            self.agent.robot.set_pose(Pose.create_from_pq(p=self.robot_origins, q=quats))
         elif self.robot_uids in ["ds_fetch_static", "ds_fetch_basket_static"]:
             qpos = np.array(
                 [
@@ -139,145 +238,111 @@ class PickToCartStaticEnv(DarkstoreCellBaseEnv):
                 ]
             )
             self.agent.reset(qpos)
-            robot_origin, robot_angle = self._compute_robot_init_pose()
-            self.agent.robot.set_pose(sapien.Pose(p=robot_origin, q=euler2quat(0, 0, robot_angle)))
+            self.robot_origins, self.init_cells, self.robot_angles, self.directions_to_shelf = self._compute_robot_init_pose(env_idx)
+            quats = np.array([euler2quat(0, 0, robot_angle) for robot_angle in self.robot_angles])
+            self.agent.robot.set_pose(Pose.create_from_pq(p=self.robot_origins, q=quats))
 
-        robot_pose = self.agent.robot.get_pose()
-        cart_shift = sapien.Pose(p=[0.3, 0.25, 0.14])
-        # cube_shift_up = np.array([0, 0.13, 0.35])
-        new_cart_pose_p = robot_pose * cart_shift 
-        
-        # self.shopping_cart.set_pose(sapien.Pose(p=new_cart_pose_p, q=robot_pose.q[0].numpy()))
-        self.target_volume.set_pose(new_cart_pose_p)
-        # self.agent.robot.set_pose(sapien.Pose([0.5, 1.7, 0.0], [0.70710678118, 0, 0, 0.70710678118]))
-        self.setup_target_object()
-        self.language_instruction = f'pick {self.target_product_str} and put to the basket'
-
-@register_env('PickToCartStaticOneProdEnv', max_episode_steps=200000)
-class PickToCartStaticOneProdEnv(PickToCartStaticEnv):
-    TARGET_PRODUCT_NAME = 'sprite'
-    def setup_target_object(self):
-        self.target_product_names = {}
+        if self.markers_enabled:
+            target_pose = self.calc_target_pose()
+            for scene_idx in env_idx:
+                scene_idx = scene_idx.cpu().item()
+                self.target_volumes[scene_idx].set_pose(
+                    Pose.create_from_pq(p=target_pose.p[scene_idx],
+                                        q=target_pose.q[scene_idx])
+                )
     
-        for key, val in self.assets_lib.items():
-            if 'products_hierarchy.' in key:
-                if val.asset_name == self.TARGET_PRODUCT_NAME:
-                    prod_name = key.replace('products_hierarchy.', '')
+    def evaluate(self):
+        target_pos = self.calc_target_pose().p 
+        target_pos[:, 2] -= self.target_sizes[2] / 2
+        tolerance = torch.tensor(self.target_sizes / 2, dtype=torch.float32).to(self.device)
+        is_obj_placed = []
+
+        for scene_idx in range(self.num_envs):
+            scene_is_obj_placed = False
+            scene_target_products_df = self.target_products_df[self.target_products_df['scene_idx'] == scene_idx]
+            for actor_name in scene_target_products_df['actor_name']:
+                target_product_pos = self.actors['products'][actor_name].pose.p
+                scene_is_obj_placed = torch.all(
+                    (target_product_pos >= (target_pos[scene_idx] - tolerance)) & 
+                    (target_product_pos <= (target_pos[scene_idx] + tolerance)),
+                    dim=-1
+                )
+                if scene_is_obj_placed:
                     break
+            
+            is_obj_placed.append(scene_is_obj_placed)
+
+        is_obj_placed = torch.cat(is_obj_placed)
         
-        target_markers_iterator = {key: iter(val) for key, val in self.target_markers.items()}
-        for actor_name, actor in self.actors['products'].items():
-            if prod_name in actor_name:
-                # select only 4th in each column - they are near the edge
-                if int(actor_name.split(':')[-1]) % 4 == 0:
-                    assert len(actor._scene_idxs) == 1
-                    scene_idx = actor._scene_idxs.cpu().numpy()[0]
-                    if not scene_idx in self.target_product_names:
-                        self.target_product_names[scene_idx] = [] 
-                    self.target_product_names[scene_idx].append(actor_name)
+        is_robot_static = self.agent.is_static(0.2)
 
-                    try:
-                        target_marker = next(target_markers_iterator[scene_idx])
-                    except StopIteration:
-                        raise RuntimeError(f"Number of target objects exceeds number of markers ({self.NUM_MARKERS})")
-                    target_marker.set_pose(actor.pose)
+        is_non_target_produncts_replaced = torch.zeros_like(is_robot_static, dtype=bool)
 
-        self.target_product_str = self.TARGET_PRODUCT_NAME
+        for scene_idx in range(self.num_envs):
+            scene_products_df = self.products_df[self.products_df['scene_idx'] == scene_idx]
 
-    # def evaluate(self):
-    #     target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
-    #     # target_pos[0][2] -= self.target_sizes[2]/2
-    #     tolerance = torch.tensor(self.target_sizes/2, dtype=torch.float32)
+            # to speed up evaluation only check products from the target shelf
+            scene_products_df = scene_products_df[scene_products_df['shelf_id'] == self.target_shelves[scene_idx]]
 
-    #     is_obj_placed = False
-    #     for target_product_name in self.target_product_names:
-    #         target_product_pos = self.actors['products'][target_product_name].pose.p
-    #         is_obj_placed = torch.all(
-    #             (target_product_pos >= (target_pos - tolerance)) & 
-    #             (target_product_pos <= (target_pos + tolerance)),
-    #             dim=-1
-    #         )
-    #         if is_obj_placed:
-    #             break
-    #     #print("is_obj_placed", is_obj_placed, target_pos, target_product_pos, tolerance)
+            scene_target_products_df = self.target_products_df[self.target_products_df['scene_idx'] == scene_idx]
+            non_target_actors = set(scene_products_df['actor_name']) - set(scene_target_products_df['actor_name'])
+            
+            for actor_name in non_target_actors:
+                actor = self.actors['products'][actor_name]
+                if not torch.all(torch.isclose(actor.pose.raw_pose, self.products_initial_poses[actor_name], rtol=0.1, atol=0.1)):
+                    is_non_target_produncts_replaced[scene_idx] = True
 
-    #     is_robot_static = self.agent.is_static(0.2)
-    #     if not self.product_displaced:
-    #         for p, a in self.actors['products'].items():
-    #             if not p in self.target_product_names:
-    #                 if not torch.all(torch.isclose(a.pose.raw_pose, self.products_initial_poses[p], rtol=0.1, atol=0.1)):
-    #                     self.product_displaced = True
-    #                     self.target_volume = actors.build_box(
-    #                         self.scene,
-    #                         half_sizes=list(self.target_sizes/2),
-    #                         color=[1, 0, 0, 0.9],
-    #                         name="target_box_red",
-    #                         body_type="static",
-    #                         add_collision=False,
-    #                         initial_pose=self.target_volume.pose,
-    #                     )
-    #                     break
-    #     for target_product_name in self.target_product_names:
-    #         is_object_grasped = self.agent.is_grasping(self.actors['products'][target_product_name])
+                    if self.markers_enabled:
+                        # make marker red if non-target product moved
+                        render_component = self.target_volumes[scene_idx]._objs[0].find_component_by_type(
+                            sapien.pysapien.render.RenderBodyComponent
+                        )
+                        render_component.render_shapes[0].material.base_color = [1.0, 0.0, 0.0, 0.5]
 
-    #     # print("is_obj_placed", is_obj_placed.item(), "product_displaced", self.product_displaced, "is_object_grasped", is_object_grasped.item())
-    #     return {
-    #         "first" : target_product_pos,
-    #         "second" : target_pos,
-    #         "third" : target_pos - tolerance,
-    #         "fourth" : target_pos + tolerance,
-    #         "success": is_obj_placed & is_robot_static,
-    #         "is_obj_placed": is_obj_placed,
-    #         "is_robot_static": is_robot_static,
-    #         "is_object_grasped": is_object_grasped,
-    #         "product_displaced": self.product_displaced
-    #     }
-
-
-@register_env('PickToCartOneProdEnv', max_episode_steps=200000)
-class PickToCartOneProdEnv(PickToCartStaticOneProdEnv):
-    def _compute_robot_init_pose(self, env_idx = None): #TODO: redo this shit
-        target_shelf = 'zone1.shelf1'
-        for i in range(len(self.scene_builder.room[0])):
-            for j in range(len(self.scene_builder.room[0][i])):
-                if self.scene_builder.room[0][i][j] == target_shelf:
-                    rot = self.scene_builder.rotations[0][i][j]
-                    shelf_i, shelf_j = i, j
                     break
-        if rot == 0:
-            origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j - 1, 0.]), np.pi / 2, np.array([0, 1, 0])
-        if rot == -90:
-            origin, angle, direction_to_shelf = np.array([shelf_i - 1, shelf_j, 0.]), 0 , np.array([1, 0, 0])
-        if rot == 90:
-            origin, angle, direction_to_shelf = np.array([shelf_i + 1, shelf_j, 0.]), np.pi, np.array([-1, 0, 0])
-        if rot == 180:
-            origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j + 1, 0.]), - np.pi / 2, np.array([0, -1, 0])
-        origin = origin * CELL_SIZE
-        origin[:2] += CELL_SIZE / 2
 
-        perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
 
-        delta_par = self._batched_episode_rng[0].rand() * CELL_SIZE * 0.3
-        delta_perp = (self._batched_episode_rng[0].rand() - 0.5) * 2 * CELL_SIZE * 0.3
+        return {
+            "is_obj_placed" : is_obj_placed,
+            "is_robot_static" : is_robot_static,
+            "is_non_target_produncts_displaced" : is_non_target_produncts_replaced,
+            "success": is_obj_placed & is_robot_static & (~is_non_target_produncts_replaced),
+            # "success": is_obj_placed & is_robot_static,
+        }
 
-        self.target_drive_position = origin.copy() + direction_to_shelf * CELL_SIZE * 0.2
-        self.robot_target_angle = angle
-        
-        origin += - direction_to_shelf * delta_par + perp_direction * delta_perp
-
-        angle += (self._batched_episode_rng[0].rand() - 0.5) * np.pi / 4
-
-        self.direction_to_shelf = direction_to_shelf
-
-        return origin, angle
-    
-    def _after_simulation_step(self):
-        # move target volume with robot
+    def calc_target_pose(self):
         robot_pose = self.agent.base_link.pose
-        cart_shift = sapien.Pose(p=[0.3, 0.25, 0.14])
-        new_cart_pose_p = robot_pose * cart_shift
-        self.target_volume.set_pose(new_cart_pose_p)
+        cart_shift = Pose.create_from_pq(p=[[0.3, 0.25, 0.14]] * self.num_envs)
+        return robot_pose * cart_shift 
+       
 
-    def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
-        super()._initialize_episode(env_idx, options)
-        self.language_instruction = f'move to the shelf and pick {self.target_product_str} and put to the basket'
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            self.language_instructions.append(f'move to the shelf and pick {self.target_product_names[scene_idx]} and put to the basket')
+
+    def _after_simulation_step(self):
+        #does not work on gpu sim
+        if self.markers_enabled:
+            target_pose = self.calc_target_pose()
+            for scene_idx in range(self.num_envs):
+                self.target_volumes[scene_idx].set_pose(
+                    Pose.create_from_pq(p=target_pose.p[scene_idx],
+                                        q=target_pose.q[scene_idx])
+                )
+            # self.target_volume.set_pose(target_pose)
+
+@register_env('PickToCartStaticEnv', max_episode_steps=200000)
+class PickToCartStaticEnv(PickToCartEnv):
+    ROBOT_INIT_POSE_RANDOM_ENABLED = False
+@register_env('PickToCartSpriteEnv', max_episode_steps=200000)
+class PickToCartSpriteEnv(PickToCartEnv):
+    TARGET_PRODUCT_NAME = 'sprite'
+
+@register_env('PickToCartStaticSpriteEnv', max_episode_steps=200000)
+class PickToCartStaticSpriteEnv(PickToCartEnv):
+    TARGET_PRODUCT_NAME = 'sprite'
+    ROBOT_INIT_POSE_RANDOM_ENABLED = False
+
+    
