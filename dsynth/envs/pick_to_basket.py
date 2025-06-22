@@ -17,8 +17,8 @@ from mani_skill.utils.structs.pose import Pose
 from dsynth.scene_gen.arrangements import CELL_SIZE
 import copy
 
-@register_env('PickToCartEnv', max_episode_steps=200000)
-class PickToCartEnv(DarkstoreCellBaseEnv):
+@register_env('PickToBasketEnv', max_episode_steps=200000)
+class PickToBasketEnv(DarkstoreCellBaseEnv):
     TARGET_PRODUCT_NAME = None
     ROBOT_INIT_POSE_RANDOM_ENABLED = True
     
@@ -312,8 +312,8 @@ class PickToCartEnv(DarkstoreCellBaseEnv):
 
     def calc_target_pose(self):
         robot_pose = self.agent.base_link.pose
-        cart_shift = Pose.create_from_pq(p=[[0.3, 0.25, 0.14]] * self.num_envs)
-        return robot_pose * cart_shift 
+        basket_shift = Pose.create_from_pq(p=[[0.3, 0.25, 0.14]] * self.num_envs)
+        return robot_pose * basket_shift 
        
 
     def setup_language_instructions(self, env_idx):
@@ -333,15 +333,15 @@ class PickToCartEnv(DarkstoreCellBaseEnv):
                 )
             # self.target_volume.set_pose(target_pose)
 
-@register_env('PickToCartStaticEnv', max_episode_steps=200000)
-class PickToCartStaticEnv(PickToCartEnv):
+@register_env('PickToBasketStaticEnv', max_episode_steps=200000)
+class PickToBasketStaticEnv(PickToBasketEnv):
     ROBOT_INIT_POSE_RANDOM_ENABLED = False
-@register_env('PickToCartSpriteEnv', max_episode_steps=200000)
-class PickToCartSpriteEnv(PickToCartEnv):
+@register_env('PickToBasketSpriteEnv', max_episode_steps=200000)
+class PickToBasketSpriteEnv(PickToBasketEnv):
     TARGET_PRODUCT_NAME = 'sprite'
 
-@register_env('PickToCartStaticSpriteEnv', max_episode_steps=200000)
-class PickToCartStaticSpriteEnv(PickToCartEnv):
+@register_env('PickToBasketStaticSpriteEnv', max_episode_steps=200000)
+class PickToBasketStaticSpriteEnv(PickToBasketEnv):
     TARGET_PRODUCT_NAME = 'sprite'
     ROBOT_INIT_POSE_RANDOM_ENABLED = False
 
