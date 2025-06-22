@@ -5,17 +5,20 @@ products_hierarchy:
       baby:
         ss_asset_type: MeshAsset
         asset_file_path: ${assets.assets_dir_path}/baby.glb
+        asset_name: baby food
         ss_params:
           scale : 1
           origin : ['com', 'com', 'bottom']
       cerealsForSS:
         ss_asset_type: MeshAsset
         asset_file_path: ${assets.assets_dir_path}/cerealsForSS.glb
+        asset_name: cereals
         ss_params:
           scale : 1
           origin : ['com', 'com', 'bottom']
       cerealescornflakescora:
         asset_file_path: ${assets.assets_dir_path}/cerealescornflakescora.glb
+        asset_name: corn cereals
         ss_params:
           height: 0.25 
           up: [0, 1, 0]
@@ -23,6 +26,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       cornFlakesRetroEditionSmall:
         asset_file_path: ${assets.assets_dir_path}/cornFlakesRetroEditionSmall.glb
+        asset_name: retro corn flakes
         ss_params:
           height: 0.3 
           up: [0, 1, 0]
@@ -30,6 +34,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       nestleFitnessChocolateCerealBox:
         asset_file_path: ${assets.assets_dir_path}/nestleFitnessChocolateCerealBox.glb
+        asset_name: chocolate cereal box
         ss_params:
           height: 0.275
           up: [0, 1, 0]
@@ -46,6 +51,7 @@ products_hierarchy:
           origin: ["center", "center", "bottom"]
       milkHandle:
         asset_file_path: ${assets.assets_dir_path}/milkHandle.glb
+        asset_name: plastic milk bottle
         ss_params:
           height: 0.25
           up: [0, 1, 0]
@@ -53,6 +59,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       milkCarton:
         asset_file_path: ${assets.assets_dir_path}/milkCarton.glb
+        asset_name: auchan milk
         ss_params:
           height: 0.24
           up: [0, 1, 0]
@@ -67,6 +74,7 @@ products_hierarchy:
       #     origin: ["com", "com", "bottom"]
       cocaColaCan:
         asset_file_path: ${assets.assets_dir_path}/cocaColaCan.glb
+        asset_name: coca cola can
         ss_params:
           height: 0.15
           up: [0, 1, 0]
@@ -74,6 +82,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       pepsi:
         asset_file_path: ${assets.assets_dir_path}/pepsi.glb
+        asset_name: pepsi bottle
         ss_params:
           height: 0.18
           up: [0, 1, 0]
@@ -81,6 +90,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       fanta:
         asset_file_path: ${assets.assets_dir_path}/fanta.glb
+        asset_name: 'fanta bottle'
         ss_params:
           height: 0.15
           up: [0, 1, 0]
@@ -88,6 +98,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       mountainDew:
         asset_file_path: ${assets.assets_dir_path}/mountainDew.glb
+        asset_name: mountain dew can
         ss_params:
           height: 0.15
           up: [0, 1, 0]
@@ -95,7 +106,8 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       chaosCola2l:
         asset_file_path: ${assets.assets_dir_path}/chaosCola2l.glb
-        ss_params:
+        asset_name: 'chaos cola'
+        ss_params: 
           height: 0.18
           up: [0, 1, 0]
           front: [0, 0, -1]
@@ -118,6 +130,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       fantaNaranja1p35l:
         asset_file_path: ${assets.assets_dir_path}/fantaNaranja1p35l.glb
+        asset_name: fanta bottle
         ss_params:
           height: 0.25
           up: [0, 1, 0]
@@ -125,6 +138,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       coffeePackaging:
         asset_file_path: ${assets.assets_dir_path}/coffeePackaging.glb
+        asset_name: myboo coffee package
         ss_params:
           height: 0.2
           up: [0, 1, 0]
@@ -132,6 +146,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       coffeePaperBag:
         asset_file_path: ${assets.assets_dir_path}/coffeePaperBag.glb
+        asset_name: paper coffee package
         ss_params:
           height: 0.23
           up: [0, 1, 0]
@@ -139,6 +154,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       coffeePackaging1:
         asset_file_path: ${assets.assets_dir_path}/coffeePackaging1.glb
+        asset_name: coffee package
         ss_params:
           height: 0.25
           up: [0, 1, 0]
@@ -146,6 +162,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       coffeeCapsulesDolceGusto:
         asset_file_path: ${assets.assets_dir_path}/coffeeCapsulesDolceGusto.glb
+        asset_name: capsules dolce gusto
         ss_params:
           height: 0.18
           up: [0, 1, 0]
@@ -153,6 +170,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       nescafesimple:
         asset_file_path: ${assets.assets_dir_path}/nescafesimple.glb
+        asset_name: nescafe
         ss_params:
           height: 0.15
           up: [0, 1, 0]
@@ -160,6 +178,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       pgTipsTeaBox:
         asset_file_path: ${assets.assets_dir_path}/pgTipsTeaBox.glb
+        asset_name: tea tips
         ss_params:
           height: 0.13
           up: [0, 1, 0]
@@ -167,6 +186,7 @@ products_hierarchy:
           origin: ["center", "bottom", "center"]
       sirWinstonTea:
         asset_file_path: ${assets.assets_dir_path}/sirWinstonTea.glb
+        asset_name: winston tea
         ss_params:
           height: 0.08
           up: [0, 0, 1]
@@ -182,6 +202,7 @@ products_hierarchy:
       banana:
         ss_asset_type: USDAsset
         asset_file_path: ${assets.assets_dir_path}/banana.usdc
+        asset_name: banana
         ss_params:
           scale: 1.5
           origin: ["com", "com", "bottom"]
