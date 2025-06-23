@@ -28,16 +28,19 @@ class PickToBasketEnv(DarkstoreCellBaseEnv):
         self.target_sizes = np.array([0.3, 0.3, 0.3])
 
         if self.markers_enabled:
-            self.target_volumes = {scene_idx : actors.build_box(
-                self.scene,
-                half_sizes=list(self.target_sizes/2),
-                color=[0, 1, 0, 0.5],
-                name=f"target_box_{scene_idx}",
-                body_type="kinematic",
-                add_collision=False,
-                scene_idxs=[scene_idx],
-                initial_pose=sapien.Pose(p=[0, 0, 0]),
-            ) for scene_idx in range(self.num_envs)}
+            self.target_volumes = {}
+            for n_env in range(self.num_envs):
+                self.target_volumes[n_env] = actors.build_box(
+                    self.scene,
+                    half_sizes=list(self.target_sizes/2),
+                    color=[0, 1, 0, 0.5],
+                    name=f"target_box_{n_env}",
+                    body_type="kinematic",
+                    add_collision=False,
+                    scene_idxs=[n_env],
+                    initial_pose=sapien.Pose(p=[0, 0, 0]),
+                )
+                self.hide_object(self.target_volumes[n_env])
         
             self.target_markers = {}
             for n_env in range(self.num_envs):

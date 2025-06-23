@@ -23,47 +23,68 @@ def normalize_vector(vec):
 
 @register_env('NavMoveToZoneEnv', max_episode_steps=200000)
 class NavMoveToZoneEnv(DarkstoreCellBaseEnv):
+    TARGET_ZONE_NAME = None
+
     INIT_POSE_GEN_MAX_TRIES = 20
+    
     def _load_scene(self, options: dict):
         super()._load_scene(options)
-        self.target_volumes = {}
-        for n_env in range(self.num_envs):
-            self.target_volumes[n_env] = []
-            for i in range(self.NUM_MARKERS):
-                self.target_volumes[n_env].append(
-                                actors.build_box(
-                                    self.scene,
-                                    half_sizes=(0.2, 0.2, 0.2),
-                                    color=[0, 1, 0, 0.5],
-                                    name=f"target_box_{n_env}_{i}",
-                                    body_type="kinematic",
-                                    add_collision=False,
-                                    initial_pose=sapien.Pose(p=[0., 0., 0.]),
-                                    scene_idxs=[n_env]
+
+        if self.markers_enabled:
+            self.target_volumes = {}
+            for n_env in range(self.num_envs):
+                self.target_volumes[n_env] = []
+                for i in range(self.NUM_MARKERS):
+                    self.target_volumes[n_env].append(
+                                    actors.build_box(
+                                        self.scene,
+                                        half_sizes=(0.2, 0.2, 0.2),
+                                        color=[0, 1, 0, 0.5],
+                                        name=f"target_box_{n_env}_{i}",
+                                        body_type="kinematic",
+                                        add_collision=False,
+                                        initial_pose=sapien.Pose(p=[0., 0., 0.]),
+                                        scene_idxs=[n_env]
+                                    )
                                 )
-                            )
-                self.hide_object(self.target_volumes[n_env][-1])
+                    self.hide_object(self.target_volumes[n_env][-1])
 
-    def setup_target_object(self, env_idx):
+    def setup_target_zone(self, env_idxs):
         # pick random zone
-        self.target_cells = []
-        self.target_directions = []
-        self.target_zone_name = []
-        for idx in env_idx:
-            shelves_placement = self.shelves_placement[idx]
-            room = self.room[idx]
-            zone_names = list(shelves_placement.keys())
-            zone_idx = self._batched_episode_rng[idx].randint(0, len(zone_names))
-            target_zone = zone_names[zone_idx]
+        self.target_cells = {}
+        self.target_directions = {}
+        self.target_zone_names = {}
+        self.target_zone_ids = {}
 
-            self.target_zone_name.append(self.scene_builder.ds_names[idx][target_zone]['zone_name'])
+        self.target_zone_names = {idx: self.TARGET_ZONE_NAME for idx in range(self.num_envs)}
 
-        # define target cells and view directions to them
-            target_cells = []
-            target_directions = []
-            for shelf_name, coords in shelves_placement[target_zone].items():
+        # pick random target zone
+        for scene_idx in env_idxs:
+            scene_idx = scene_idx.cpu().item()
+            scene_prducts_df = self.products_df[self.products_df['scene_idx'] == scene_idx]
+
+            if self.TARGET_ZONE_NAME is None:
+                zone_name = self._batched_episode_rng[scene_idx].choice(scene_prducts_df['zone_name'].unique())
+                self.target_zone_names[scene_idx] = zone_name
+
+            zone_scene_prducts_df = self.products_df[self.products_df['zone_name'] == self.target_zone_names[scene_idx]]
+            if len(zone_scene_prducts_df) == 0:
+                raise RuntimeError(f"No zones with name {self.target_zone_names[scene_idx]}!")
+            
+            zone_id = zone_scene_prducts_df['zone_id'].unique()
+            if len(zone_id) > 1:
+                raise RuntimeError(f"More than one zones with name {self.target_zone_names[scene_idx]}!")
+            zone_id = zone_id[0]
+
+            # define target cells and view directions
+            scene_target_cells = []
+            scene_target_directions = []
+
+            shelves_placement = self.shelves_placement[scene_idx]
+            room = self.room[scene_idx]
+            for shelf_name, coords in shelves_placement[zone_id].items():
                 i, j = coords
-                rot = self.scene_builder.rotations[idx][i][j]
+                rot = self.scene_builder.rotations[scene_idx][i][j]
                 if rot == 0:
                     cell_coords, direction_to_shelf = np.array([i, j - 1, 0.]), np.array([0, 1, 0])
                 if rot == -90:
@@ -72,18 +93,18 @@ class NavMoveToZoneEnv(DarkstoreCellBaseEnv):
                     cell_coords, direction_to_shelf = np.array([i + 1, j, 0.]), np.array([-1, 0, 0])
                 if rot == 180:
                     cell_coords, direction_to_shelf = np.array([i, j + 1, 0.]), np.array([0, -1, 0])
-                target_cells.append(cell_coords)
-                target_directions.append(direction_to_shelf)
+                scene_target_cells.append(cell_coords)
+                scene_target_directions.append(direction_to_shelf)
 
                 opposite_cell = cell_coords + 2 * direction_to_shelf
                 opposite_cell = opposite_cell.astype(np.int32)
                 if opposite_cell[0] >= 0 and opposite_cell[0] < len(room) and \
                     opposite_cell[1] >= 0 and opposite_cell[1] < len(room[0]) and \
                     room[opposite_cell[0]][opposite_cell[1]] == 0:
-                        target_cells.append(opposite_cell)
-                        target_directions.append(-direction_to_shelf)
-            self.target_cells.append(target_cells)
-            self.target_directions.append(target_directions)
+                        scene_target_cells.append(opposite_cell)
+                        scene_target_directions.append(-direction_to_shelf)
+            self.target_cells[scene_idx] = scene_target_cells
+            self.target_directions[scene_idx] = scene_target_directions
 
 
     def _compute_robot_init_pose(self, env_idx = None):
@@ -126,20 +147,21 @@ class NavMoveToZoneEnv(DarkstoreCellBaseEnv):
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         super()._initialize_episode(env_idx, options)
         robot_xyz_origins, robot_angles = self._compute_robot_init_pose(env_idx)
-        self.setup_target_object(env_idx)
+        self.setup_target_zone(env_idx)
 
-        self.language_instruction = [f'move to {zone_name}' for zone_name in self.target_zone_name]
+        self.language_instructions = [f'move to {zone_name}' for scene_idx, zone_name in self.target_zone_names.items()]
         
         target_volumes_iterators = {key: iter(val) for key, val in self.target_volumes.items()}
-        for n_env in range(self.num_envs):
-            target_cells = self.target_cells[n_env]
-            for target_cell in target_cells:
-                target_p = target_cell * CELL_SIZE + np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
-                try:
-                    target_volume = next(target_volumes_iterators[n_env])
-                except StopIteration:
-                    raise RuntimeError(f"Number of target objects exceeds number of markers ({self.NUM_MARKERS})")
-                target_volume.set_pose(sapien.Pose(p=target_p))
+        if self.markers_enabled:
+            for n_env in range(self.num_envs):
+                target_cells = self.target_cells[n_env]
+                for target_cell in target_cells:
+                    target_p = target_cell * CELL_SIZE + np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
+                    try:
+                        target_volume = next(target_volumes_iterators[n_env])
+                    except StopIteration:
+                        raise RuntimeError(f"Number of target objects exceeds number of markers ({self.NUM_MARKERS})")
+                    target_volume.set_pose(sapien.Pose(p=target_p))
         
         if self.robot_uids == "panda_wristcam":
             qpos = np.array(
@@ -185,41 +207,37 @@ class NavMoveToZoneEnv(DarkstoreCellBaseEnv):
 
 
 
-    # def evaluate(self):
-    #     EPS = 0.11
-    #     robot_view_vec = self.agent.base_link.pose.to_transformation_matrix()[0, :3, 0]
-    #     robot_cur_pose = self.agent.base_link.pose.sp.p
-    #     robot_cur_cell = (int(robot_cur_pose[0] // CELL_SIZE), int(robot_cur_pose[1] // CELL_SIZE))
+    def evaluate(self):
+        EPS = 0.11
+        is_target_in_view = []
+        is_robot_placed = []
+        for scene_idx in range(self.num_envs):
+            robot_view_vec = self.agent.base_link.pose.to_transformation_matrix()[scene_idx, :3, 0]
+            robot_cur_pose = self.agent.base_link.pose.p[scene_idx]
+            robot_cur_cell = (int(robot_cur_pose[0] // CELL_SIZE), int(robot_cur_pose[1] // CELL_SIZE))
 
-    #     is_target_in_view = False
-    #     is_robot_placed = False
-    #     for cell, direction in zip(self.target_cells, self.target_directions):
-    #         if robot_cur_cell == (int(cell[0]), int(cell[1])):
-    #             is_robot_placed = True
-    #             if np.abs(np.dot(normalize_vector(direction), 
-    #                              normalize_vector(robot_view_vec)) - 1) < EPS:
-    #                 is_target_in_view = True
-    #                 break
+            is_target_in_view.append(False)
+            is_robot_placed.append(False)
+            for cell, direction in zip(self.target_cells[scene_idx], self.target_directions[scene_idx]):
+                if robot_cur_cell == (int(cell[0]), int(cell[1])):
+                    is_robot_placed[-1] = True
+                    if np.abs(np.dot(normalize_vector(direction), 
+                                    normalize_vector(robot_view_vec.cpu().numpy())) - 1) < EPS:
+                        is_target_in_view[-1] = True
+                        break
 
-    #     is_robot_static = self.agent.is_static(0.2)
-    #     if not self.product_displaced:
-    #         for p, a in self.actors['products'].items():
-    #             if not torch.all(torch.isclose(a.pose.raw_pose, self.products_initial_poses[p], rtol=0.1, atol=0.1)):
-    #                 self.product_displaced = True
-    #                 break
+        is_robot_static = self.agent.is_static(0.2)
         
-    #     is_robot_placed = torch.tensor([is_robot_placed])
-    #     is_target_in_view = torch.tensor([is_target_in_view])
-    #     product_displaced = torch.tensor([self.product_displaced])
+        is_robot_placed = torch.tensor(is_robot_placed, device=self.device, dtype=bool)
+        is_target_in_view = torch.tensor(is_target_in_view, device=self.device, dtype=bool)
 
-    #     # print("is_robot_placed", is_robot_placed, "is_target_in_view", is_target_in_view, "product_displaced", self.product_displaced)
-    #     return {
-    #         "success": is_robot_placed & is_target_in_view,
-    #         "is_robot_placed": is_robot_placed,
-    #         "is_target_in_view": is_target_in_view,
-    #         "is_robot_static": is_robot_static,
-    #         "product_displaced": product_displaced
-    #     }
+        # print("is_robot_placed", is_robot_placed, "is_target_in_view", is_target_in_view, "product_displaced", self.product_displaced)
+        return {
+            "success": is_robot_placed & is_target_in_view,
+            "is_robot_placed": is_robot_placed,
+            "is_target_in_view": is_target_in_view,
+            "is_robot_static": is_robot_static
+        }
 
 
     @property
