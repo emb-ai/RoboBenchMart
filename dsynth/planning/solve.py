@@ -424,7 +424,7 @@ def solve_panda_pick_cube_fcl_V2_test(env: PickCubeEnvMPTest, seed=None, debug=F
     return res
 
 
-def solve_panda_ai360(env: PickToCartEnv, seed=None, debug=False, vis=False):
+def solve_panda_ai360(env: DarkstoreCellBaseEnv, seed=None, debug=False, vis=False):
     env.reset(seed=seed, options={'reconfigure': True})
     # planner = FetchArmMotionPlanningSolver(
     #     env,
@@ -524,7 +524,7 @@ def solve_panda_ai360(env: PickToCartEnv, seed=None, debug=False, vis=False):
     return res
 
 
-def solve_panda_pick_to_cart(env: PickToCartEnv, seed=None, debug=False, vis=False):
+def solve_panda_pick_to_cart(env: DarkstoreCellBaseEnv, seed=None, debug=False, vis=False):
     env.reset(seed=seed, options={'reconfigure': True})
     
     FINGER_LENGTH = 0.025
@@ -698,7 +698,7 @@ def solve_panda_pick_to_cart(env: PickToCartEnv, seed=None, debug=False, vis=Fal
     planner.close()
     return res
 
-def solve_panda_pick_to_cart_sapien(env: PickToCartEnv, seed=None, debug=False, vis=False):
+def solve_panda_pick_to_cart_sapien(env: DarkstoreCellBaseEnv, seed=None, debug=False, vis=False):
     env.reset(seed=seed, options={'reconfigure': True})
     
     FINGER_LENGTH = 0.025
@@ -841,7 +841,7 @@ def solve_panda_pick_to_cart_sapien(env: PickToCartEnv, seed=None, debug=False, 
 
 
 
-def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
+def solve_fetch_static_pick_cube(env: DarkstoreCellBaseEnv, seed=None, debug=False, vis=False):
     env.reset(seed=seed)
     planner = FetchStaticArmMotionPlanningSapienSolver(
         env,
@@ -922,7 +922,7 @@ def solve_fetch_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=F
     
 
 
-def solve_fetch_quasi_static_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
+def solve_fetch_quasi_static_pick_cube(env: DarkstoreCellBaseEnv, seed=None, debug=False, vis=False):
     env.reset(seed=seed)
     planner = FetchQuasiStaticArmMotionPlanningSapienSolver(
         env,
@@ -1005,7 +1005,7 @@ def solve_fetch_quasi_static_pick_cube(env: PickCubeEnv, seed=None, debug=False,
     planner.render_wait()
     return res
 
-def solve_fetch_pick_cube(env: PickCubeEnv, seed=None, debug=False, vis=False):
+def solve_fetch_pick_cube(env: DarkstoreCellBaseEnv, seed=None, debug=False, vis=False):
     env.reset(seed=seed)
     planner = FetchMotionPlanningSapienSolver(
         env,

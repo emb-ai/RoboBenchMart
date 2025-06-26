@@ -215,13 +215,29 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
 
 
 class PandaArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
+    def __init__(
+        self,
+        env: BaseEnv,
+        debug: bool = False,
+        vis: bool = True,
+        base_pose: sapien.Pose = None,  # TODO mplib doesn't support robot base being anywhere but 0
+        visualize_target_grasp_pose: bool = True,
+        print_env_info: bool = True,
+        joint_vel_limits=0.9,
+        joint_acc_limits=0.9,
+        objects = [],
+        disable_actors_collision=False
+    ):
+        self.disable_actors_collision = disable_actors_collision
+        super().__init__(env, debug, vis, base_pose, visualize_target_grasp_pose, print_env_info, joint_vel_limits, joint_acc_limits, objects)
+        
     def setup_planner(self, objects = []):
         # raise NotImplementedError
         link_names = [link.get_name() for link in self.robot.get_links()]
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
 
         planned_articulation = self._sim_scene.get_all_articulations()[0]
-        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
         planner = SapienPlannerV2(
             planning_world,
             "scene-0-panda_wristcam_panda_hand_tcp",
@@ -269,7 +285,7 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
 
         planned_articulation = self._sim_scene.get_all_articulations()[0]
-        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
         planner = SapienPlannerV2(
             planning_world,
             f"scene-0-{self.robot.name}_gripper_link",
@@ -499,7 +515,7 @@ class FetchQuasiStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapien
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
 
         planned_articulation = self._sim_scene.get_all_articulations()[0]
-        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
         planner = SapienPlannerV2(
             planning_world,
             "scene-0-ds_fetch_quasi_static_gripper_link",
@@ -670,7 +686,7 @@ class FetchQuasiStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapien
 class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
     def setup_planner(self, *args, **kwargs):
         planned_articulation = self._sim_scene.get_all_articulations()[0]
-        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
         planner = SapienPlannerV2(
             planning_world,
             f"scene-0-{self.robot.name}_gripper_link",
@@ -950,10 +966,6 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         taget_pose = mplib.Pose(p=cur_pose.p + shift,
                                 q=cur_pose.q)
         result = self.move_base_forward(taget_pose.p, dry_run=dry_run)
-        if result["status"] != "Success":
-            print(result["status"])
-            self.render_wait()
-            return -1
         return result
 
     def rotate_z_delta(self, delta = 0., dry_run: bool = False):
@@ -1075,7 +1087,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             print("arm Action:", np.round(arm_action, 4))
             print("body Action:", np.round(body_action, 4))
             print("base Action:", np.round(base_action, 4))
-            print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+            print("qpos: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
             obs, reward, terminated, truncated, info = self.env.step(action)
 
             self.elapsed_steps += 1

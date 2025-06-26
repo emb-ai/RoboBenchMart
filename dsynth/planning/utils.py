@@ -17,6 +17,8 @@ from mplib.collision_detection.fcl import CollisionGeometry
 from mplib.sapien_utils import SapienPlanner, SapienPlanningWorld
 from mplib.collision_detection.fcl import Convex, CollisionObject, FCLObject
 from mplib.collision_detection import fcl
+from mplib.sapien_utils.urdf_exporter import export_kinematic_chain_urdf
+from mplib.sapien_utils.srdf_exporter import export_srdf
 
 import sapien
 import sapien.physx as physx
@@ -220,6 +222,68 @@ class SapienPlanningWorldV2(SapienPlanningWorld):
     """
     Patched version of SapienPlanningWorld for meshes with scale
     """
+    def __init__(
+        self,
+        sim_scene: sapien.Scene,
+        planned_articulations: list[PhysxArticulation] = [],  # noqa: B006
+        disable_actors_collision=False,
+    ):
+        """
+        Creates an mplib.PlanningWorld from a sapien.Scene.
+
+        :param planned_articulations: list of planned articulations.
+        """
+        mplib.PlanningWorld.__init__(self, [])
+        self._sim_scene = sim_scene
+        self.disable_actors_collision = disable_actors_collision
+
+        articulations: list[PhysxArticulation] = sim_scene.get_all_articulations()
+        actors: list[Entity] = sim_scene.get_all_actors()
+
+        for articulation in articulations:
+            urdf_str = export_kinematic_chain_urdf(articulation)
+            srdf_str = export_srdf(articulation)
+
+            # Convert all links to FCLObject
+            collision_links = [
+                fcl_obj
+                for link in articulation.links
+                if (fcl_obj := self.convert_physx_component(link)) is not None
+            ]
+
+            articulated_model = mplib.ArticulatedModel.create_from_urdf_string(
+                urdf_str,
+                srdf_str,
+                collision_links=collision_links,
+                gravity=sim_scene.get_physx_system().config.gravity,  # type: ignore
+                link_names=[link.name for link in articulation.links],
+                joint_names=[j.name for j in articulation.active_joints],
+                verbose=False,
+            )
+            articulated_model.set_base_pose(articulation.root_pose)  # type: ignore
+            articulated_model.set_qpos(
+                articulation.qpos,  # type: ignore
+                full=True,
+            )  # update qpos
+            self.add_articulation(articulated_model)
+
+        for articulation in planned_articulations:
+            self.set_articulation_planned(convert_object_name(articulation), True)
+        
+        # if not self.disable_actors_collision:
+        for entity in actors:
+            if self.disable_actors_collision and 'food' in entity.name:
+                continue
+            component = entity.find_component_by_type(sapien.physx.PhysxRigidBaseComponent)
+            assert component is not None, (
+                f"No PhysxRigidBaseComponent found in {entity.name}: "
+                f"{entity.components=}"
+            )
+
+            # Convert collision shapes at current global pose
+            if (fcl_obj := self.convert_physx_component(component)) is not None:  # type: ignore
+                self.add_object(fcl_obj)
+
     @staticmethod
     def convert_physx_component(comp: physx.PhysxRigidBaseComponent) -> FCLObject | None:
         """

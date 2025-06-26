@@ -185,6 +185,7 @@ def solve(env: BaseEnv, debug=False, vis=False):
         print_env_info=False,
         joint_acc_limits=0.5,
         joint_vel_limits=0.5,
+        disable_actors_collision=True,
     )
     viewer = env.render_human()
 
