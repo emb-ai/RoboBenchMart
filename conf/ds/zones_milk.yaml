@@ -1,0 +1,7 @@
+defaults:
+  - /zones@milk_zone1: milk_box_zone
+  - /zones@milk_zone2: milk_box_zone
+  - /zones@milk_zone3: milk_box_zone
+
+
+    

@@ -6,6 +6,7 @@ from functools import partial
 from multiprocessing import Pool
 import json
 from pathlib import Path
+import hashlib
 from tqdm import tqdm
 from typing import Optional, Union, BinaryIO, IO, Dict, Tuple
 import numpy as np
@@ -15,6 +16,9 @@ from dsynth.scene_gen.layouts.layout_generator import LayoutGeneratorBase
 from dsynth.scene_gen.hydra_configs import ShelfConfig, FillingType
 from dsynth.scene_gen.arrangements import shelf_placement_v2
 from dsynth.scene_gen.utils import flatten_dict, ProductnameIteratorInfinite, ProductnameIterator
+
+import os
+os.environ['PYTHONHASHSEED'] = '42'
 
 class SceneGenerator:
     def __init__(self, 
@@ -31,6 +35,9 @@ class SceneGenerator:
                  ):
         self.num_workers = num_workers
 
+        config_hash = hashlib.sha1(OmegaConf.to_yaml(darkstore_arrangement_cfg).encode()).hexdigest()[-8:]
+
+
         seeds_layout = [random_seed] * num_scenes
         if randomize_layout:
             seeds_layout = np.arange(num_scenes) + random_seed
@@ -45,7 +52,7 @@ class SceneGenerator:
                 'layout_gen_params': {},
                 'seed_layout': seed_layout,
                 'seed_arrangement': seed_arr,
-                'output_name': f'scene_config_{n}.json'
+                'output_name': f'scene_config_{config_hash}_{n}.json'
             })
 
         self.generate_routine = partial(
@@ -85,7 +92,7 @@ def _generate_routine(
     seed_arrangement = task_params['seed_arrangement']
     output_name = task_params['output_name']
     
-    product_filling = product_filling_from_darkstore_config(
+    product_filling, ds_names = product_filling_from_darkstore_config(
         darkstore_arrangement_cfg, 
         list(product_assets_lib.keys()), 
         rng=random.Random(seed_arrangement)
@@ -108,6 +115,8 @@ def _generate_routine(
         **layout_data
         )
     
+    scene_meta["meta"]["ds_names"] = ds_names
+    
     if output_dir is not None:
         with open(Path(output_dir) / output_name, "w") as f:
             json.dump(scene_meta, f, indent=4)
@@ -117,6 +126,7 @@ def _generate_routine(
 
 def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_names, rng):
     assert 0 <= shelf_config.start_filling_board <= shelf_config.end_filling_from_board <= shelf_config.num_boards
+    shelf_name = shelf_config.name
 
     filling = [[] for _ in range(shelf_config.start_filling_board)]
 
@@ -177,21 +187,32 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
             rng.shuffle(cur_board_arrangement)
 
             filling.append([f'{key}:{val}' for key, val in cur_board_arrangement])
-
+        
     for _ in range(shelf_config.end_filling_from_board, shelf_config.num_boards):
         filling.append([])
-    return filling
+    
+    if shelf_config.shuffle_boards:
+        rng.shuffle(filling)
+
+    return filling, shelf_name
 
 
 def product_filling_from_zone_config(zone_config, all_product_names, rng):
     filling = {}
-    for shelf_name, shelf_config in zone_config.items():
-        filling[shelf_name] = product_filling_from_shelf_config(shelf_config, all_product_names, rng)
-    return filling
+    if 'name' in zone_config:
+        zone_names = {'zone_name': zone_config['name'], 'shelf_names': {}}
+    else:
+        zone_names = {'zone_name': 'Unnamed', 'shelf_names': {}}
+        
+    for key, val in zone_config.items():
+        if key != 'name':
+            filling[key], zone_names['shelf_names'][key] = product_filling_from_shelf_config(val, all_product_names, rng)
+    return filling, zone_names
 
 def product_filling_from_darkstore_config(darkstore_config: DictConfig, all_product_names, rng):
     filling = {}
+    ds_names = {}
     for zone_name, zone_config in darkstore_config.items():
-        filling[zone_name] = product_filling_from_zone_config(zone_config, all_product_names, rng)
-    return filling
+        filling[zone_name], ds_names[zone_name] = product_filling_from_zone_config(zone_config, all_product_names, rng)
+    return filling, ds_names
 

@@ -4,7 +4,7 @@ from collections import deque
 import sapien
 import trimesh
 import sapien.physx as physx
-from transforms3d.euler import euler2quat
+from transforms3d.euler import euler2quat, euler2mat
 from mani_skill.agents.base_agent import BaseAgent
 from mani_skill.envs.sapien_env import BaseEnv
 from mani_skill.envs.scene import ManiSkillScene
@@ -215,13 +215,29 @@ class PandaArmMotionPlanningSolverV2(PandaArmMotionPlanningSolver):
 
 
 class PandaArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
+    def __init__(
+        self,
+        env: BaseEnv,
+        debug: bool = False,
+        vis: bool = True,
+        base_pose: sapien.Pose = None,  # TODO mplib doesn't support robot base being anywhere but 0
+        visualize_target_grasp_pose: bool = True,
+        print_env_info: bool = True,
+        joint_vel_limits=0.9,
+        joint_acc_limits=0.9,
+        objects = [],
+        disable_actors_collision=False
+    ):
+        self.disable_actors_collision = disable_actors_collision
+        super().__init__(env, debug, vis, base_pose, visualize_target_grasp_pose, print_env_info, joint_vel_limits, joint_acc_limits, objects)
+        
     def setup_planner(self, objects = []):
         # raise NotImplementedError
         link_names = [link.get_name() for link in self.robot.get_links()]
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
 
         planned_articulation = self._sim_scene.get_all_articulations()[0]
-        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
         planner = SapienPlannerV2(
             planning_world,
             "scene-0-panda_wristcam_panda_hand_tcp",
@@ -269,18 +285,75 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
 
         planned_articulation = self._sim_scene.get_all_articulations()[0]
-        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
         planner = SapienPlannerV2(
             planning_world,
-            "scene-0-ds_fetch_static_gripper_link",
+            f"scene-0-{self.robot.name}_gripper_link",
             joint_vel_limits=np.ones(8) * self.joint_vel_limits,
             joint_acc_limits=np.ones(8) * self.joint_acc_limits
         )
         
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
+
+    def move_to_pose_with_screw_static_body(
+        self, pose: sapien.Pose, dry_run: bool = False, refine_steps: int = 0
+    ):
+        pose = to_sapien_pose(pose)
+        # try screw two times before giving up
+        if self.grasp_pose_visual is not None:
+            self.grasp_pose_visual.set_pose(pose)
+        pose = sapien.Pose(p=pose.p , q=pose.q)
+        result = self.planner.plan_screw(
+            mplib.Pose(pose.p, pose.q),
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True,
+            masked_joints=[False] + [True] * 11
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            result = self.planner.plan_screw(
+                mplib.Pose(pose.p, pose.q),
+                self.robot.get_qpos().cpu().numpy()[0],
+                time_step=self.base_env.control_timestep,
+                masked_joints=[False] + [True] * 11
+
+                # # use_point_cloud=self.use_point_cloud,
+            )
+            if result["status"] != "Success":
+                print(result["status"])
+                self.render_wait()
+                return -1
+        self.render_wait()
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
     
-    def follow_path(self, result, refine_steps: int = 0):
+    def follow_path(self, result, refine_steps:int = 0, refine: bool = False):
+        return self.follow_forward_path_w_refinement(result, refine)
+    
+    def lift_hand(self, delta_h = 0., dry_run: bool = False, refine_steps: int = 0):
+        cur_pose = self.base_env.agent.tcp.pose.sp
+        taget_pose = mplib.Pose(p=cur_pose.p + np.array([0., 0., delta_h]),
+                                q=cur_pose.q)
+        result = self.planner.plan_screw(
+            taget_pose,
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
+
+
+    def follow_forward_path_w_refinement(self, result, refine: bool = False, static=False):
         qpos_final = result["position"][-1]
         qpos_dict_final = {}
         for idx, q in zip(self.planner.move_group_joint_indices, qpos_final):
@@ -288,29 +361,34 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
             qpos_dict_final[joint_name] = q
             
         n_step = result["position"].shape[0]
-        for i in range(n_step + refine_steps):
+
+        for i in range(n_step):
             arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
 
             qpos = result["position"][min(i, n_step - 1)]
+            qvel = result["velocity"][min(i, n_step - 1)]
 
             qpos_dict = {}
-
+            
             for idx, q in zip(self.planner.move_group_joint_indices, qpos):
                 joint_name = self.planner.user_joint_names[idx]
                 qpos_dict[joint_name] = q
 
             for n, joint_name in enumerate(self.env_agent.controller.controllers['arm'].config.joint_names):
-                arm_action[n] = qpos_dict[f'scene-0-ds_fetch_static_{joint_name}']
+                arm_action[n] = qpos_dict[f'scene-0-{self.robot.name}_{joint_name}']
 
             assert self.control_mode == "pd_joint_pos"
 
-            body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
-            body_action[2] = qpos_dict['scene-0-ds_fetch_static_torso_lift_joint']
-            body_action[0] = body_action[1] = 0.
+            body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
+            body_action[2] = qpos_dict[f'scene-0-{self.robot.name}_torso_lift_joint']
+
+            # base_action = np.array([0., 0.])
+            # base_action[0] =  np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
 
             action = np.hstack([arm_action, self.gripper_state, body_action])
             print("arm Action:", np.round(arm_action, 4))
             print("body Action:", np.round(body_action, 4))
+            # print("base Action:", np.round(base_action, 4))
             print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
             obs, reward, terminated, truncated, info = self.env.step(action)
 
@@ -321,58 +399,71 @@ class FetchStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolve
                 )
             if self.vis:
                 self.base_env.render_human()
-            
-        # REFINEMENT!
-        # We refine only x position and lift at the end of the trajectory
-        passed_refine_steps = 0
-        last_lift_poses = deque(maxlen=10)
-        last_lift_vels = deque(maxlen=10)
-        print("==== REFINEMENT ====")
-        while not self.check_body_close_to_target(qpos_dict):
-            if (len(last_lift_vels) > 4 and np.std(last_lift_vels) < 1e-3) \
-                    and (len(last_lift_poses) > 4 and np.std(last_lift_poses) < 1e-3):
-                # robot is stuck
-                print("Robot is stuck")
-                break
 
-            body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
-            body_action[2] = qpos_dict_final['scene-0-ds_fetch_static_torso_lift_joint']
-            body_action[0] = body_action[1] = 0.
-         
-            last_lift_poses.append(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2])
-            
-            last_lift_vels.append(self.env_agent.controller.controllers['body'].qvel[0].cpu().numpy()[2])
-            
-            action = np.hstack([arm_action, self.gripper_state, body_action])
-            print("arm Action:", np.round(arm_action, 4))
-            print("body Action:", np.round(body_action, 4))
-            print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
-            obs, reward, terminated, truncated, info = self.env.step(action)
-            passed_refine_steps += 1
-            self.elapsed_steps += 1
-            if self.print_env_info:
-                print(
-                    f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
-                )
-            if self.vis:
-                self.base_env.render_human()
+        if refine:
+            # REFINEMENT!
+            passed_refine_steps = 0
+            last_lift_poses = deque(maxlen=10)
+            last_x_base_poses = deque(maxlen=10)
+            last_lift_vels = deque(maxlen=10)
+            last_x_base_vels = deque(maxlen=10)
+            print("==== REFINEMENT ====")
+    
+            while not self.check_body_close_to_target(qpos_dict_final):
+                if (len(last_lift_vels) > 4 and np.std(last_lift_vels) < 1e-3) \
+                        and (len(last_x_base_vels) > 4 and np.std(last_x_base_vels) < 1e-3) \
+                        and (len(last_lift_poses) > 4 and np.std(last_lift_poses) < 1e-3) \
+                        and (len(last_x_base_poses) > 4 and np.std(last_x_base_poses) < 1e-3):
+                    # robot is stuck
+                    print("Robot is stuck")
+                    break
+
+                body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
+                body_action[2] = qpos_dict_final[f'scene-0-{self.robot.name}_torso_lift_joint']
+                body_action[0] = body_action[1] = 0.
+
+                # base_action = np.array([0., 0.])
+                                    
+                last_lift_poses.append(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2])
+                last_lift_vels.append(self.env_agent.controller.controllers['body'].qvel[0].cpu().numpy()[2])
+                
+                action = np.hstack([arm_action, self.gripper_state, body_action])
+                print("arm Action:", np.round(arm_action, 4))
+                print("body Action:", np.round(body_action, 4))
+                # print("base Action:", np.round(base_action, 4))
+                print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+                obs, reward, terminated, truncated, info = self.env.step(action)
+                passed_refine_steps += 1
+                self.elapsed_steps += 1
+                if self.print_env_info:
+                    print(
+                        f"[{self.elapsed_steps:3}] Env Output: reward={reward} info={info}"
+                    )
+                if self.vis:
+                    self.base_env.render_human()
 
         return obs, reward, terminated, truncated, info
 
-
-    def check_body_close_to_target(self, target_dict, eps=1e-2):
+    def check_body_close_to_target(self, target_dict, eps=1e-3):
         body_qpos = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2]
-        target_lift_joint_height = target_dict['scene-0-ds_fetch_static_torso_lift_joint']
+        target_lift_joint_height = target_dict[f'scene-0-{self.robot.name}_torso_lift_joint']
+
+        # base_xy = self.env_agent.controller.controllers['base'].qpos[0].cpu().numpy()[0:2]
+        # target_base = np.array([
+        #     target_dict[f'scene-0-{self.robot.name}_root_x_axis_joint'],
+        #     target_dict[f'scene-0-{self.robot.name}_root_y_axis_joint']
+        # ])
+
         robot_qpos = self.robot.get_qpos().cpu().numpy()[0]
         arm_pos = robot_qpos[self.env_agent.controller.controllers['arm'].active_joint_indices.cpu().numpy()]
         target_arm_pos = np.array([
-            target_dict['scene-0-ds_fetch_static_shoulder_pan_joint'],
-            target_dict['scene-0-ds_fetch_static_shoulder_lift_joint'],
-            target_dict['scene-0-ds_fetch_static_upperarm_roll_joint'],
-            target_dict['scene-0-ds_fetch_static_elbow_flex_joint'],
-            target_dict['scene-0-ds_fetch_static_forearm_roll_joint'],
-            target_dict['scene-0-ds_fetch_static_wrist_flex_joint'],
-            target_dict['scene-0-ds_fetch_static_wrist_roll_joint']
+            target_dict[f'scene-0-{self.robot.name}_shoulder_pan_joint'],
+            target_dict[f'scene-0-{self.robot.name}_shoulder_lift_joint'],
+            target_dict[f'scene-0-{self.robot.name}_upperarm_roll_joint'],
+            target_dict[f'scene-0-{self.robot.name}_elbow_flex_joint'],
+            target_dict[f'scene-0-{self.robot.name}_forearm_roll_joint'],
+            target_dict[f'scene-0-{self.robot.name}_wrist_flex_joint'],
+            target_dict[f'scene-0-{self.robot.name}_wrist_roll_joint']
         ])
         return np.allclose(body_qpos, target_lift_joint_height, atol=eps) and \
             np.allclose(arm_pos, target_arm_pos, atol=eps)
@@ -424,7 +515,7 @@ class FetchQuasiStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapien
         joint_names = [joint.get_name() for joint in self.robot.get_active_joints()]
 
         planned_articulation = self._sim_scene.get_all_articulations()[0]
-        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
         planner = SapienPlannerV2(
             planning_world,
             "scene-0-ds_fetch_quasi_static_gripper_link",
@@ -595,10 +686,10 @@ class FetchQuasiStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapien
 class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
     def setup_planner(self, *args, **kwargs):
         planned_articulation = self._sim_scene.get_all_articulations()[0]
-        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation])
+        planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
         planner = SapienPlannerV2(
             planning_world,
-            "scene-0-ds_fetch_gripper_link",
+            f"scene-0-{self.robot.name}_gripper_link",
             joint_vel_limits=np.ones(11) * self.joint_vel_limits,
             joint_acc_limits=np.ones(11) * self.joint_acc_limits
         )
@@ -606,7 +697,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
     
-    def rotate_base_z(self, new_direction, n_init_qpos=20):
+    def rotate_base_z(self, new_direction, n_init_qpos=20, dry_run=False):
         assert new_direction[2] == 0.
         tcp_pose = self.base_env.agent.tcp.pose.sp
         base_link_pose = self.base_env.agent.base_link.pose.sp
@@ -616,10 +707,11 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         if np.cross(base_x_axis, new_direction)[2] < 0:
             angle = -angle
         
+        if np.abs(angle) < 1e-3:
+            return self.idle_steps(t=1)
+
         rotation_wrt_base_link = sapien.Pose(q=euler2quat(0, 0, angle))
         target_tcp_pose = base_link_pose * rotation_wrt_base_link * base_link_pose.inv() * tcp_pose
-
-        mask_rot_z_only =[True, True, False, True, True, True, True, True, True, True, True, True, True, True, True]
 
         if self.grasp_pose_visual is not None:
             self.grasp_pose_visual.set_pose(target_tcp_pose)
@@ -630,21 +722,6 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
         )
-
-        # result = self.planner.plan_pose(
-        #     target_tcp_pose,
-        #     self.robot.get_qpos().cpu().numpy()[0],
-        #     time_step=self.base_env.control_timestep,
-        #     # use_point_cloud=self.use_point_cloud,
-        #     wrt_world=True,
-        #     verbose=True,
-        #     planning_time=2,
-        #     rrt_range=0.1,
-        #     simplify=True,
-        #     mask=mask_rot_z_only,
-        #     fixed_joint_indices=[0, 1,],
-        #     n_init_qpos=n_init_qpos   
-        # )
 
         if result["status"] != "Success":
             print(result["status"])
@@ -659,44 +736,39 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
         )
-        # result = self.planner.plan_pose(
-        #     target_tcp_pose,
-        #     self.robot.get_qpos().cpu().numpy()[0],
-        #     time_step=self.base_env.control_timestep,
-        #     # use_point_cloud=self.use_point_cloud,
-        #     wrt_world=True,
-        #     verbose=True,
-        #     planning_time=2,
-        #     rrt_range=0.1,
-        #     simplify=True,
-        #     mask=mask_rot_z_only,
-        #     fixed_joint_indices=[0, 1,],
-        #     n_init_qpos=n_init_qpos   
-        # )
         
         if result["status"] != "Success":
             print(result["status"])
             self.render_wait()
             return -1
 
+        if dry_run:
+            return result
+
         return self.follow_rotation(result)
     
-    def drive_base(self, target_pos, target_view_pos):
-        moving_direction = target_pos.p - self.base_env.agent.base_link.pose.sp.p
-        moving_direction[2] = 0.
+    def drive_base(self, target_pos=None, target_view_vec=None):
+        if not target_pos is None:
+            moving_direction = target_pos - self.base_env.agent.base_link.pose.sp.p
+            moving_direction[2] = 0.
 
-        self.rotate_base_z(moving_direction)
-        self.planner.update_from_simulation()
+            if np.linalg.norm(moving_direction) < 1e-2:
+                res = self.idle_steps(t=1)
+                self.planner.update_from_simulation()
 
-        self.move_base_forward(target_pos.p, n_init_qpos=100)
-        self.planner.update_from_simulation()
+            else:
+                self.rotate_base_z(moving_direction)
+                self.planner.update_from_simulation()
+
+                res = self.move_base_forward(target_pos, n_init_qpos=100)
+                self.planner.update_from_simulation()
         
-        view_direction = target_view_pos.p - self.base_env.agent.base_link.pose.sp.p
-        view_direction[2] = 0.
-
-        return self.rotate_base_z(view_direction)
+        # view_direction = target_view_pos.p - self.base_env.agent.base_link.pose.sp.p
+        if not target_view_vec is None:
+            res = self.rotate_base_z(target_view_vec)
+        return res
     
-    def move_base_forward(self, new_base_pose, n_init_qpos=20):
+    def move_base_forward(self, new_base_pose, n_init_qpos=20, dry_run = False):
         tcp_pose = self.base_env.agent.tcp.pose.sp
         base_link_pose = self.base_env.agent.base_link.pose.sp
         delta = new_base_pose - base_link_pose.p
@@ -710,21 +782,9 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            # masked_joints=[True, True, True] + [False] * 12
         )
-        move_forward_only =[False, False, True, True, True, True, True, True, True, True, True, True, True, True, True]
-        # result = self.planner.plan_pose(
-        #     target_tcp_pose,
-        #     self.robot.get_qpos().cpu().numpy()[0],
-        #     time_step=self.base_env.control_timestep,
-        #     # use_point_cloud=self.use_point_cloud,
-        #     wrt_world=True,
-        #     verbose=True,
-        #     planning_time=2,
-        #     rrt_range=0.1,
-        #     simplify=True,
-        #     mask=move_forward_only,
-        #     n_init_qpos=n_init_qpos   
-        # )
+        
         self.render_wait()
 
         if result["status"] != "Success":
@@ -738,12 +798,16 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            # masked_joints=[True, True, True] + [False] * 12
         )
 
         if result["status"] != "Success":
             print(result["status"])
             self.render_wait()
             return -1
+        
+        if dry_run:
+            return result
 
         return self.follow_moving_forward(result)
 
@@ -808,6 +872,83 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
         return self.follow_forward_path_w_refinement(result, refine=True)
 
+    def move_to_pose_with_screw_static_body(
+        self, pose: sapien.Pose, dry_run: bool = False, refine_steps: int = 0
+    ):
+        pose = to_sapien_pose(pose)
+        # try screw two times before giving up
+        if self.grasp_pose_visual is not None:
+            self.grasp_pose_visual.set_pose(pose)
+        pose = sapien.Pose(p=pose.p , q=pose.q)
+        result = self.planner.plan_screw(
+            mplib.Pose(pose.p, pose.q),
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True,
+            masked_joints=[False, False, False, False] + [True] * 11
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            result = self.planner.plan_screw(
+                mplib.Pose(pose.p, pose.q),
+                self.robot.get_qpos().cpu().numpy()[0],
+                time_step=self.base_env.control_timestep,
+                masked_joints=[False, False, False, False] + [True] * 11
+                # # use_point_cloud=self.use_point_cloud,
+            )
+            if result["status"] != "Success":
+                print(result["status"])
+                self.render_wait()
+                return -1
+        self.render_wait()
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
+
+    def lift_hand(self, delta_h = 0., dry_run: bool = False, refine_steps: int = 0):
+        cur_pose = self.base_env.agent.tcp.pose.sp
+        taget_pose = mplib.Pose(p=cur_pose.p + np.array([0., 0., delta_h]),
+                                q=cur_pose.q)
+        result = self.planner.plan_screw(
+            taget_pose,
+            self.robot.get_qpos().cpu().numpy()[0],
+            time_step=self.base_env.control_timestep,
+            verbose=True
+            # use_point_cloud=self.use_point_cloud,
+        )
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+        if dry_run:
+            return result
+        return self.follow_path(result, refine_steps=refine_steps)
+    
+    def move_forward_delta(self, delta = 0., dry_run: bool = False):
+        cur_pose = self.base_env.agent.base_link.pose.sp
+        direction = cur_pose.to_transformation_matrix()[:3, 0]
+        direction[2] = 0.
+        shift = direction * delta
+        taget_pose = mplib.Pose(p=cur_pose.p + shift,
+                                q=cur_pose.q)
+        result = self.move_base_forward(taget_pose.p, dry_run=dry_run)
+        return result
+
+    def rotate_z_delta(self, delta = 0., dry_run: bool = False):
+        cur_pose = self.base_env.agent.base_link.pose.sp
+        direction = cur_pose.to_transformation_matrix()[:3, 0]
+        direction[2] = 0.
+
+        rot_matrix = euler2mat(0, 0, delta)
+
+        new_direction = rot_matrix @ direction
+        
+        result = self.rotate_base_z(new_direction, dry_run=dry_run)
+        if result["status"] != "Success":
+            print(result["status"])
+            self.render_wait()
+            return -1
+        return result
 
     def follow_rotation(self, result, refine_steps: int = 0):
         qpos_final = result["position"][-1]
@@ -844,6 +985,8 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
     def follow_moving_forward(self, result, refine_steps: int = 0):
         n_step = result["position"].shape[0]
+        base_direction = self.env_agent.base_link.pose.sp.to_transformation_matrix()[:3, 0]
+        root_to_world = self.env_agent.robot.root_pose.sp.to_transformation_matrix()[:3, :3]
         for i in range(n_step + refine_steps):
             arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
             body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
@@ -851,7 +994,10 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             base_action = np.array([0., 0.])
 
             qvel = result["velocity"][min(i, n_step - 1)]
-            base_action[0] = np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
+            base_vel = np.array([qvel[0], qvel[1], 0.])
+            base_vel_wrt_world = root_to_world @ base_vel
+            is_forward = 1 if np.dot(base_vel_wrt_world, base_direction) > 0 else -1
+            base_action[0] = is_forward * np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
 
             action = np.hstack([arm_action, self.gripper_state, body_action, base_action])
             print("base Action:", np.round(base_action, 4))
@@ -893,12 +1039,12 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
                 qpos_dict[joint_name] = q
 
             for n, joint_name in enumerate(self.env_agent.controller.controllers['arm'].config.joint_names):
-                arm_action[n] = qpos_dict[f'scene-0-ds_fetch_{joint_name}']
+                arm_action[n] = qpos_dict[f'scene-0-{self.robot.name}_{joint_name}']
 
             assert self.control_mode == "pd_joint_pos"
 
             body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
-            body_action[2] = qpos_dict['scene-0-ds_fetch_torso_lift_joint']
+            body_action[2] = qpos_dict[f'scene-0-{self.robot.name}_torso_lift_joint']
 
             base_action = np.array([0., 0.])
             base_action[0] =  np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
@@ -907,7 +1053,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             print("arm Action:", np.round(arm_action, 4))
             print("body Action:", np.round(body_action, 4))
             print("base Action:", np.round(base_action, 4))
-            print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+            print("qpos: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
             obs, reward, terminated, truncated, info = self.env.step(action)
 
             self.elapsed_steps += 1
@@ -937,7 +1083,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
                     break
 
                 body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())
-                body_action[2] = qpos_dict_final['scene-0-ds_fetch_torso_lift_joint']
+                body_action[2] = qpos_dict_final[f'scene-0-{self.robot.name}_torso_lift_joint']
                 body_action[0] = body_action[1] = 0.
 
                 base_action = np.array([0., 0.])
@@ -967,24 +1113,24 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
     def check_body_base_close_to_target(self, target_dict, eps=1e-2):
         body_qpos = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()[2]
-        target_lift_joint_height = target_dict['scene-0-ds_fetch_torso_lift_joint']
+        target_lift_joint_height = target_dict[f'scene-0-{self.robot.name}_torso_lift_joint']
 
         base_xy = self.env_agent.controller.controllers['base'].qpos[0].cpu().numpy()[0:2]
         target_base = np.array([
-            target_dict['scene-0-ds_fetch_root_x_axis_joint'],
-            target_dict['scene-0-ds_fetch_root_y_axis_joint']
+            target_dict[f'scene-0-{self.robot.name}_root_x_axis_joint'],
+            target_dict[f'scene-0-{self.robot.name}_root_y_axis_joint']
         ])
 
         robot_qpos = self.robot.get_qpos().cpu().numpy()[0]
         arm_pos = robot_qpos[self.env_agent.controller.controllers['arm'].active_joint_indices.cpu().numpy()]
         target_arm_pos = np.array([
-            target_dict['scene-0-ds_fetch_shoulder_pan_joint'],
-            target_dict['scene-0-ds_fetch_shoulder_lift_joint'],
-            target_dict['scene-0-ds_fetch_upperarm_roll_joint'],
-            target_dict['scene-0-ds_fetch_elbow_flex_joint'],
-            target_dict['scene-0-ds_fetch_forearm_roll_joint'],
-            target_dict['scene-0-ds_fetch_wrist_flex_joint'],
-            target_dict['scene-0-ds_fetch_wrist_roll_joint']
+            target_dict[f'scene-0-{self.robot.name}_shoulder_pan_joint'],
+            target_dict[f'scene-0-{self.robot.name}_shoulder_lift_joint'],
+            target_dict[f'scene-0-{self.robot.name}_upperarm_roll_joint'],
+            target_dict[f'scene-0-{self.robot.name}_elbow_flex_joint'],
+            target_dict[f'scene-0-{self.robot.name}_forearm_roll_joint'],
+            target_dict[f'scene-0-{self.robot.name}_wrist_flex_joint'],
+            target_dict[f'scene-0-{self.robot.name}_wrist_roll_joint']
         ])
         return np.allclose(body_qpos, target_lift_joint_height, atol=eps) and \
             np.allclose(base_xy, target_base, atol=eps) and \
@@ -1017,3 +1163,18 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         
     def open_gripper(self, t=6):
         return self.change_gripper_state(t=t, gripper_state = OPEN)
+    
+    def idle_steps(self, t=20):
+        arm_action = self.env_agent.controller.controllers['arm'].qpos[0].cpu().numpy()
+        body_action = self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy()
+        base_action = np.array([0, 0])
+        for i in range(t):
+            if self.control_mode == "pd_joint_pos":
+                # action = np.hstack([arm_action, self.gripper_state, body_action, base_vel])
+                action = np.hstack([arm_action, self.gripper_state, body_action, base_action])
+            else:
+                raise NotImplementedError
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            if self.vis:
+                self.base_env.render_human()
+        return obs, reward, terminated, truncated, info

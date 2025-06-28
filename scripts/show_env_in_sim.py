@@ -15,12 +15,16 @@ from mani_skill.utils.wrappers import RecordEpisode
 
 import sys 
 sys.path.append('.')
-from dsynth.envs.pick_to_cart import PickToCartEnv
+from dsynth.envs import *
+from dsynth.robots import *
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets> <style id (0-11)> [mapping_file]"
     )
+    parser.add_argument("-e", "--env-id", type=str, default="PickToCartEnv", help=f"Environment to run")
+    parser.add_argument("-r", "--robot-uids", type=str, default="ds_fetch", help=f"Robot id")
+    parser.add_argument("-n", "--num-envs", type=int, default=1, help=f"Number of scenes")
     parser.add_argument("scene_dir", help="Путь к директории с JSON конфигом сцены")
     parser.add_argument("--style_id", type=int, default=0, help="Style id (0-11)")
     parser.add_argument('--shader',
@@ -45,19 +49,21 @@ def main(args):
     scene_dir = Path(args.scene_dir)
     style_id = args.style_id
     gui = args.gui
-
-    env = gym.make('PickToCartEnv', 
-                   robot_uids='panda_wristcam', 
+    parallel_in_single_scene = args.num_envs > 1 and gui
+    env = gym.make(args.env_id, 
+                   robot_uids=args.robot_uids, 
                    config_dir_path = args.scene_dir,
-                   num_envs=1, 
+                   num_envs=args.num_envs, 
                    viewer_camera_configs={'shader_pack': args.shader}, 
                     human_render_camera_configs={'shader_pack': args.shader},
-                #    render_mode="human" if gui else "rgb_array", 
-                   render_mode="rgb_array", 
-                #    control_mode='pd_ee_delta_pos',
+                   render_mode="human" if gui else "rgb_array", 
+                #    render_mode="rgb_array", 
+                   control_mode=None,
                    enable_shadow=True,
-                   obs_mode='rgbd',
-                   parallel_in_single_scene = False,
+                   sim_config={'spacing': 10},
+                   obs_mode='none' if gui else "rgbd",
+                   sim_backend='auto',
+                   parallel_in_single_scene = parallel_in_single_scene,
                    )
 
     new_traj_name = time.strftime("%Y%m%d_%H%M%S")
@@ -75,38 +81,33 @@ def main(args):
     print("Video path:", video_path)
     print("Trajectoty name:", new_traj_name)
 
-    for _ in range(4):
-    # step through the environment with random actions
-        obs, _ = env.reset(options={'reconfigure': True})
+    obs, _ = env.reset(seed=42, options={'reconfigure': True})
 
-
+    if gui:
         viewer = env.render()
         if isinstance(viewer, sapien.utils.Viewer):
-            viewer.paused = False
+            viewer.paused = True
         # env.render()
 
-        action = torch.zeros_like(torch.from_numpy(env.action_space.sample()))
-        # action[-1] = -1
 
-        for i in tqdm(range(args.episode_length)):
-            # action = env.action_space.sample()
-            obs, reward, terminated, truncated, info = env.step(action)
-
-            # rgb_image = obs["sensor_data"]["base_camera"]["rgb"]
-            # rgb_image = rgb_image.permute((0, 3, 1, 2))
-
-            if gui:
-                env.render_human()
-
-        # render wait
+    for i in tqdm(range(args.episode_length)):
+        action = torch.from_numpy(env.action_space.sample())
+        # action = torch.zeros_like(torch.from_numpy(env.action_space.sample()))
+        obs, reward, terminated, truncated, info = env.step(action)
+        print(info)
         if gui:
-            viewer = env.render_human()
-            while True:
-                if viewer.closed:
-                    exit()
-                if viewer.window.key_down("c"):
-                    break
-                env.render_human()
+            env.render_human()
+
+    # render wait
+    if gui:
+        viewer = env.render_human()
+        while True:
+            if viewer.closed:
+                exit()
+            if viewer.window.key_down("c"):
+                break
+            env.render_human()
+        
 
     env.close()
 

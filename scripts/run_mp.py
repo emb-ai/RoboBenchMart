@@ -51,7 +51,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     record_dir = args.scene_dir + '/demos'
     
     env = gym.make(env_id, 
-                    robot_uids='ds_fetch',
+                    robot_uids='ds_fetch_basket',
                    config_dir_path = scene_dir,
                    num_envs=1, 
                    control_mode="pd_joint_pos",
@@ -108,7 +108,6 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
             elapsed_steps = res[-1]["elapsed_steps"].item()
             solution_episode_lengths.append(elapsed_steps)
         successes.append(success)
-        seed += 1
 
         if args.only_count_success and not success:
             seed += 1

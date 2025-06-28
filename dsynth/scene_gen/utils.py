@@ -180,3 +180,69 @@ class PositionIteratorGridColumns(PositionIterator2D):
 
     def update(self, *args, **kwargs):
         pass
+
+def is_valid_cell(x, y, N, M):
+    if x < 0 or y < 0 or x >= N or y >= M:
+        return False
+
+    return True
+
+def find_paths_util(maze, source, destination, visited, path, paths):
+    """Find paths using Breadth First Search algorith """
+    # Done if destination is found
+    if source == destination:
+        paths.append(path[:])  # append copy of current path
+        return paths
+    
+    # mark current cell as visited
+    N = len(maze)
+    M = len(maze[0])
+    x, y = source
+    visited[x][y] = True
+    
+    # if current cell is a valid and open cell, 
+    if is_valid_cell(x, y, N, M) and maze[x][y] == 0:
+    # Using Breadth First Search on path extension in all direction
+    
+        # go right (x, y) --> (x + 1, y)
+        if x + 1 < N and (not visited[x + 1][y]):
+            path.append((x + 1, y))
+            find_paths_util(maze,(x + 1, y), destination, visited, path, paths)
+            path.pop()
+        
+        # go left (x, y) --> (x - 1, y)
+        if x - 1 >= 0 and (not visited[x - 1][y]):
+            path.append((x - 1, y))
+            find_paths_util(maze, (x - 1, y), destination, visited, path, paths)
+            path.pop()
+        
+        # go up (x, y) --> (x, y + 1)
+        if y + 1 < M and (not visited[x][y + 1]):
+            path.append((x, y + 1))
+            find_paths_util(maze, (x, y + 1), destination, visited, path, paths)
+            path.pop()
+        
+        # go down (x, y) --> (x, y - 1)
+        if y - 1 >= 0 and (not visited[x][y - 1]):
+            path.append((x, y - 1))
+            find_paths_util(maze, (x, y - 1), destination, visited, path, paths)
+            path.pop()
+        
+        # Unmark current cell as visited
+        visited[x][y] = False
+    
+    return paths
+
+def find_paths(maze, source, destination):
+    """ Sets up and searches for paths"""
+    N = len(maze) # size of Maze is N x N
+    M = len(maze[0])
+    # 2D matrix to keep track of cells involved in current path
+    visited = [[False]*M for _ in range(N)]
+    
+    path = [source]
+    paths = []
+    paths = find_paths_util(maze, source, destination, visited, path, paths)
+    
+    return paths
+

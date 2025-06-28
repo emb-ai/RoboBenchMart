@@ -1,0 +1,8 @@
+defaults:
+  - /shelves@full_milk1: full_milk
+  - /shelves@full_milk2: full_milk
+  - /shelves@full_milk3: full_milk
+
+name: 'milk zone'
+
+

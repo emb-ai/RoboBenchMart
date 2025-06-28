@@ -1,0 +1,15 @@
+defaults:
+  - main_darkstore_config_base
+  - /ds@zones: zones_milk
+  - _self_
+
+
+name: ds
+size_n: 5
+size_m: 4
+num_scenes: 1
+num_workers: 1
+layout_gen_type: CONNECTED_ZONES
+randomize_layout: true
+randomize_arrangements: true
+random_seed: 42

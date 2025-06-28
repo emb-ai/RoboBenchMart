@@ -1,0 +1,27 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: 'mp_test'
+filling_type: BOARDWISE_COLUMNS
+
+x_gap: 0.06
+y_gap: 0.02
+delta_x: 0.1
+shuffle_boards: true
+board_product_numcol:
+  0:
+    food.drinks.fantaNaranja1p35l: 10
+  1:
+    food.dairy_products.milk: 3
+    food.drinks.sprite2p25l: 3
+    food.drinks.cocaColaNoSugar1p5l: 3
+    # food.dairy_products.milk: 3
+  2:
+    food.grocery.nestleFitnessChocolateCerealBox: 5
+    food.dairy_products.milkHandle: 5
+  3:   
+    food.drinks.coffeeCapsulesDolceGusto: 10
+  4:
+    food.grocery.cornFlakesRetroEditionSmall: 6
+    food.grocery.nestleFitnessChocolateCerealBox: 5

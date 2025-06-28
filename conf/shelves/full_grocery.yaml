@@ -1,0 +1,22 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: 'grocery shelf'
+filling_type: BOARDWISE_COLUMNS
+
+x_gap: 0.06
+y_gap: 0.02
+delta_x: 0.1
+shuffle_boards: true
+board_product_numcol:
+  0:
+    food.grocery.baby: 6
+  1:
+    food.grocery.cerealescornflakescora: 5
+  2:
+    food.grocery.nestleFitnessChocolateCerealBox: 5
+  3:   
+    food.grocery.cornFlakesRetroEditionSmall: 5
+  4:
+    food.grocery.cerealescornflakescora: 5

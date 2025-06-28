@@ -2,6 +2,7 @@ import numpy as np
 from pathlib import Path
 import itertools
 from typing import List, Optional
+import re
 
 import torch
 import yaml
@@ -73,6 +74,17 @@ def _get_absolute_matrix(node, nodes_dict):
             parent_name = parent_node[0]
         return current_matrix
 
+def _get_zone_shelf_ids(node, nodes_dict):
+        parent_name = node[0]
+        shelf_full_id = ''
+        while parent_name != "world":
+            shelf_full_id = parent_name
+            parent_node = nodes_dict[parent_name]
+            parent_name = parent_node[0]
+        shelf_full_id = re.sub(r"SHELF_\d+_", "", shelf_full_id) # replace SHELF_N
+        zone_id, shelf_id = shelf_full_id.split('.')
+        return zone_id, shelf_id
+
 def _get_pq(matrix, origin):
     matrix = np.array(matrix)
     q = quaternions.mat2quat(matrix[:3,:3])
@@ -82,7 +94,7 @@ class DarkstoreScene(RoboCasaSceneBuilder):
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
     def __init__(self, *args, config_dir_path=None, **kwargs):
         self.config_dir_path = config_dir_path
-        self.scene_config_paths = sorted(list(Path(self.config_dir_path).glob('scene_config_*.json')))
+        self.scene_config_paths = sorted(list(Path(self.config_dir_path).glob('*.json')))
         self.num_generated_scenes = len(self.scene_config_paths)
         
         self.x_cells = []
@@ -92,6 +104,7 @@ class DarkstoreScene(RoboCasaSceneBuilder):
         self.height = []
         self.room = []
         self.rotations = []
+        self.ds_names = []
 
         super().__init__(*args, **kwargs)
 
@@ -114,16 +127,26 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                     continue
 
                 asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
-                actor = self.env.assets_lib[asset_name].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
-                self.env.actors["products"][obj_name] = actor
+                item_name = f'[ENV#{scene_idx}]_{obj_name}'
+                actor = self.env.assets_lib[asset_name].ms_build_actor(
+                    item_name, 
+                    self.env.scene, 
+                    pose=pose, 
+                    scene_idxs=[scene_idx],
+                    force_static=self.env.all_static)
+                self.env.actors["products"][item_name] = actor
+                
+                zone_id, shelf_id = _get_zone_shelf_ids(node, nodes_dict)
+                self.env.products2shelves[item_name] = (zone_id, shelf_id)
+                
     
     def _get_lamps_coords(self, x_cells, y_cells):
         lamps_coords = []
 
         # TODO: max number of light sources can be reached
-        for i, j in itertools.product(range(x_cells), range(y_cells)):
-            x = CELL_SIZE / 2 + CELL_SIZE * i
-            y = CELL_SIZE / 2 + CELL_SIZE * j
+        for i, j in itertools.product(range(x_cells // 2), range(y_cells // 2)):
+            x = CELL_SIZE / 2 + CELL_SIZE * i * 2
+            y = CELL_SIZE / 2 + CELL_SIZE * j * 2
             lamps_coords.append((x, y))
         
         return lamps_coords
@@ -180,6 +203,8 @@ class DarkstoreScene(RoboCasaSceneBuilder):
             self.height.append(arena_data['meta']['height'])
             self.room.append(scene_data['meta']['room'])
             self.rotations.append(scene_data['meta']['rotations'])
+
+            self.ds_names.append(scene_data['meta'].get('ds_names', None))
 
 
             arena_config = arena_data['arena_config']

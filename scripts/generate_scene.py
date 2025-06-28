@@ -43,6 +43,9 @@ def main(cfg) -> None:
 
     log.info(f"Write results to: {output_dir}")
 
+    with open(output_dir / "input_config.yaml", "w") as f:
+        f.write(OmegaConf.to_yaml(cfg))
+        
     layout_gen_cls = LAYOUT_TYPES_TO_CLS[cfg.ds.layout_gen_type]
     layout_generator = layout_gen_cls(sizes_nm=(cfg.ds.size_n, cfg.ds.size_m), 
                    start_coords=(cfg.ds.entrance_coords_x, cfg.ds.entrance_coords_y))
@@ -61,8 +64,6 @@ def main(cfg) -> None:
     results = scene_gen.generate()
     results = np.array(results)
 
-    with open(output_dir / "input_config.yaml", "w") as f:
-        f.write(OmegaConf.to_yaml(cfg))
     
     if np.all(results):
         log.info(f"Done")
