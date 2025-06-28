@@ -1,45 +1,5 @@
-import multiprocessing as mp
-import os
-from copy import deepcopy
-import time
-import argparse
-import gymnasium as gym
-import numpy as np
-from tqdm import tqdm
-import os.path as osp
 import numpy as np
 np.set_printoptions(suppress=True)
-import mplib
-from transforms3d.euler import euler2quat, quat2euler
-from mplib.sapien_utils.conversion import convert_object_name
-from mplib.collision_detection.fcl import CollisionGeometry
-from mplib.sapien_utils import SapienPlanner, SapienPlanningWorld
-from mplib.collision_detection.fcl import Convex, CollisionObject, FCLObject
-from mplib.collision_detection import fcl
-import sapien
-import sapien.physx as physx
-from sapien import Entity
-from sapien.physx import (
-    PhysxArticulation,
-    PhysxArticulationLinkComponent,
-    PhysxCollisionShapeConvexMesh
-)
-
-
-from typing import Literal, Optional, Sequence, Union
-import sys
-import trimesh
-from mani_skill.utils.structs.pose import to_sapien_pose
-from mani_skill.utils.wrappers.record import RecordEpisode
-from mani_skill.trajectory.merge_trajectory import merge_trajectories
-from mani_skill.examples.motionplanning.panda.solutions import solvePushCube, solvePickCube, solveStackCube, solvePegInsertionSide, solvePlugCharger, solvePullCubeTool, solveLiftPegUpright, solvePullCube
-from mani_skill.envs.tasks import PickCubeEnv
-from mani_skill.utils.geometry.trimesh_utils import get_component_mesh
-from mani_skill.examples.motionplanning.panda.motionplanner import \
-    PandaArmMotionPlanningSolver
-from mani_skill.examples.motionplanning.panda.utils import (
-    compute_grasp_info_by_obb, get_actor_obb)
-from mani_skill.utils import common
 
 from dsynth.envs import *
 
@@ -66,8 +26,8 @@ def solve_fetch_nav_go_to_zone(env: NavMoveToZoneEnv, seed=None, debug=False, vi
     start_cell = (int(start_cell[0]), int(start_cell[1]))
 
     min_dist_to_shelf = np.inf
-    for target_cell, final_view_direction in zip(env.target_cells, env.target_directions):
-        paths = find_paths(env.room, start_cell, 
+    for target_cell, final_view_direction in zip(env.target_cells[0], env.target_directions[0]):
+        paths = find_paths(env.room[0], start_cell, 
                            (int(target_cell[0]), int(target_cell[1])))
 
         # if there are more than one path to shelf

@@ -159,15 +159,12 @@ class PickToBasketEnv(DarkstoreCellBaseEnv):
                 # base movement enabled, add initial pose randomization
                 perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
 
-                delta_par = self._batched_episode_rng[idx].rand() * CELL_SIZE * 0.3
-                delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 2 * CELL_SIZE * 0.3
+                delta_par = self._batched_episode_rng[idx].rand() * CELL_SIZE * 0.4
+                delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 2 * CELL_SIZE * 0.4
 
                 origin += - direction_to_shelf * delta_par + perp_direction * delta_perp
 
                 angle += (self._batched_episode_rng[idx].rand() - 0.5) * np.pi / 4
-            else:
-                # move base closer to the shelf for static manipulation
-                origin = origin + direction_to_shelf * CELL_SIZE * 0.2
 
             origins.append(origin)
             init_cells.append(init_cell)

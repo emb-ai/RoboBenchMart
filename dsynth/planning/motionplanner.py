@@ -707,10 +707,11 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         if np.cross(base_x_axis, new_direction)[2] < 0:
             angle = -angle
         
+        if np.abs(angle) < 1e-3:
+            return self.idle_steps(t=1)
+
         rotation_wrt_base_link = sapien.Pose(q=euler2quat(0, 0, angle))
         target_tcp_pose = base_link_pose * rotation_wrt_base_link * base_link_pose.inv() * tcp_pose
-
-        mask_rot_z_only =[True, True, False, True, True, True, True, True, True, True, True, True, True, True, True]
 
         if self.grasp_pose_visual is not None:
             self.grasp_pose_visual.set_pose(target_tcp_pose)
@@ -721,21 +722,6 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
         )
-
-        # result = self.planner.plan_pose(
-        #     target_tcp_pose,
-        #     self.robot.get_qpos().cpu().numpy()[0],
-        #     time_step=self.base_env.control_timestep,
-        #     # use_point_cloud=self.use_point_cloud,
-        #     wrt_world=True,
-        #     verbose=True,
-        #     planning_time=2,
-        #     rrt_range=0.1,
-        #     simplify=True,
-        #     mask=mask_rot_z_only,
-        #     fixed_joint_indices=[0, 1,],
-        #     n_init_qpos=n_init_qpos   
-        # )
 
         if result["status"] != "Success":
             print(result["status"])
@@ -750,20 +736,6 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
         )
-        # result = self.planner.plan_pose(
-        #     target_tcp_pose,
-        #     self.robot.get_qpos().cpu().numpy()[0],
-        #     time_step=self.base_env.control_timestep,
-        #     # use_point_cloud=self.use_point_cloud,
-        #     wrt_world=True,
-        #     verbose=True,
-        #     planning_time=2,
-        #     rrt_range=0.1,
-        #     simplify=True,
-        #     mask=mask_rot_z_only,
-        #     fixed_joint_indices=[0, 1,],
-        #     n_init_qpos=n_init_qpos   
-        # )
         
         if result["status"] != "Success":
             print(result["status"])
@@ -780,11 +752,16 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             moving_direction = target_pos - self.base_env.agent.base_link.pose.sp.p
             moving_direction[2] = 0.
 
-            self.rotate_base_z(moving_direction)
-            self.planner.update_from_simulation()
+            if np.linalg.norm(moving_direction) < 1e-2:
+                res = self.idle_steps(t=1)
+                self.planner.update_from_simulation()
 
-            res = self.move_base_forward(target_pos, n_init_qpos=100)
-            self.planner.update_from_simulation()
+            else:
+                self.rotate_base_z(moving_direction)
+                self.planner.update_from_simulation()
+
+                res = self.move_base_forward(target_pos, n_init_qpos=100)
+                self.planner.update_from_simulation()
         
         # view_direction = target_view_pos.p - self.base_env.agent.base_link.pose.sp.p
         if not target_view_vec is None:
@@ -805,21 +782,9 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            # masked_joints=[True, True, True] + [False] * 12
         )
-        move_forward_only =[False, False, True, True, True, True, True, True, True, True, True, True, True, True, True]
-        # result = self.planner.plan_pose(
-        #     target_tcp_pose,
-        #     self.robot.get_qpos().cpu().numpy()[0],
-        #     time_step=self.base_env.control_timestep,
-        #     # use_point_cloud=self.use_point_cloud,
-        #     wrt_world=True,
-        #     verbose=True,
-        #     planning_time=2,
-        #     rrt_range=0.1,
-        #     simplify=True,
-        #     mask=move_forward_only,
-        #     n_init_qpos=n_init_qpos   
-        # )
+        
         self.render_wait()
 
         if result["status"] != "Success":
@@ -833,6 +798,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            # masked_joints=[True, True, True] + [False] * 12
         )
 
         if result["status"] != "Success":

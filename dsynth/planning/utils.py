@@ -199,7 +199,7 @@ def convert_actor_convex_mesh_to_fcl(actor: Actor):
         [mplib.Pose(shape.local_pose)],
     )
 
-def is_mesh_cylindrical(actor, to_world_frame=True):
+def is_mesh_cylindrical(actor, to_world_frame=True, thresh=5e-3):
     mesh = get_component_mesh(
         actor._objs[0].find_component_by_type(physx.PhysxRigidDynamicComponent),
         to_world_frame=to_world_frame,
@@ -212,8 +212,10 @@ def is_mesh_cylindrical(actor, to_world_frame=True):
 
     h_obb, w_obb = obb.primitive.extents[:2]
     h_c_obb, w_c_obb = cylinder_obb.primitive.extents[:2]
-    if np.abs(h_obb * w_obb - h_c_obb * w_c_obb) < 5e-3 and \
-        np.abs(h_obb + w_obb - h_c_obb - w_c_obb) < 5e-3:
+
+    #if extents are equal up to the permutation then the mesh is cylindrical
+    if np.abs(h_obb * w_obb - h_c_obb * w_c_obb) < thresh and \
+        np.abs(h_obb + w_obb - h_c_obb - w_c_obb) < thresh:
         return True
     return False
     
