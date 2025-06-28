@@ -8,8 +8,8 @@ from mani_skill.envs.sapien_env import BaseEnv
 
 from mani_skill.examples.motionplanning.panda.motionplanner import \
     PandaArmMotionPlanningSolver
-from mani_skill.examples.motionplanning.panda_stick.motionplanner import \
-    PandaStickMotionPlanningSolver
+# from mani_skill.examples.motionplanning.panda_stick.motionplanner import \
+#     PandaStickMotionPlanningSolver
 import sapien.utils.viewer
 import h5py
 import json
