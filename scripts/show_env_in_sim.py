@@ -22,7 +22,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets> <style id (0-11)> [mapping_file]"
     )
-    parser.add_argument("-e", "--env-id", type=str, default="PickToCartEnv", help=f"Environment to run")
+    parser.add_argument("-e", "--env-id", type=str, default="PickToBasketEnv", help=f"Environment to run")
     parser.add_argument("-r", "--robot-uids", type=str, default="ds_fetch", help=f"Robot id")
     parser.add_argument("-n", "--num-envs", type=int, default=1, help=f"Number of scenes")
     parser.add_argument("scene_dir", help="Путь к директории с JSON конфигом сцены")
