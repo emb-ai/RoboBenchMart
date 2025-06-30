@@ -167,6 +167,9 @@ class DarkstoreCellBaseEnv(BaseEnv):
         print("built")
         print(f"Total {len(self.actors['products'])} products in {self.num_envs} scene(s)")
 
+    def _load_lighting(self, options: dict):
+        """Overrides default _load_lighting to avoid loading defauls. The actual lighting is set in dsynth/envs/fixtures/robocasaroom.py"""
+        pass
 
     # def _get_lamps_coords(self):
     #     lamps_coords = []
