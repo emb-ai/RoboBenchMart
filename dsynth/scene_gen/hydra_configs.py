@@ -1,12 +1,13 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from omegaconf import MISSING
 
 
 class LayoutGenType(Enum):
     DEFAULT = 'DEFAULT'
     CONNECTED_ZONES = 'CONNECTED_ZONES'
+    FIXED_LAYOUT = 'FIXED_LAYOUT'
 
 class FillingType(Enum):
     BLOCKWISE_AUTO = 'BLOCKWISE_AUTO'
@@ -41,6 +42,8 @@ class ShelfConfig:
     start_point_x: float = -1.
     start_point_y: float = -1.
 
+    shelf_asset: Optional[str] = None
+
 @dataclass    
 class DsConfig:
     name: str 
@@ -60,3 +63,5 @@ class DsConfig:
     randomize_arrangements: bool = True
     random_seed: int = 42
 
+    layout: Any = None
+    rotations: Any = None

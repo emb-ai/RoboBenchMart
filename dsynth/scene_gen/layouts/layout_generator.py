@@ -3,6 +3,7 @@ log = logging.getLogger(__name__)
 import random
 from abc import ABC, abstractmethod
 from typing import Tuple, Optional, Dict
+from omegaconf import DictConfig, OmegaConf
 
 from dsynth.scene_gen.layouts.random_connectivity import add_many_zones, get_orientation
 from dsynth.scene_gen.hydra_configs import LayoutGenType
@@ -50,8 +51,28 @@ class RandomConnectedZones(LayoutGeneratorBase):
             "rotations": rotations
         }
     
+class FixedLayout(LayoutGeneratorBase):
+    def __call__(self, *args, zones_dict: Dict = dict(), darkstore_arrangement_cfg: Dict = dict(), **kwargs):
+        assert 'layout' in darkstore_arrangement_cfg
+        assert 'rotations' in darkstore_arrangement_cfg
+        n, m = self.sizes_nm
+        darkstore = [[0] * m for _ in range(n)]
+        rotations = [[0] * m for _ in range(n)]
+        darkstore_dict = OmegaConf.to_container(darkstore_arrangement_cfg['layout'], resolve = True)
+        rotations_dict = OmegaConf.to_container(darkstore_arrangement_cfg['rotations'], resolve = True)
+
+        # convert to list of lists
+        for i in darkstore_dict.keys():
+            darkstore[i] = darkstore_dict[i]
+            rotations[i] = rotations_dict[i]
+
+        return {
+            "darkstore": darkstore,
+            "rotations": rotations
+        }
+    
 LAYOUT_TYPES_TO_CLS = {
     LayoutGenType.CONNECTED_ZONES: RandomConnectedZones,
     LayoutGenType.DEFAULT: None,
-
+    LayoutGenType.FIXED_LAYOUT: FixedLayout
 }
