@@ -122,4 +122,4 @@ def try3():
     s.show_supports()
 
 
-try3()
+try2()
