@@ -93,7 +93,7 @@ def _generate_routine(
     output_name = task_params['output_name']
     
     product_filling, ds_names = product_filling_from_darkstore_config(
-        darkstore_arrangement_cfg, 
+        darkstore_arrangement_cfg.zones, 
         list(product_assets_lib.keys()), 
         rng=random.Random(seed_arrangement)
     )
@@ -102,7 +102,7 @@ def _generate_routine(
     product_filling_flattened = flatten_dict(product_filling, sep='.')
 
     layout_generator.rng = random.Random(seed_layout)
-    layout_data = layout_generator(**layout_gen_params, zones_dict=zones_dict)
+    layout_data = layout_generator(**layout_gen_params, zones_dict=zones_dict, darkstore_arrangement_cfg=darkstore_arrangement_cfg)
     if layout_data is None:
         log.error(f"Can't generate {output_name}!")
         return False
@@ -111,7 +111,7 @@ def _generate_routine(
         product_filling_flattened=product_filling_flattened,
         product_assets_lib=product_assets_lib, 
         is_showed=show,
-        zones_cfg=darkstore_arrangement_cfg,
+        darkstore_cfg=darkstore_arrangement_cfg,
         **layout_data
         )
     

@@ -47,9 +47,9 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
         self.all_static = all_static
         with hydra.initialize_config_dir(config_dir=str(self.config_dir_path.absolute()), version_base=None):
-            cfg = hydra.compose(config_name='input_config')
+            self.cfg = hydra.compose(config_name='input_config')
 
-        self.assets_lib = flatten_dict(load_assets_lib(cfg.assets), sep='.')
+        self.assets_lib = flatten_dict(load_assets_lib(self.cfg.assets), sep='.')
 
         self.actors = {
             "fixtures": {

@@ -122,7 +122,12 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                 p, q = _get_pq(abs_matrix, origin)
                 pose = sapien.Pose(p=p, q=q)
                 if 'SHELF' in obj_name:
-                    actor = self.env.assets_lib['fixtures.shelf'].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                    shelf_name = re.sub(r"SHELF_\d+_", "", obj_name)
+                    zone_id, shelf_id = shelf_name.split('.')
+                    shelf_asset_name = self.env.cfg.ds.zones[zone_id][shelf_id].shelf_asset
+                    if shelf_asset_name is None:
+                        shelf_asset_name = 'fixtures.shelf'
+                    actor = self.env.assets_lib[shelf_asset_name].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
                     self.env.actors["fixtures"]["shelves"][obj_name] = actor
                     continue
 
