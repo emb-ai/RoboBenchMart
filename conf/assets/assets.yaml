@@ -217,6 +217,9 @@ fixtures:
   door:
     asset_file_path: ${assets.assets_dir_path}/door_yellow.glb
     ms_is_static: true
+  freezer_large:
+    asset_file_path: ${assets.assets_dir_path}/food_showcase/urdf/food_showcase.urdf
+    ss_asset_type: URDFAsset
 scene_assets:
   shoppingCart: 
     asset_file_path: ${assets.assets_dir_path}/smallShoppingCart2.glb
