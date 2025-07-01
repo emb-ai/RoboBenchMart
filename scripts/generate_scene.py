@@ -27,7 +27,7 @@ OUTPUT_PATH = 'generated_envs'
 @hydra.main(version_base=None, config_name="config", config_path="../conf")
 def main(cfg) -> None:
     log.info(OmegaConf.to_yaml(cfg))
-    product_assets_lib = flatten_dict(load_assets_lib(cfg.assets.products_hierarchy), sep='.')
+    product_assets_lib = flatten_dict(load_assets_lib(cfg.assets), sep='.')
 
     if cfg.ds.output_dir is not None:
         output_dir = Path(cfg.ds.output_dir)
@@ -53,7 +53,7 @@ def main(cfg) -> None:
     scene_gen = SceneGenerator(
         layout_generator = layout_generator,
         product_assets_lib = product_assets_lib,
-        darkstore_arrangement_cfg=cfg.ds.zones,
+        darkstore_arrangement_cfg=cfg.ds,
         num_scenes=cfg.ds.num_scenes,
         num_workers=cfg.ds.num_workers,
         output_dir=output_dir,

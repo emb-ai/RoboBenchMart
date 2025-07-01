@@ -152,7 +152,7 @@ def add_objects_to_shelf_v2(
             start_point = np.array([start_point_x, start_point_y])
             board_arrangement = [(arr_value.split(':')[0], int(arr_value.split(':')[1])) for arr_value in board_arrangement]
             for product, num_col in board_arrangement:
-                obj = product_assets_lib[product].ss_asset
+                obj = product_assets_lib['products_hierarchy.' + product].ss_asset
                 dims = obj.get_extents()
                 scene.place_objects(
                     obj_id_iterator=utils.object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:"),
@@ -195,7 +195,7 @@ def shelf_placement_v2(
         darkstore: list[list],
         rotations: list[list],
         product_assets_lib,
-        zones_cfg,
+        darkstore_cfg,
         is_showed: bool = False,
     ):
     n, m = len(darkstore), len(darkstore[0])
@@ -205,7 +205,6 @@ def shelf_placement_v2(
             if darkstore[i][j] != 0:
                 cells.append(i * m + j)
     scene = synth.Scene()
-    shelf = DefaultShelf
     cnt = 0
     it = 0
     for x in range(n):
@@ -214,6 +213,13 @@ def shelf_placement_v2(
             if shelf_name == 0:
                 cnt += 1
                 continue
+            zone_id, shelf_id = shelf_name.split('.')
+            shelf_asset_name = darkstore_cfg.zones[zone_id][shelf_id].shelf_asset
+            if shelf_asset_name is None:
+                shelf = DefaultShelf
+                shelf_asset_name = 'fixtures.shelf' # corresponds to the default shelf
+            else:
+                shelf = product_assets_lib[shelf_asset_name].ss_asset
             support_data = set_shelf(
                 scene,
                 shelf,
@@ -231,13 +237,13 @@ def shelf_placement_v2(
                 product_filling_flattened[shelf_name],
                 product_assets_lib,
                 support_data,
-                zones_cfg[z_name][s_name].x_gap,
-                zones_cfg[z_name][s_name].y_gap,
-                zones_cfg[z_name][s_name].delta_x,
-                zones_cfg[z_name][s_name].delta_y,
-                zones_cfg[z_name][s_name].start_point_x,
-                zones_cfg[z_name][s_name].start_point_y,
-                zones_cfg[z_name][s_name].filling_type
+                darkstore_cfg.zones[z_name][s_name].x_gap,
+                darkstore_cfg.zones[z_name][s_name].y_gap,
+                darkstore_cfg.zones[z_name][s_name].delta_x,
+                darkstore_cfg.zones[z_name][s_name].delta_y,
+                darkstore_cfg.zones[z_name][s_name].start_point_x,
+                darkstore_cfg.zones[z_name][s_name].start_point_y,
+                darkstore_cfg.zones[z_name][s_name].filling_type
             )
             cnt += 1
             it += 1

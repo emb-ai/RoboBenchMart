@@ -9,7 +9,7 @@ from mani_skill.utils.registration import register_env
 import sys
 sys.path.append('.')
 from dsynth.assets.asset import Asset
-
+import numpy as np
 @register_env("BuggyPush", max_episode_steps=50)
 class BuggyPush(PushCubeEnv):
     def _load_scene(self, options: dict):
@@ -53,7 +53,7 @@ class BuggyPush(PushCubeEnv):
             ),
             asset_name='shelf'
         )
-        shelf_asset.trimesh_scene.show(flags={'axis': True})
+        # shelf_asset.trimesh_scene.show(flags={'axis': True})
 
         self.mini_shelf = shelf_asset.ms_build_actor(
             'mini_shelf', 
@@ -71,7 +71,7 @@ class BuggyPush(PushCubeEnv):
             ),
             asset_name='two_sided_shelf'
         )
-        shelf_asset.trimesh_scene.show(flags={'axis': True})
+        # shelf_asset.trimesh_scene.show(flags={'axis': True})
 
         self.two_sided_shelf = shelf_asset.ms_build_actor(
             'two_sided_shelf', 
@@ -80,19 +80,64 @@ class BuggyPush(PushCubeEnv):
             force_static=True
         )
 
-        # builder = self.scene.create_actor_builder()
-        # builder.add_visual_from_file(filename='assets/store_mini_shelf_one_sided.glb', scale=[1, 1, 1])
-        # builder.set_initial_pose(sapien.Pose(p=[5.0, -5.0, 0.0]))
-        # builder.add_nonconvex_collision_from_file(filename='assets/store_mini_shelf_one_sided.glb', scale=[1, 1, 1])
-        # self.mini_shelf = builder.build_static(name='mini_shelf')
+        builder = self.scene.create_actor_builder()
+        builder.add_box_collision(
+            half_size=[0.01, 0.2, 0.2],
+        )
+        builder.add_box_visual(
+            half_size=[0.01, 0.8, 0.8],
+            material=sapien.render.RenderMaterial(
+                # RGBA values, this is a red cube
+                base_color=[0.9, 0.9, 0.9, 1],
+                transmission=1.0,
+                transmission_roughness=0.001,
+                ior=1.6,
+                roughness = 0.001,
+                metallic=0.0005,
+            ),
+        )
+        
+        self.cube = builder.build_static('cube222')
 
+        builder = self.scene.create_actor_builder()
+        glass = '/home/kvsoshin/Work/glass.glb'
+        # glass = 'assets/food_showcase/meshes/obj/glass2.glb'
+        # glass = 'assets/food_showcase/meshes/obj/model_7.obj'
+        builder.add_visual_from_file(filename=glass, scale=[1, 1, 1],
+            #                          material=sapien.render.RenderMaterial(
+            #     # RGBA values, this is a red cube
+            #     base_color=[0.9, 0.9, 0.9, 1],
+            #     transmission=1.0,
+            #     transmission_roughness=0.001,
+            #     ior=1.6,
+            #     roughness = 0.001,
+            #     metallic=0.0005,
+            # )
+            )
+        builder.set_initial_pose(sapien.Pose(p=[3.0, -3.0, 0.0]))
+        builder.add_convex_collision_from_file(filename=glass, scale=[1, 1, 1])
+        self.mini_shelf = builder.build_static(name='door')
+        print(self.mini_shelf._objs[0].components[0].render_shapes[0].get_parts()[1].get_material())
 
+        # mt = sapien.render.RenderMaterial()
+        # mt.diffuse_texture = sapien.render.RenderTexture2D(filename='/home/kvsoshin/Work/glass.glb')
 
 
 
 
 
 def main():
+    from mani_skill.render.shaders import ShaderConfig, rt_texture_names, rt_texture_transforms
+    shader_config=ShaderConfig(
+                                shader_pack="rt",
+                                texture_names=rt_texture_names,
+                                shader_pack_config={
+                                    "ray_tracing_samples_per_pixel": 8,
+                                    "ray_tracing_path_depth": 4,
+                                    "ray_tracing_denoiser": "optix",
+                                },
+                                texture_transforms=rt_texture_transforms,
+                            )
     env_kwargs = dict(
         render_mode='human',
         num_envs=1,
