@@ -1,0 +1,7 @@
+defaults:
+  - /shelves@freezer_large1: display_freezer_glass_top
+
+
+name: 'freezer zone'
+
+
