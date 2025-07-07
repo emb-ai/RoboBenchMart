@@ -10,7 +10,7 @@ y_gap: 0.04
 delta_x: 0.1
 shuffle_boards: true
 shelf_asset: fixtures.freezer_large
-
+shelf_type: FRIDGE_FOOD_SHOWCASE
 board_product_numcol:
   0:
     food.dairy_products.milk: 5
@@ -22,5 +22,5 @@ board_product_numcol:
     food.drinks.sprite2p25l: 5
     food.drinks.cocaColaNoSugar1p5l: 5
   4:
-    food.drinks.mountainDew: 8
+    food.drinks.mountainDew: 1
 
