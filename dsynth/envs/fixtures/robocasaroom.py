@@ -10,6 +10,7 @@ import json
 from copy import deepcopy
 from typing import Dict, List, Optional
 import sapien
+from mani_skill.envs.scene import ManiSkillScene
 from mani_skill.utils.scene_builder.robocasa.scene_builder import RoboCasaSceneBuilder, FIXTURES, FIXTURES_INTERIOR
 from mani_skill.utils.scene_builder.robocasa.utils import scene_registry, scene_utils
 from mani_skill.utils.scene_builder.robocasa.fixtures.fixture import (
@@ -57,8 +58,10 @@ def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
                 'floor': [
                     {'name': 'floor', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, 0.0]}, 
                     {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.1], 'pos': [x_size / 2, y_size / 2, 0.0]},
-                    
-                    {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height + 4 * 0.02]}
+                ],
+                'ceiling': [
+                    {'name': 'ceiling', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height]},
+                    {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.01], 'pos': [x_size / 2, y_size / 2, height + 0.08]}
                 ]
             }
         }
@@ -217,6 +220,16 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                 config_idx = self.env._batched_episode_rng[i].randint(0, self.num_generated_scenes * 12)
                 build_config_idxs.append(config_idx)
 
+        # random indexes for walls, floors and ceilings
+        num_wall_textures = len(list(Path('assets/textures/walls').iterdir()))
+        wall_texture_idxs = [self.env._batched_episode_rng[i].randint(0, num_wall_textures) for i in range(len(build_config_idxs))]
+
+        num_floor_textures = len(list(Path('assets/textures/floors').iterdir()))
+        floor_texture_idxs = [self.env._batched_episode_rng[i].randint(0, num_floor_textures) for i in range(len(build_config_idxs))]
+
+        num_ceiling_textures = len(list(Path('assets/textures/ceilings').iterdir()))
+        ceiling_texture_idxs = [self.env._batched_episode_rng[i].randint(0, num_ceiling_textures) for i in range(len(build_config_idxs))]
+
         for scene_idx, build_config_idx in enumerate(build_config_idxs):
             config_path = self.scene_config_paths[build_config_idx % self.num_generated_scenes]
             
@@ -241,8 +254,10 @@ class DarkstoreScene(RoboCasaSceneBuilder):
 
 
             style_idx = build_config_idx % 12  # Get style index (0-11)
+            floor_texture_id = floor_texture_idxs[scene_idx]
+            wall_texture_id = wall_texture_idxs[scene_idx]
+            ceiling_texture_id = ceiling_texture_idxs[scene_idx]
             # layout_path = scene_registry.get_layout_path(layout_idx)
-            # layout_path = '/home/kvsoshin/.maniskill/data/scene_datasets/robocasa_dataset/assets/scenes/kitchen_layouts/L_shaped_large.yaml'
             style_path = scene_registry.get_style_path(style_idx)
             # load style
             with open(style_path, "r") as f:
@@ -341,10 +356,20 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                         default_config[k] = v
                     fixture_config = default_config
 
+                if fixture_config["type"] == "wall":
+                    fixture_config['texture'] = str(list(Path('assets/textures/walls').iterdir())[wall_texture_id].resolve())
+                elif fixture_config["type"] == "floor":
+                    fixture_config['texture'] = str(list(Path('assets/textures/floors').iterdir())[floor_texture_id].resolve())
+
                 # set fixture type
                 if fixture_config["type"] not in FIXTURES:
                     continue
                 fixture_config["type"] = FIXTURES[fixture_config["type"]]
+
+                # modify type to ceiling
+                if fixture_config['name'] == "ceiling_room":
+                    fixture_config['type'] = Ceiling
+                    fixture_config['texture'] = str(list(Path('assets/textures/ceilings').iterdir())[ceiling_texture_id].resolve())
 
                 # pre-processing for fixture size
                 size = fixture_config.get("size", None)
@@ -399,7 +424,7 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                     else:
                         # absolute position
                         pos = fixture_config.get("pos", None)
-                if pos is not None and type(fixture) not in [Wall, Floor]:
+                if pos is not None and type(fixture) not in [Wall, Floor, Ceiling]:
                     fixture.set_pos(deepcopy(pos))
             # composites are non-MujocoObjects, must remove
             for composite in composites:
@@ -419,7 +444,7 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                 z_rot = config["group_z_rot"]
                 displacement = [pos[0] - origin[0], pos[1] - origin[1]]
 
-                if type(fixture) not in [Wall, Floor]:
+                if type(fixture) not in [Wall, Floor, Ceiling]:
                     dx = fixture.pos[0] - origin[0]
                     dy = fixture.pos[1] - origin[1]
                     dx_rot = dx * np.cos(z_rot) - dy * np.sin(z_rot)
@@ -550,7 +575,11 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                                     built.actor.set_collision_group_bit(
                                         group=2, bit_idx=bit_idx, bit=1
                                     )
-
+                            elif isinstance(v, Ceiling):
+                                for bit_idx in range(21, 32):
+                                    built.actor.set_collision_group_bit(
+                                        group=2, bit_idx=bit_idx, bit=1
+                                    )
                             else:
                                 built.actor.set_collision_group_bit(
                                     group=2,
@@ -569,6 +598,7 @@ class DarkstoreScene(RoboCasaSceneBuilder):
             )
             self._load_lamps(scene_idx, lamp_coords, arena_data['meta']['height'])
             self._load_lighting(scene_idx, lamp_coords, arena_data['meta']['height'])
+            self._load_door(scene_idx, arena_data['meta']['x_cells'], arena_data['meta']['y_cells'])
 
         # disable collisions
         if self.env.robot_uids == "fetch":
@@ -643,3 +673,62 @@ class DarkstoreScene(RoboCasaSceneBuilder):
             robot_base_pos = None
             robot_base_ori = None
         return fxtr_placements, robot_base_pos, robot_base_ori
+
+    def _load_door(self, scene_idx, x_cells, y_cells):
+        self.env.actors["fixtures"]["doors"] = {}
+        pose = sapien.Pose(p=[x_cells*CELL_SIZE, y_cells*CELL_SIZE - self.env.assets_lib['fixtures.door'].extents[1], 0], q=[1, 0, 0, 0])
+        door = self.env.assets_lib['fixtures.door'].ms_build_actor(f'[ENV#{scene_idx}]_door', self.scene, pose=pose, scene_idxs=[scene_idx])
+        self.env.actors["fixtures"]["doors"][f'door_0'] = door
+
+class Ceiling(Wall):
+    def __init__(
+        self,
+        scene: ManiSkillScene,
+        size,
+        name="ceiling",
+        texture="textures/bricks/red_bricks.png",
+        mat_attrib={
+            "texrepeat": "2 2",
+            "texuniform": "true",
+            "reflectance": "0.1",
+            "shininess": "0.1",
+        },
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            scene,
+            size=size,
+            name=name,
+            texture=texture,
+            wall_side="ceiling",
+            mat_attrib=mat_attrib,
+            *args,
+            **kwargs,
+        )
+        self.name = name
+        self.scene = scene
+
+    def build(self, scene_idxs: list[int]):
+        builder = self.scene.create_actor_builder()
+        if self.backing:
+            builder.add_box_visual(half_size=self.size, material=self.render_material)
+        else:
+            builder.add_plane_repeated_visual(
+                pose=sapien.Pose(q=[0, 0, 1, 0]),
+                half_size=self.size[:2],
+                mat=self.render_material,
+                texture_repeat=self.texture_repeat,
+            )
+            # Only ever add one plane collision
+            if 0 in scene_idxs:
+                builder.add_plane_collision(
+                    pose=sapien.Pose(q=[0.7071068, 0, -0.7071068, 0])
+                )
+        builder.initial_pose = sapien.Pose(p=self.pos, q=[0, 1, 0, 0])
+        builder.set_scene_idxs(scene_idxs)
+        self.actor = builder.build_static(name=self.name + f"_{scene_idxs[0]}")
+        return self
+
+    def get_quat(self):
+        return [0, 1, 0, 0]
