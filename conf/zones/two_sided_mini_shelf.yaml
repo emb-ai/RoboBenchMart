@@ -1,0 +1,8 @@
+defaults:
+  - /shelves@two_sided_mini_shelf1: two_sided_mini_shelf
+  - /shelves@two_sided_mini_shelf2: two_sided_mini_shelf
+
+
+name: 'row of mini shelves'
+
+

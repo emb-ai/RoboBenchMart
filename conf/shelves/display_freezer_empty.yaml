@@ -1,0 +1,15 @@
+defaults:
+  - base_shelf_config
+  - _self_
+  
+name: 'milk shelf'
+filling_type: BOARDWISE_COLUMNS
+
+x_gap: 0.06
+y_gap: 0.04
+delta_x: 0.1
+shuffle_boards: true
+shelf_asset: fixtures.freezer_large
+shelf_type: FRIDGE_FOOD_SHOWCASE
+
+
