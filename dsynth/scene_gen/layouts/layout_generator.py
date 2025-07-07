@@ -60,9 +60,12 @@ class FixedLayout(LayoutGeneratorBase):
         rotations = [[0] * m for _ in range(n)]
         darkstore_dict = OmegaConf.to_container(darkstore_arrangement_cfg['layout'], resolve = True)
         rotations_dict = OmegaConf.to_container(darkstore_arrangement_cfg['rotations'], resolve = True)
-
+        assert n == len(darkstore_dict.keys())
+        assert n == len(rotations_dict.keys())
         # convert to list of lists
         for i in darkstore_dict.keys():
+            assert len(darkstore_dict[i]) == m
+            assert len(rotations_dict[i]) == m
             darkstore[i] = darkstore_dict[i]
             rotations[i] = rotations_dict[i]
 

@@ -127,6 +127,7 @@ def _generate_routine(
 def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_names, rng):
     assert 0 <= shelf_config.start_filling_board <= shelf_config.end_filling_from_board <= shelf_config.num_boards
     shelf_name = shelf_config.name
+    shelf_type = shelf_config.shelf_type.name
 
     filling = [[] for _ in range(shelf_config.start_filling_board)]
 
@@ -194,19 +195,21 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
     if shelf_config.shuffle_boards:
         rng.shuffle(filling)
 
-    return filling, shelf_name
+    return filling, shelf_name, shelf_type
 
 
 def product_filling_from_zone_config(zone_config, all_product_names, rng):
     filling = {}
     if 'name' in zone_config:
-        zone_names = {'zone_name': zone_config['name'], 'shelf_names': {}}
+        zone_names = {'zone_name': zone_config['name'], 'shelf_names': {}, 'shelf_types': {}}
     else:
-        zone_names = {'zone_name': 'Unnamed', 'shelf_names': {}}
+        zone_names = {'zone_name': 'Unnamed', 'shelf_names': {}, 'shelf_types': {}}
         
     for key, val in zone_config.items():
         if key != 'name':
-            filling[key], zone_names['shelf_names'][key] = product_filling_from_shelf_config(val, all_product_names, rng)
+            filling[key], \
+            zone_names['shelf_names'][key], \
+            zone_names['shelf_types'][key] = product_filling_from_shelf_config(val, all_product_names, rng)
     return filling, zone_names
 
 def product_filling_from_darkstore_config(darkstore_config: DictConfig, all_product_names, rng):
