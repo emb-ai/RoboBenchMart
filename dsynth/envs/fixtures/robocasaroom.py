@@ -93,6 +93,7 @@ def _get_pq(matrix, origin):
     q = quaternions.mat2quat(matrix[:3,:3])
     p = matrix[:-1, 3] - origin
     return p, q
+
 class DarkstoreScene(RoboCasaSceneBuilder):
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
     def __init__(self, *args, config_dir_path=None, **kwargs):
@@ -130,8 +131,9 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                     shelf_asset_name = self.env.cfg.ds.zones[zone_id][shelf_id].shelf_asset
                     if shelf_asset_name is None:
                         shelf_asset_name = 'fixtures.shelf'
-                    actor = self.env.assets_lib[shelf_asset_name].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
-                    self.env.actors["fixtures"]["shelves"][obj_name] = actor
+                    item_name = f'[ENV#{scene_idx}]_{obj_name}'
+                    actor = self.env.assets_lib[shelf_asset_name].ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                    self.env.actors["fixtures"]["shelves"][item_name] = actor
                     continue
 
                 asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
