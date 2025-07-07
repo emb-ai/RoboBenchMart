@@ -214,6 +214,9 @@ fixtures:
   lamp: 
     asset_file_path: ${assets.assets_dir_path}/square_light_led_panel.glb
     ms_is_static: true
+  door:
+    asset_file_path: ${assets.assets_dir_path}/door_yellow.glb
+    ms_is_static: true
 scene_assets:
   shoppingCart: 
     asset_file_path: ${assets.assets_dir_path}/smallShoppingCart2.glb
