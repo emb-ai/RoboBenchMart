@@ -18,6 +18,13 @@ class FillingType(Enum):
     LISTED = 'LISTED'
     BOARDWISE_COLUMNS = 'BOARDWISE_COLUMNS'
 
+class ShelfType(Enum):
+    SHELF = 'SHELF'
+    FRIDGE_FOOD_SHOWCASE = 'FRIDGE_FOOD_SHOWCASE'
+    FRIDGE_GLASS_TOP = 'FRIDGE_GLASS_TOP'
+    SMALL_SHELF_ONE_SIDED = 'SMALL_SHELF_ONE_SIDED'
+    SMALL_SHELF_TWO_SIDED = 'SMALL_SHELF_TWO_SIDED'
+
 
 @dataclass
 class ShelfConfig:
@@ -43,6 +50,7 @@ class ShelfConfig:
     start_point_y: float = -1.
 
     shelf_asset: Optional[str] = None
+    shelf_type: ShelfType = ShelfType.SHELF
 
 @dataclass    
 class DsConfig:

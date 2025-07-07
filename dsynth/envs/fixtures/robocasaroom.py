@@ -58,7 +58,7 @@ def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
                     {'name': 'floor', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, 0.0]}, 
                     {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.1], 'pos': [x_size / 2, y_size / 2, 0.0]},
                     
-                    # {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height + 4 * 0.02]}
+                    {'name': 'ceiling_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, height + 4 * 0.02]}
                 ]
             }
         }
@@ -90,6 +90,7 @@ def _get_pq(matrix, origin):
     q = quaternions.mat2quat(matrix[:3,:3])
     p = matrix[:-1, 3] - origin
     return p, q
+
 class DarkstoreScene(RoboCasaSceneBuilder):
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
     def __init__(self, *args, config_dir_path=None, **kwargs):
@@ -127,8 +128,9 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                     shelf_asset_name = self.env.cfg.ds.zones[zone_id][shelf_id].shelf_asset
                     if shelf_asset_name is None:
                         shelf_asset_name = 'fixtures.shelf'
-                    actor = self.env.assets_lib[shelf_asset_name].ms_build_actor(f'[ENV#{scene_idx}]_{obj_name}', self.env.scene, pose=pose, scene_idxs=[scene_idx])
-                    self.env.actors["fixtures"]["shelves"][obj_name] = actor
+                    item_name = f'[ENV#{scene_idx}]_{obj_name}'
+                    actor = self.env.assets_lib[shelf_asset_name].ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                    self.env.actors["fixtures"]["shelves"][item_name] = actor
                     continue
 
                 asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
@@ -143,17 +145,25 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                 
                 zone_id, shelf_id = _get_zone_shelf_ids(node, nodes_dict)
                 self.env.products2shelves[item_name] = (zone_id, shelf_id)
-                
-    
-    def _get_lamps_coords(self, x_cells, y_cells):
-        lamps_coords = []
 
-        # TODO: max number of light sources can be reached
-        for i, j in itertools.product(range(x_cells // 2), range(y_cells // 2)):
-            x = CELL_SIZE / 2 + CELL_SIZE * i * 2
-            y = CELL_SIZE / 2 + CELL_SIZE * j * 2
-            lamps_coords.append((x, y))
-        
+    def _get_lamps_coords(self, x_cells, y_cells, num_lamps_x=4, num_lamps_y=4, dist_from_wall=0.0):
+        # TODO: compute num of lamps based on area?
+        """
+        Compute coordinates of lamps.
+
+        :param x_cells: number of cells in the x direction
+        :param y_cells: number of cells in the y direction
+        :param num_lamps_x: number of lamps in x direction
+        :param num_lamps_y: number of lamps in y direction
+        :param dist_from_wall: free space from each side to avoid placing lamps close to walls
+        :return: array of lamp coordinates
+        """
+        lamps_coords = []
+        step_x = (CELL_SIZE*x_cells - 2*dist_from_wall)/(num_lamps_x+1)
+        step_y = (CELL_SIZE*y_cells - 2*dist_from_wall)/(num_lamps_y+1)
+        for x in range(1, num_lamps_x+1):
+            for y in range(1, num_lamps_y+1):
+                lamps_coords.append((dist_from_wall+step_x*x, dist_from_wall+step_y*y))
         return lamps_coords
 
     def _load_lamps(self, scene_idx, lamps_coords, height):
@@ -163,21 +173,36 @@ class DarkstoreScene(RoboCasaSceneBuilder):
             lamp = self.env.assets_lib['fixtures.lamp'].ms_build_actor(f'[ENV#{scene_idx}]_lamp_{n}', self.scene, pose=pose, scene_idxs=[scene_idx])
             self.env.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
     
-    def _load_lighting(self, scene_idx, lamps_coords, height):
+    def _load_lighting(self, scene_idx, lamps_coords, height, intensity=10, light_type="area"):
+        # TODO: compute intensity based on the scene?
         """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
 
         shadow = self.env.enable_shadow
-        self.env.scene.set_ambient_light([0.4, 0.4, 0.4])
-        lamp_height = self.env.assets_lib['fixtures.lamp'].extents[2]
+        self.env.scene.set_ambient_light([0.3, 0.3, 0.3])
+        self.scene.add_directional_light(
+            [1, 1, -1], [1, 1, 1], shadow=shadow, shadow_scale=5, shadow_map_size=2048
+        )
+        self.scene.add_directional_light([0, 0, -1], [1, 1, 1])
+
+        lamp_size = self.env.assets_lib['fixtures.lamp'].extents[0]
         for x, y in lamps_coords:
             # I have no idea what inner_fov and outer_fov mean :/
-            self.scene.add_spot_light([x, y, height - lamp_height], 
-                                      [0, 0, -1], 
-                                      inner_fov=10, 
-                                      outer_fov=20, 
-                                      color=[10, 10, 10], 
-                                      shadow=shadow,
-                                      scene_idxs=[scene_idx])
+            if light_type == "spot":
+                self.scene.add_spot_light([x, y, height],
+                                        [0, 0, -1],
+                                        inner_fov=10,
+                                        outer_fov=20,
+                                        color=[intensity, intensity, intensity],
+                                        shadow=shadow,
+                                        scene_idxs=[scene_idx])
+            elif light_type == "point":
+                self.scene.add_point_light([x, y, height],
+                                        color=[intensity, intensity, intensity],
+                                        shadow=shadow)
+            elif light_type == "area":
+                self.scene.add_area_light_for_ray_tracing(sapien.Pose([x, y, height], [np.cos(np.pi/4), 0, np.sin(np.pi/4), 0]), [intensity, intensity, intensity], lamp_size, lamp_size) # square light area pointing down
+            else:
+                raise Exception("Unknown light type. Must be spot, point or area")
 
     def build(self, build_config_idxs: Optional[List[int]] = None):
         if self.env.agent is not None:

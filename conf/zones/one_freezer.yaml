@@ -1,5 +1,5 @@
 defaults:
-  - /shelves@freezer_large1: display_freezer_glass_top
+  - /shelves@freezer_large1: display_freezer
 
 
 name: 'freezer zone'
