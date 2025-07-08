@@ -70,13 +70,13 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
             rot = self.scene_builder.rotations[idx][shelf_i][shelf_j]
 
             if rot == 0:
-                origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j - 1, 0.]), np.pi / 2, np.array([0, 1, 0])
+                origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j - 1, 0.]), np.pi / 2, np.array([0., 1., 0.])
             if rot == -90:
-                origin, angle, direction_to_shelf = np.array([shelf_i - 1, shelf_j, 0.]), 0 , np.array([1, 0, 0])
+                origin, angle, direction_to_shelf = np.array([shelf_i - 1, shelf_j, 0.]), 0 , np.array([1., 0., 0.])
             if rot == 90:
-                origin, angle, direction_to_shelf = np.array([shelf_i + 1, shelf_j, 0.]), np.pi, np.array([-1, 0, 0])
+                origin, angle, direction_to_shelf = np.array([shelf_i + 1, shelf_j, 0.]), np.pi, np.array([-1., 0., 0.])
             if rot == 180:
-                origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j + 1, 0.]), - np.pi / 2, np.array([0, -1, 0])
+                origin, angle, direction_to_shelf = np.array([shelf_i, shelf_j + 1, 0.]), - np.pi / 2, np.array([0., -1., 0.])
             
             # self.target_drive_position = origin.copy() + direction_to_shelf * CELL_SIZE * 0.2
             
@@ -86,7 +86,7 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
 
             # move to the left door
             perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
-            origin += -0.7 * perp_direction
+            origin += -0.7 * perp_direction + 0.5 * direction_to_shelf
 
             if self.ROBOT_INIT_POSE_RANDOM_ENABLED:
                 # base movement enabled, add initial pose randomization
