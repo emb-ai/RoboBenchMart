@@ -20,8 +20,11 @@ from dsynth.scene_gen.hydra_configs import ShelfType
 
 @register_env('OpenDoorFridgeEnv', max_episode_steps=200000)
 class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
-    ROBOT_INIT_POSE_RANDOM_ENABLED = False
+    ROBOT_INIT_POSE_RANDOM_ENABLED = True
     SHELF_TYPE = ShelfType.FRIDGE_FOOD_SHOWCASE
+    SUCCESS_THRESH_ANGLE = 0.2
+    DOOR_NAMES = ['first', 'second', 'third', 'fourth']
+    DOOR_NAMES_2_IDX = {name: i + 1 for i, name in enumerate(DOOR_NAMES)}
     
     def _load_scene(self, options: dict):
         super()._load_scene(options)
@@ -32,6 +35,7 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
         self.target_fridge_names = {}
         self.target_fridge_ids = {}
         self.target_actor_name = {}
+        self.target_door_names = {}
         
         self.target_showcases_df = None
 
@@ -44,6 +48,7 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
                 raise RuntimeError(f"No showcases found on scene {scene_idx}!")
             target_showcase_name = self._batched_episode_rng[scene_idx].choice(scene_showcases['actor_name'].unique())
             self.target_actor_name[scene_idx] = target_showcase_name
+            self.target_door_names[scene_idx] = 'second'#self._batched_episode_rng[scene_idx].choice(self.DOOR_NAMES)
             
             target_showcase_df = scene_showcases[scene_showcases['actor_name'] == target_showcase_name]
             assert len(target_showcase_df) == 1
@@ -86,8 +91,9 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
 
             # move to the left door
             perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
-            origin += -0.7 * perp_direction + 0.5 * direction_to_shelf
-
+            # origin += -0.3 * perp_direction + 0.6 * direction_to_shelf
+            # angle = 4.2560362
+            # origin = np.array([1.288, 2.497, 0.0])
             if self.ROBOT_INIT_POSE_RANDOM_ENABLED:
                 # base movement enabled, add initial pose randomization
                 perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
@@ -180,5 +186,32 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
         self.language_instructions = []
         for scene_idx in env_idx:
             scene_idx = scene_idx.cpu().item()
-            self.language_instructions.append(f'open the fridge')
-    
+            door_name = self.target_door_names[scene_idx]
+            self.language_instructions.append(f'open the {door_name} fridge')
+
+    @property
+    def _default_human_render_camera_configs(self):
+        # pose = sapien_utils.look_at([0.2, 0.2, 4], [5, 5, 2])
+        pose = sapien_utils.look_at([3, 3, 2], [0, 0, 0])
+        return CameraConfig(
+            "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
+        )
+
+    def evaluate(self):
+        is_door_opened = []
+        for scene_idx in range(self.num_envs):
+            target_showcase_name = self.target_actor_name[scene_idx]
+            showcase_actor = self.actors['fixtures']['shelves'][target_showcase_name]
+            num_door = self.DOOR_NAMES_2_IDX[self.target_door_names[scene_idx]]
+            is_door_opened.append(
+                torch.abs(showcase_actor.joints_map[f'door{num_door}_link_joint'].qpos - 1.57) < self.SUCCESS_THRESH_ANGLE
+            )
+        is_door_opened = torch.cat(is_door_opened)
+        
+        is_robot_static = self.agent.is_static(0.2)
+
+        return {
+            "is_door_opened" : is_door_opened,
+            "is_robot_static" : is_robot_static,
+            "success": is_door_opened & is_robot_static
+        }    
