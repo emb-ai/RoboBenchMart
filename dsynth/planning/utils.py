@@ -243,31 +243,32 @@ class SapienPlanningWorldV2(SapienPlanningWorld):
         actors: list[Entity] = sim_scene.get_all_actors()
 
         for articulation in articulations:
-            urdf_str = export_kinematic_chain_urdf(articulation)
-            srdf_str = export_srdf(articulation)
+            if not self.disable_actors_collision or articulation in planned_articulations:
+                urdf_str = export_kinematic_chain_urdf(articulation)
+                srdf_str = export_srdf(articulation)
 
-            # Convert all links to FCLObject
-            collision_links = [
-                fcl_obj
-                for link in articulation.links
-                if (fcl_obj := self.convert_physx_component(link)) is not None
-            ]
+                # Convert all links to FCLObject
+                collision_links = [
+                    fcl_obj
+                    for link in articulation.links
+                    if (fcl_obj := self.convert_physx_component(link)) is not None
+                ]
 
-            articulated_model = mplib.ArticulatedModel.create_from_urdf_string(
-                urdf_str,
-                srdf_str,
-                collision_links=collision_links,
-                gravity=sim_scene.get_physx_system().config.gravity,  # type: ignore
-                link_names=[link.name for link in articulation.links],
-                joint_names=[j.name for j in articulation.active_joints],
-                verbose=False,
-            )
-            articulated_model.set_base_pose(articulation.root_pose)  # type: ignore
-            articulated_model.set_qpos(
-                articulation.qpos,  # type: ignore
-                full=True,
-            )  # update qpos
-            self.add_articulation(articulated_model)
+                articulated_model = mplib.ArticulatedModel.create_from_urdf_string(
+                    urdf_str,
+                    srdf_str,
+                    collision_links=collision_links,
+                    gravity=sim_scene.get_physx_system().config.gravity,  # type: ignore
+                    link_names=[link.name for link in articulation.links],
+                    joint_names=[j.name for j in articulation.active_joints],
+                    verbose=False,
+                )
+                articulated_model.set_base_pose(articulation.root_pose)  # type: ignore
+                articulated_model.set_qpos(
+                    articulation.qpos,  # type: ignore
+                    full=True,
+                )  # update qpos
+                self.add_articulation(articulated_model)
 
         for articulation in planned_articulations:
             self.set_articulation_planned(convert_object_name(articulation), True)
