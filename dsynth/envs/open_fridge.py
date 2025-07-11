@@ -46,9 +46,9 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
             scene_showcases = scene_shelvings_df[scene_shelvings_df['shelf_type'] == self.SHELF_TYPE.value]
             if len(scene_showcases) == 0:
                 raise RuntimeError(f"No showcases found on scene {scene_idx}!")
-            target_showcase_name = self._batched_episode_rng[scene_idx].choice(scene_showcases['actor_name'].unique())
+            target_showcase_name = self._batched_episode_rng[scene_idx].choice(sorted(scene_showcases['actor_name'].unique()))
             self.target_actor_name[scene_idx] = target_showcase_name
-            self.target_door_names[scene_idx] = 'second'#self._batched_episode_rng[scene_idx].choice(self.DOOR_NAMES)
+            self.target_door_names[scene_idx] = self._batched_episode_rng[scene_idx].choice(self.DOOR_NAMES)
             
             target_showcase_df = scene_showcases[scene_showcases['actor_name'] == target_showcase_name]
             assert len(target_showcase_df) == 1

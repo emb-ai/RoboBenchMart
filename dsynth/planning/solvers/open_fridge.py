@@ -165,16 +165,24 @@ def solve_fetch_open_door_showcase(env: OpenDoorFridgeEnv, seed=None, debug=Fals
     planner.planner.planning_world.get_allowed_collision_matrix().set_default_entry(
         f'scene-0-{target_showcase_name}_door{door_idx}_handle_link', True
     )
-
-    grasp_approaching = -1.9 * perp_direction + direction_to_shelf
+    if door_idx in [1, 3]:
+        grasp_approaching = 1.9 * perp_direction + direction_to_shelf
+    else:
+        grasp_approaching = -1.9 * perp_direction + direction_to_shelf
     grasp_approaching /= np.linalg.norm(grasp_approaching)
     grasp_closing = np.cross(grasp_approaching, [0, 0, 1])
     grasp_pose = env.agent.build_grasp_pose(grasp_approaching, grasp_closing, grasp_center)
-    grasp_pose = grasp_pose * sapien.Pose([0, -0.04, -0.04])
+    if door_idx in [1, 3]:
+        grasp_pose = grasp_pose * sapien.Pose([0, 0.04, -0.04])
+    else:
+        grasp_pose = grasp_pose * sapien.Pose([0, -0.04, -0.04])
+
     res = planner.static_manipulation(grasp_pose, n_init_qpos=400, disable_lift_joint=True)
     if res == -1:
         return res
+    
     planner.close_gripper()
+    
     planner.planner.update_from_simulation()
     
     # -------------------------------------------------------------------------- #
@@ -186,8 +194,14 @@ def solve_fetch_open_door_showcase(env: OpenDoorFridgeEnv, seed=None, debug=Fals
         return res
     
     planner.open_gripper()
-    res = planner.static_manipulation(grasp_pose * sapien.Pose([0, -0.1, -0.1]), n_init_qpos=400, disable_lift_joint=True)
-    # neutral_pose = get_base_pose().sp * default_tcp_pose_wrt_to_base
+
+    if door_idx in [1, 3]:
+        grasp_pose = grasp_pose * sapien.Pose([0, 0.1, -0.1])
+    else:
+        grasp_pose = grasp_pose * sapien.Pose([0, -0.1, -0.1])
+
+    res = planner.static_manipulation(grasp_pose, n_init_qpos=400, disable_lift_joint=True)
+    neutral_pose = get_base_pose().sp * default_tcp_pose_wrt_to_base
     res = planner.static_manipulation(neutral_pose, n_init_qpos=400, disable_lift_joint=True)
     if res == -1:
         return res
@@ -196,16 +210,18 @@ def solve_fetch_open_door_showcase(env: OpenDoorFridgeEnv, seed=None, debug=Fals
     # -------------------------------------------------------------------------- #
     # Move to the center of the shelf
     # -------------------------------------------------------------------------- #
-
-    res = planner.rotate_z_delta(0.98)
-    if res == -1:
-        return res
+    if door_idx in [1, 3]:
+        res = planner.rotate_z_delta(-0.98)
+    else:
+        res = planner.rotate_z_delta(0.98)
+    
     res = planner.move_forward_delta(0.8)
-    if res == -1:
-        return res
-    res = planner.rotate_z_delta(-1.7)
-    if res == -1:
-        return res
+
+    if door_idx in [1, 3]:
+        res = planner.rotate_z_delta(1.7)
+    else:
+        res = planner.rotate_z_delta(-1.7)
+
     planner.planner.update_from_simulation()
     
     # -------------------------------------------------------------------------- #
@@ -233,7 +249,10 @@ def solve_fetch_open_door_showcase(env: OpenDoorFridgeEnv, seed=None, debug=Fals
     # Rotate the robot to open the door
     # -------------------------------------------------------------------------- #
 
-    res = planner.rotate_z_delta(-1.7, rotate_recalculation_enabled=False) # disable second rotation
+    if door_idx in [1, 3]:
+        res = planner.rotate_z_delta(1.7, rotate_recalculation_enabled=False) # disable second rotation
+    else:
+        res = planner.rotate_z_delta(-1.7, rotate_recalculation_enabled=False) # disable second rotation
     if res == -1:
         return res
     planner.planner.update_from_simulation()
@@ -246,30 +265,38 @@ def solve_fetch_open_door_showcase(env: OpenDoorFridgeEnv, seed=None, debug=Fals
     if res == -1:
         return res
 
-    res = planner.rotate_z_delta(1.)
+    if door_idx in [1, 3]:
+        res = planner.rotate_z_delta(-1.)
+    else:
+        res = planner.rotate_z_delta(1.)
     if res == -1:
         return res
     
     push_center = get_obb_center(get_component_mesh(handle._bodies[0]).bounding_box_oriented)
     push_center[2] -= 0.1
     push_approaching = perp_direction.copy()
-    push_approaching /= np.linalg.norm(push_approaching)
+    if door_idx in [1, 3]:
+        push_approaching /= -np.linalg.norm(push_approaching)
+    else:
+        push_approaching /= np.linalg.norm(push_approaching)
     push_closing = np.cross(push_approaching, [0, 0, 1])
     push_pose = env.agent.build_grasp_pose(push_approaching, push_closing, push_center)
-    push_pose = push_pose * sapien.Pose([0, -0.2, 0.])
+    if door_idx in [1, 3]:
+        push_pose = push_pose * sapien.Pose([0, 0.2, 0.])
+    else:
+        push_pose = push_pose * sapien.Pose([0, -0.2, 0.])
     res = planner.static_manipulation(push_pose, n_init_qpos=400, disable_lift_joint=True)
-    if res == -1:
-        return res
-    
-    res = planner.rotate_z_delta(-0.5)
-    if res == -1:
-        return res
+
+    if door_idx in [1, 3]:
+        res = planner.rotate_z_delta(0.6)
+    else:
+        res = planner.rotate_z_delta(-0.6)
     
     res = planner.move_forward_delta(0.3)
-    if res == -1:
-        return res
+
     planner.planner.update_from_simulation()
 
+    res = planner.idle_steps(t=1)
 
     planner.render_wait()
     return res
