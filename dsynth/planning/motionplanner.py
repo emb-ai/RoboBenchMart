@@ -699,7 +699,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
     
-    def rotate_base_z(self, new_direction, n_init_qpos=20, dry_run=False):
+    def rotate_base_z(self, new_direction, n_init_qpos=20, dry_run=False, rotate_recalculation_enabled=True):
         assert new_direction[2] == 0.
         tcp_pose = self.base_env.agent.tcp.pose.sp
         base_link_pose = self.base_env.agent.base_link.pose.sp
@@ -729,8 +729,14 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             print(result["status"])
             self.render_wait()
             return -1
+        
+        if not rotate_recalculation_enabled:
+            if dry_run:
+                return result
+            self.render_wait()
+            return self.follow_rotation(result)
+
         self.render_wait()
-       
         res = self.follow_rotation(result)
 
         result = self.planner.plan_screw(
@@ -856,7 +862,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            masked_joints=[False, False, False] + [True] * 12
+            masked_joints=~np.array(only_manipulate)
         )
 
         if result["status"] != "Success":
@@ -947,7 +953,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         result = self.move_base_forward(taget_pose.p, dry_run=dry_run)
         return result
 
-    def rotate_z_delta(self, delta = 0., dry_run: bool = False):
+    def rotate_z_delta(self, delta = 0., dry_run: bool = False, rotate_recalculation_enabled: bool = True):
         cur_pose = self.base_env.agent.base_link.pose.sp
         direction = cur_pose.to_transformation_matrix()[:3, 0]
         direction[2] = 0.
@@ -956,7 +962,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
         new_direction = rot_matrix @ direction
         
-        result = self.rotate_base_z(new_direction, dry_run=dry_run)
+        result = self.rotate_base_z(new_direction, dry_run=dry_run, rotate_recalculation_enabled=rotate_recalculation_enabled)
         
         return result
 
