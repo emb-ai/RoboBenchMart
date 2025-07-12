@@ -9,6 +9,10 @@ class LayoutGenType(Enum):
     CONNECTED_ZONES = 'CONNECTED_ZONES'
     FIXED_LAYOUT = 'FIXED_LAYOUT'
 
+class LayoutContGenType(Enum):
+    FIXED_LAYOUT = 'FIXED_LAYOUT'
+    PROCEDURAL_TENSOR_FIELD = 'PROCEDURAL_TENSOR_FIELD'
+
 class FillingType(Enum):
     BLOCKWISE_AUTO = 'BLOCKWISE_AUTO'
     BLOCKWISE_AUTO_INFINITE = 'BLOCKWISE_AUTO_INFINITE'
@@ -73,3 +77,24 @@ class DsConfig:
 
     layout: Any = None
     rotations: Any = None
+
+@dataclass
+class DsContinuousConfig:
+    name: str
+    size_x: float = MISSING
+    size_y: float = MISSING
+
+    active_shelvings_list: List[ShelfConfig] = field(default_factory=lambda: [])
+    fixtures_asset_names: List[str] = field(default_factory=lambda: [])
+
+    num_scenes: int = 1
+    num_workers: int = 1
+    output_dir: Optional[str] = None
+    rewrite: bool = False
+
+    show: bool = False
+    layout_gen_type: LayoutContGenType = LayoutContGenType.PROCEDURAL_TENSOR_FIELD
+    randomize_layout: bool = False
+    randomize_arrangements: bool = True
+    random_seed: int = 42
+
