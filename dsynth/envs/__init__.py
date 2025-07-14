@@ -1,4 +1,5 @@
 from dsynth.envs.darkstore_cell_base import *
+from dsynth.envs.darkstore_cont_base import *
 from dsynth.envs.move_from_board_to_board import *
 from dsynth.envs.pick_from_cart import *
 from dsynth.envs.pick_to_basket import *
