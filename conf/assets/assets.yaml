@@ -316,7 +316,7 @@ products_hierarchy:
           front: [-1, 0, 0]
           origin: [center, bottom, center]
       HeinzBakedBeansInTomatoSauce33P:
-        asset_file_path: ${assets.assets_dir_path}/bean_tin.glb
+        asset_file_path: ${assets.assets_dir_path}/bean_tin_rotated.glb
         asset_name: Heinz Baked Beans in tomato sauce 33p
         ss_params:
           height: 0.106
@@ -505,7 +505,7 @@ products_hierarchy:
         asset_file_path: ${assets.assets_dir_path}/mms_chocolate_bunties_candy.glb
         asset_name: M&M's Chocolate Candies
         ss_params:
-          height: 0.18
+          height: 0.11
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
@@ -784,7 +784,7 @@ products_hierarchy:
           front: [-1, 0, 0]
           origin: [center, bottom, center]
       CoronaExtraBeerBottle:
-        asset_file_path: ${assets.assets_dir_path}/beer_bottle.glb
+        asset_file_path: ${assets.assets_dir_path}/beer_bottle_rotated.glb
         asset_name: Corona Extra Beer Bottle
         ss_params:
           height: 0.24
@@ -1163,7 +1163,7 @@ products_hierarchy:
           front: [-1, 0, 0]
           origin: [center, bottom, center]
       BosettiActimel:
-        asset_file_path: ${assets.assets_dir_path}/official_bosetti__actimel_collab.glb
+        asset_file_path: ${assets.assets_dir_path}/official_bosetti__actimel_collab_rotated.glb
         asset_name: Bosetti Actimel
         ss_params:
           height: 0.102
@@ -1328,14 +1328,6 @@ products_hierarchy:
         asset_name: Old Spice Classic Deodorant
         ss_params:
           height: 0.146
-          up: [0, 1, 0]
-          front: [-1, 0, 0]
-          origin: [center, bottom, center]
-      RexonaMenDeodorant:
-        asset_file_path: ${assets.assets_dir_path}/desodorante_-_deodorant_rotated.glb
-        asset_name: Rexona Men Deodorant
-        ss_params:
-          height: 0.12
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
@@ -2433,14 +2425,6 @@ products_hierarchy:
         asset_name: Lit Energy Drink classic
         ss_params:
           height: 0.175
-          up: [0, 1, 0]
-          front: [-1, 0, 0]
-          origin: [center, bottom, center]
-      BizonEnergyDrink:
-        asset_file_path: ${assets.assets_dir_path}/bizon_energy_drink_rotated.glb
-        asset_name: Bizon Energy Drink
-        ss_params:
-          height: 0.136
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
