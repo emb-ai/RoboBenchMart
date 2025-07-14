@@ -37,8 +37,10 @@ def set_shelf(
         obj_ids=[name],
         min_area=0.05,
         gravity=np.array([0, 0, -1]),
-
     )
+    
+    support_data = sorted(support_data, key=lambda x: x.transform[2, 3])
+
     return support_data
 
 def add_objects_to_shelf(
@@ -154,9 +156,12 @@ def add_objects_to_shelf_v2(
             for product, num_col in board_arrangement:
                 obj = product_assets_lib['products_hierarchy.' + product].ss_asset
                 dims = obj.get_extents()
+
+                bounds = support_data[0].polygon.bounds
+                max_obj = int(np.ceil((bounds[3] - bounds[1]) / min(dims[0], dims[1])) * num_col) #upperbound on how many objects can fit
                 scene.place_objects(
                     obj_id_iterator=utils.object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:"),
-                    obj_asset_iterator=(obj for _ in range(int(np.ceil(support_data[0].polygon.bounds[3]/min(dims[0], dims[1]))*num_col))), #upperbound on how many objects can fit
+                    obj_asset_iterator=(obj for _ in range(max_obj)), 
                     obj_support_id_iterator=utils.cycle_list(support_data, [board_idx]),
                     obj_position_iterator=PositionIteratorGridColumns(obj_width=dims[0], 
                                                                       obj_depth=dims[1], 

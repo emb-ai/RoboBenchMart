@@ -1,0 +1,55 @@
+defaults:
+  - main_darkstore_continuous_config_base
+  - _self_
+
+name: 'ds_continuous'
+size_x: 16
+size_y: 10
+random_seed: 42
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.002
+    y_gap: 0.002
+    shelf_asset: fixtures.shelf
+    board_product_numcol:
+      # 0:
+      #   food.drinks.chaosCola2l: 3
+      #   food.drinks.cocaColaNoSugar1p5l: 6
+        # food.drinks.sprite2p25l: 2
+      #   food.drinks.fantaNaranja1p35l: 5
+      # 1:
+      #   food.grocery.cerealescornflakescora: 3
+      #   food.grocery.cornFlakesRetroEditionSmall: 2
+      #   food.grocery.nestleFitnessChocolateCerealBox: 2
+      2:
+      #   food.dairy_products.milk: 6
+        food.dairy_products.milkCarton: 2
+      #   food.dairy_products.milkHandle: 3
+      # 3:
+      #   food.drinks.cocaColaCan: 5
+      #   food.drinks.pepsi: 4
+      #   food.drinks.fanta: 4
+      #   food.drinks.mountainDew: 4
+      4:
+        food.drinks.coffeePackaging: 1
+      #   food.drinks.coffeePaperBag: 1
+      #   food.drinks.coffeePackaging1: 1
+      #   food.drinks.coffeeCapsulesDolceGusto: 1
+      #   food.drinks.nescafesimple: 2
+      #   food.drinks.pgTipsTeaBox: 2
+      #   food.drinks.sirWinstonTea: 1
+
+inactive_shelvings_list:
+  - fixtures.shelf
+  - fixtures.shelf_metal
+  - fixtures.small_shelf_two_sided
+
+inactive_wall_shelvings_list:
+  - fixtures.freezer_large
+
+scene_fixtures_list: 
+  - fixtures.pile_of_pallets
+  - fixtures.pallets_and_boxes
+  - fixtures.freezer_nestle

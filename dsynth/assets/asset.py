@@ -141,7 +141,7 @@ class Asset:
 
     def load_actor_as_urdf(self, obj_name: str, scene: ManiSkillScene, pose: sapien.Pose, scale, scene_idxs):
         loader = scene.create_urdf_loader()
-        loader.scale = scale
+        loader.scale = scale[0]
         articulation_builders = loader.parse(self.asset_file_path)["articulation_builders"]
         builder = articulation_builders[0]
         builder.initial_pose = pose

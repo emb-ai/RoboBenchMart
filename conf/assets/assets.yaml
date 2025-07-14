@@ -211,6 +211,12 @@ fixtures:
     asset_file_path: ${assets.assets_dir_path}/shelf_woodenglb.glb
     ms_is_static: true
     ms_is_nonconvex_collision: true
+  metal_double_shelf: 
+    asset_file_path: ${assets.assets_dir_path}/double_metal_shelf.glb
+    ms_is_static: true
+  shelf_metal:
+    asset_file_path: ${assets.assets_dir_path}/shelf_metal.glb
+    ms_is_static: true
   lamp: 
     asset_file_path: ${assets.assets_dir_path}/square_light_led_panel.glb
     ms_is_static: true
@@ -220,6 +226,9 @@ fixtures:
   freezer_large:
     asset_file_path: ${assets.assets_dir_path}/food_showcase/urdf/food_showcase.urdf
     ss_asset_type: URDFAsset
+  freezer_nestle:
+    asset_file_path: ${assets.assets_dir_path}/fridge_urdf/nestle.urdf
+    ss_asset_type: URDFAsset
   small_shelf_two_sided:
     asset_file_path: ${assets.assets_dir_path}/store_mini_shelf_two_sided.glb
     ms_is_static: true
@@ -228,6 +237,12 @@ fixtures:
         origin: ["center", "bottom", "center"]
         up: [0, 1, 0]
         front: [0, 0, -1]
+  pile_of_pallets: 
+    asset_file_path: ${assets.assets_dir_path}/pile_of_pallets.glb
+    ms_is_static: true
+  pallets_and_boxes:
+    asset_file_path: ${assets.assets_dir_path}/pallets_and_boxes.glb
+    ms_is_static: true
 scene_assets:
   shoppingCart: 
     asset_file_path: ${assets.assets_dir_path}/smallShoppingCart2.glb

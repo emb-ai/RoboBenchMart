@@ -84,8 +84,14 @@ class DsContinuousConfig:
     size_x: float = MISSING
     size_y: float = MISSING
 
+    # active shelves (fridges, etc.) used in tasks
     active_shelvings_list: List[ShelfConfig] = field(default_factory=lambda: [])
-    fixtures_asset_names: List[str] = field(default_factory=lambda: [])
+    active_wall_shelvings_list: List[ShelfConfig] = field(default_factory=lambda: [])
+
+    # passive scene assets
+    inactive_shelvings_list: List[str] = field(default_factory=lambda: [])
+    inactive_wall_shelvings_list: List[str] = field(default_factory=lambda: [])
+    scene_fixtures_list: List[str] = field(default_factory=lambda: [])
 
     num_scenes: int = 1
     num_workers: int = 1
