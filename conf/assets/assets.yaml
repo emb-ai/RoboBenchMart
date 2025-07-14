@@ -1726,6 +1726,62 @@ products_hierarchy:
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
+      Kellogg'SFrootLoops:
+        asset_file_path: ${assets.assets_dir_path}/cereal_rotated.glb
+        asset_name: Kellogg's Froot Loops
+        ss_params:
+          height: 0.19
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      TrixRabbitCereals:
+        asset_file_path: ${assets.assets_dir_path}/cereal_box_1.glb
+        asset_name: Trix Rabbit Cereals
+        ss_params:
+          height: 0.21
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      NesquikDuoCereals:
+        asset_file_path: ${assets.assets_dir_path}/caja_cereal_nesk.glb
+        asset_name: Nesquik Duo Cereals
+        ss_params:
+          height: 0.2
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Rangston'SCocoaCritters:
+        asset_file_path: ${assets.assets_dir_path}/cereal_cocoa_critters.glb
+        asset_name: Rangston's Cocoa Critters
+        ss_params:
+          height: 0.185
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Kellogg'SCocoaKrispies:
+        asset_file_path: ${assets.assets_dir_path}/cereal_box_test_rotated.glb
+        asset_name: Kellogg's Cocoa Krispies
+        ss_params:
+          height: 0.191
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      NestleHoneyStars:
+        asset_file_path: ${assets.assets_dir_path}/cereal_-_honey_star.glb
+        asset_name: Nestle Honey Stars
+        ss_params:
+          height: 0.22
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Kellogg'SGreatPower:
+        asset_file_path: ${assets.assets_dir_path}/spider-man_across_the_spiderverse_cereal_box_rotated.glb
+        asset_name: Kellogg's Great Power
+        ss_params:
+          height: 0.245
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
     MILK:
       MilkBioNonVegan:
         asset_file_path: ${assets.assets_dir_path}/milk_carton.glb
@@ -1748,6 +1804,118 @@ products_hierarchy:
         asset_name: Auchan Leite Magro Milk
         ss_params:
           height: 0.19
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      ReducedFatMilk:
+        asset_file_path: ${assets.assets_dir_path}/super_awesome_milk_carton.glb
+        asset_name: Reduced Fat Milk
+        ss_params:
+          height: 0.14
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      FreshMilk:
+        asset_file_path: ${assets.assets_dir_path}/milk_packaging_rotated.glb
+        asset_name: Fresh Milk
+        ss_params:
+          height: 0.2
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      BomBaMilk:
+        asset_file_path: ${assets.assets_dir_path}/bom_ba_milk_rotated.glb
+        asset_name: Bom Ba Milk
+        ss_params:
+          height: 0.209
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      BetaniaMilk:
+        asset_file_path: ${assets.assets_dir_path}/brazilian_milk_bottle.glb
+        asset_name: Betania Milk
+        ss_params:
+          height: 0.204
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      OatlyMilk:
+        asset_file_path: ${assets.assets_dir_path}/oat_milk_oatly_rotated.glb
+        asset_name: Oatly Milk
+        ss_params:
+          height: 0.21
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      IntegralMilk:
+        asset_file_path: ${assets.assets_dir_path}/milk_test_rotated.glb
+        asset_name: Integral Milk
+        ss_params:
+          height: 0.22
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      RealMilk:
+        asset_file_path: ${assets.assets_dir_path}/milk_carton_2_rotated.glb
+        asset_name: Real Milk
+        ss_params:
+          height: 0.205
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      MilkOfHumanKindness:
+        asset_file_path: ${assets.assets_dir_path}/milk_of_human_kindness_rotated.glb
+        asset_name: Milk Of Human Kindness
+        ss_params:
+          height: 0.204
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      VitaChocolateMilk:
+        asset_file_path: ${assets.assets_dir_path}/vita_chocolate_milk_rotated.glb
+        asset_name: Vita Chocolate Milk
+        ss_params:
+          height: 0.083
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      LactelMilk:
+        asset_file_path: ${assets.assets_dir_path}/milk_box_french_rotated.glb
+        asset_name: Lactel Milk
+        ss_params:
+          height: 0.14
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      DosPinosMilk:
+        asset_file_path: ${assets.assets_dir_path}/dos_pinos_-_leche_descremada_0_rotated.glb
+        asset_name: Dos Pinos Milk
+        ss_params:
+          height: 0.209
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      SavushkinMilk:
+        asset_file_path: ${assets.assets_dir_path}/43b88b2c6fa6462aa4c9d2d3c5e062a0_rotated.glb
+        asset_name: Savushkin Milk
+        ss_params:
+          height: 0.19
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      ItalacMilk:
+        asset_file_path: ${assets.assets_dir_path}/milk_2_rotated.glb
+        asset_name: Italac Milk
+        ss_params:
+          height: 0.19
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      MlekarnaKuninMilk:
+        asset_file_path: ${assets.assets_dir_path}/acidophilic_milk_rotated.glb
+        asset_name: Mlekarna Kunin Milk
+        ss_params:
+          height: 0.14
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
@@ -2010,9 +2178,9 @@ products_hierarchy:
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
-      PepsiOriginal0.25L:
+      PepsiOriginal0.25LTall:
         asset_file_path: ${assets.assets_dir_path}/pepsi_coke_can__pepsi__kola_kutusu_2_rotated.glb
-        asset_name: Pepsi Original 0.25L
+        asset_name: Pepsi Original 0.25L Tall
         ss_params:
           height: 0.135
           up: [0, 1, 0]
@@ -2063,6 +2231,134 @@ products_hierarchy:
         asset_name: Fanta Sabor Naranja 2L
         ss_params:
           height: 0.3
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Coca-ColaSinAzucar0.6L:
+        asset_file_path: ${assets.assets_dir_path}/coca_600_sin_azucar_rotated.glb
+        asset_name: Coca-Cola Sin Azucar 0.6L
+        ss_params:
+          height: 0.233
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Coca-ColaGlassBottle0.2L:
+        asset_file_path: ${assets.assets_dir_path}/coca_cola_bottle_rotated.glb
+        asset_name: Coca-Cola Glass Bottle 0.2L
+        ss_params:
+          height: 0.15
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Coca-ColaLight0.33L:
+        asset_file_path: ${assets.assets_dir_path}/coke_light_rotated.glb
+        asset_name: Coca-Cola light 0.33L
+        ss_params:
+          height: 0.115
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      DietCoke0.355L:
+        asset_file_path: ${assets.assets_dir_path}/diet_coke_can_color_3d_scan_rotated.glb
+        asset_name: Diet Coke 0.355L
+        ss_params:
+          height: 0.116
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      NukaCola:
+        asset_file_path: ${assets.assets_dir_path}/fallout_4_nuka_cola_bottle_rotated.glb
+        asset_name: Nuka Cola
+        ss_params:
+          height: 0.18
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Coca-ColaZero0.2L:
+        asset_file_path: ${assets.assets_dir_path}/coke_zero_rotated.glb
+        asset_name: Coca-Cola Zero 0.2L
+        ss_params:
+          height: 0.1
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Coca-ColaZero0.33LTall:
+        asset_file_path: ${assets.assets_dir_path}/coca-coka_can_rotated.glb
+        asset_name: Coca-Cola Zero 0.33L Tall
+        ss_params:
+          height: 0.145
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Coca-ColaOriginal0.33L:
+        asset_file_path: ${assets.assets_dir_path}/old_coca_cola_can_rotated.glb
+        asset_name: Coca-Cola Original 0.33L
+        ss_params:
+          height: 0.115
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      PepsiMaxLime0.5L:
+        asset_file_path: ${assets.assets_dir_path}/pepsi_max_lime_bottle_0.5_l_rotated.glb
+        asset_name: Pepsi Max Lime 0.5L
+        ss_params:
+          height: 0.233
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Pepsi0.33L:
+        asset_file_path: ${assets.assets_dir_path}/pepsi_can_rotated.glb
+        asset_name: Pepsi 0.33L
+        ss_params:
+          height: 0.115
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      PepsiWhiteCan0.33L:
+        asset_file_path: ${assets.assets_dir_path}/soda_can_2_rotated.glb
+        asset_name: Pepsi White Can 0.33L
+        ss_params:
+          height: 0.115
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      PepsiMaxNoSugar0.25LTall:
+        asset_file_path: ${assets.assets_dir_path}/pepsi_max_coke_can__pepsi_max_kola_kutusu_rotated.glb
+        asset_name: Pepsi Max No Sugar 0.25L Tall
+        ss_params:
+          height: 0.135
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      PepsiMaxNoSugar0.33L:
+        asset_file_path: ${assets.assets_dir_path}/pepsi_max_can_rotated.glb
+        asset_name: Pepsi Max No Sugar 0.33L
+        ss_params:
+          height: 0.115
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      DrPepperSoda0.33L:
+        asset_file_path: ${assets.assets_dir_path}/soda_can_3_rotated.glb
+        asset_name: Dr Pepper Soda 0.33L
+        ss_params:
+          height: 0.115
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      FantaGrape0.33L:
+        asset_file_path: ${assets.assets_dir_path}/grape_fanta_can_rotated.glb
+        asset_name: Fanta Grape 0.33L
+        ss_params:
+          height: 0.115
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      Sprite0.325L:
+        asset_file_path: ${assets.assets_dir_path}/sprite_bottle_custom_rotated.glb
+        asset_name: Sprite 0.325L
+        ss_params:
+          height: 0.174
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
@@ -2434,6 +2730,126 @@ products_hierarchy:
         asset_name: Red Star Erguotou
         ss_params:
           height: 0.26
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      BaileysLiquor:
+        asset_file_path: ${assets.assets_dir_path}/Baileys_Atlas_0_rotated.glb
+        asset_name: Baileys Liquor
+        ss_params:
+          height: 0.25
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      KarlovarskaBecherovka:
+        asset_file_path: ${assets.assets_dir_path}/Becherovka_Atlas_0_rotated.glb
+        asset_name: Karlovarska Becherovka
+        ss_params:
+          height: 0.25
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      ChivasRegalScotchWhisky:
+        asset_file_path: ${assets.assets_dir_path}/Chivas_Atlas_0_rotated.glb
+        asset_name: Chivas Regal Scotch Whisky
+        ss_params:
+          height: 0.25
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      CointreauLiquor:
+        asset_file_path: ${assets.assets_dir_path}/Cointreau_Atlas_0_rotated.glb
+        asset_name: Cointreau Liquor
+        ss_params:
+          height: 0.22
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      CremaDiLimoncino:
+        asset_file_path: ${assets.assets_dir_path}/Crema_di_Limoncino_Atlas_0_rotated.glb
+        asset_name: Crema Di Limoncino
+        ss_params:
+          height: 0.32
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      CuracaoLiquor:
+        asset_file_path: ${assets.assets_dir_path}/Curacao_Atlas_0_rotated.glb
+        asset_name: Curacao Liquor
+        ss_params:
+          height: 0.24
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      HavanaClubRum:
+        asset_file_path: ${assets.assets_dir_path}/Havana_Club_Atlas_0_rotated.glb
+        asset_name: Havana Club Rum
+        ss_params:
+          height: 0.3
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      JackDanielsWhiskey:
+        asset_file_path: ${assets.assets_dir_path}/Jack_Daniel's_Atlas_0_rotated.glb
+        asset_name: Jack Daniels Whiskey
+        ss_params:
+          height: 0.274
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      KahluaLiquor:
+        asset_file_path: ${assets.assets_dir_path}/Kahlua_Atlas_0_rotated.glb
+        asset_name: Kahlua Liquor
+        ss_params:
+          height: 0.28
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      MalibuCaribbeanRumWithCoconut:
+        asset_file_path: ${assets.assets_dir_path}/Malibu_Atlas_0_rotated.glb
+        asset_name: Malibu Caribbean Rum With Coconut
+        ss_params:
+          height: 0.3
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      MartelCognac:
+        asset_file_path: ${assets.assets_dir_path}/Martel_Atlas_0_rotated.glb
+        asset_name: Martel Cognac
+        ss_params:
+          height: 0.3
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      OlmecaTequila:
+        asset_file_path: ${assets.assets_dir_path}/Olmeca_Atlas_0_rotated.glb
+        asset_name: Olmeca Tequila
+        ss_params:
+          height: 0.262
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      PernodParis:
+        asset_file_path: ${assets.assets_dir_path}/Pernod_Atlas_0_rotated.glb
+        asset_name: Pernod Paris
+        ss_params:
+          height: 0.298
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      RamazzottiAmaroMilano:
+        asset_file_path: ${assets.assets_dir_path}/Ramazzotti_Atlas_0_rotated.glb
+        asset_name: Ramazzotti Amaro Milano
+        ss_params:
+          height: 0.306
+          up: [0, 1, 0]
+          front: [-1, 0, 0]
+          origin: [center, bottom, center]
+      SortilegeCanadianWhisky:
+        asset_file_path: ${assets.assets_dir_path}/Sortilege_Atlas_0_rotated.glb
+        asset_name: Sortilege Canadian Whisky
+        ss_params:
+          height: 0.291
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
