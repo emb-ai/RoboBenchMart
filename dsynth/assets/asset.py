@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 ASSET_TYPE_MAPPING = {
     "MeshAsset": synth.assets.MeshAsset,
     "USDAsset": synth.assets.USDAsset,
+    "URDFAsset": synth.assets.URDFAsset,
     "Asset": synth.Asset
 }
 
@@ -102,6 +103,9 @@ class Asset:
         # ms_scale, origin = self.ms_scale_and_transform
         scale = np.array([self.ms_scale, self.ms_scale, self.ms_scale])
 
+        if self.ss_asset_type == 'URDFAsset':
+            return self.load_actor_as_urdf(obj_name, scene, pose, scale, scene_idxs)
+
         builder = scene.create_actor_builder()
         builder.set_scene_idxs(scene_idxs)
         builder.add_visual_from_file(filename=self.asset_file_path, scale=scale)
@@ -120,6 +124,15 @@ class Asset:
                 actor.set_mass(0.7)
 
         return actor
+
+    def load_actor_as_urdf(self, obj_name: str, scene: ManiSkillScene, pose: sapien.Pose, scale, scene_idxs):
+        loader = scene.create_urdf_loader()
+        loader.scale = scale[0]
+        articulation_builders = loader.parse(self.asset_file_path)["articulation_builders"]
+        builder = articulation_builders[0]
+        builder.initial_pose = pose
+        builder.set_scene_idxs(scene_idxs)
+        return builder.build(name=obj_name)
 
 def load_assets_lib(products_hierarchy_dict: DictConfig):
     assets_dict = {}

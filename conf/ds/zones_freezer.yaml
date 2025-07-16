@@ -1,0 +1,8 @@
+defaults:
+  - /zones@zone1: one_freezer
+  - /zones@zone2: one_empty_freezer
+  - /zones@zone3: one_empty_freezer
+  - /zones@zone4: two_sided_mini_shelf
+
+
+    

@@ -4,6 +4,7 @@ import itertools
 from typing import List, Optional
 import re
 
+from transforms3d.euler import euler2quat
 import torch
 import yaml
 import json
@@ -28,14 +29,11 @@ from transforms3d.euler import euler2quat
 from transforms3d import quaternions
 
 from dsynth.scene_gen.arrangements import CELL_SIZE, DEFAULT_ROOM_HEIGHT
+from dsynth.envs.fixtures.robocasaroom import DarkstoreScene, Ceiling, _get_absolute_matrix, _get_pq
 
-def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
-    x_size = x_cells * CELL_SIZE
-    y_size = y_cells * CELL_SIZE
+def get_arena_data(x_size=4., y_size=5., height = DEFAULT_ROOM_HEIGHT):
     return {
         'meta': {
-            'x_cells': x_cells,
-            'y_cells': y_cells,
             'x_size': x_size,
             'y_size': y_size,
             'height': height
@@ -67,145 +65,127 @@ def get_arena_data(x_cells=4, y_cells=5, height = DEFAULT_ROOM_HEIGHT):
         }
     }
 
-def _get_absolute_matrix(node, nodes_dict):
-        current_matrix = np.array(node[2]["matrix"])
-        parent_name = node[0]
-        while parent_name != "world":
-            parent_node = nodes_dict[parent_name]
-            parent_matrix = np.array(parent_node[2]["matrix"])
-            current_matrix = parent_matrix @ current_matrix
-            parent_name = parent_node[0]
-        return current_matrix
-
-def _get_zone_shelf_ids(node, nodes_dict):
-        parent_name = node[0]
-        shelf_full_id = ''
-        while parent_name != "world":
-            shelf_full_id = parent_name
-            parent_node = nodes_dict[parent_name]
-            parent_name = parent_node[0]
-        shelf_full_id = re.sub(r"SHELF_\d+_", "", shelf_full_id) # replace SHELF_N
-        zone_id, shelf_id = shelf_full_id.split('.')
-        return zone_id, shelf_id
-
-def _get_pq(matrix, origin):
-    matrix = np.array(matrix)
-    q = quaternions.mat2quat(matrix[:3,:3])
-    p = matrix[:-1, 3] - origin
-    return p, q
-
-class DarkstoreScene(RoboCasaSceneBuilder):
-    IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
+class DarkstoreSceneContinuous(DarkstoreScene):
     def __init__(self, *args, config_dir_path=None, **kwargs):
         self.config_dir_path = config_dir_path
-        self.scene_config_paths = sorted(list(Path(self.config_dir_path).glob('*.json')))
+        self.scene_config_paths = sorted(list(Path(self.config_dir_path).glob('*layout_data*.json')))
         self.num_generated_scenes = len(self.scene_config_paths)
         
-        self.x_cells = []
-        self.y_cells = []
         self.x_size = []
         self.y_size = []
         self.height = []
-        self.room = []
-        self.rotations = []
+        self.layout_data = []
         self.ds_names = []
 
-        super().__init__(*args, **kwargs)
+        RoboCasaSceneBuilder.__init__(self, *args, **kwargs)
 
     def load_arrangement_from_json(self, scene_idx, scene_data):
-        origin = - self.IMPORTED_SS_SCENE_SHIFT
-
-        nodes_dict = {}
-        for node in scene_data["graph"]:
-            nodes_dict[node[1]] = node
-
-        for node in scene_data["graph"]:
-            parent_name, obj_name, props = node
-            if '/' not in obj_name:
-                abs_matrix = _get_absolute_matrix(node, nodes_dict)
-                p, q = _get_pq(abs_matrix, origin)
+        active_fixtures_categories = ["active_shelvings",
+            "active_wall_shelvings"
+            ]
+        inactive_fixtures_categories = [
+            "inactive_shelvings",
+            "inactive_wall_shelvings",
+            "scene_fixtures"
+            ]
+        for fixture_category in inactive_fixtures_categories:
+            for i, inactive_fixture in enumerate(scene_data['layout_data'][fixture_category]):
+                shelf_id = inactive_fixture['asset_name']
+                fixture_name = inactive_fixture['name']
+                item_name = f'[ENV#{scene_idx}]_inactive_{fixture_name}_{i}'
+                p = np.array([inactive_fixture['x'], inactive_fixture['y'], 0.])
+                angle = 0.
+                if inactive_fixture['orientation'] == 'vertical':
+                    angle = 3.14 / 2.
+                q = euler2quat(0, 0, angle)
                 pose = sapien.Pose(p=p, q=q)
-                if 'SHELF' in obj_name:
-                    shelf_name = re.sub(r"SHELF_\d+_", "", obj_name)
-                    zone_id, shelf_id = shelf_name.split('.')
-                    shelf_asset_name = self.env.cfg.ds.zones[zone_id][shelf_id].shelf_asset
-                    if shelf_asset_name is None:
-                        shelf_asset_name = 'fixtures.shelf'
-                    item_name = f'[ENV#{scene_idx}]_{obj_name}'
-                    actor = self.env.assets_lib[shelf_asset_name].ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
-                    self.env.actors["fixtures"]["shelves"][item_name] = actor
-                    continue
 
-                asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
-                item_name = f'[ENV#{scene_idx}]_{obj_name}'
-                actor = self.env.assets_lib[asset_name].ms_build_actor(
-                    item_name, 
-                    self.env.scene, 
-                    pose=pose, 
-                    scene_idxs=[scene_idx],
-                    force_static=self.env.all_static)
-                self.env.actors["products"][item_name] = actor
+                asset = self.env.assets_lib[shelf_id]
+                asset.ms_is_nonconvex_collision = False
+                actor = asset.ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                self.env.actors["fixtures"]["shelves"][item_name] = actor
+        
+        self.env.active_shelves[scene_idx] = []
+
+        for fixture_category in active_fixtures_categories:
+            for i, active_fixture in enumerate(scene_data['layout_data'][fixture_category]):
+                shelf_id = active_fixture['asset_name']
+                fixture_name = active_fixture['name']
+                item_name = f'[ENV#{scene_idx}]_active_{fixture_name}_{i}'
+                p = np.array([active_fixture['x'], active_fixture['y'], 0.])
+                angle = 0.
+                if active_fixture['orientation'] == 'vertical':
+                    angle = 3.14 / 2.
+                q = euler2quat(0, 0, angle)
+                pose = sapien.Pose(p=p, q=q)
+
+                asset = self.env.assets_lib[shelf_id]
+                asset.ms_is_nonconvex_collision = True
+                actor = asset.ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                self.env.actors["fixtures"]["shelves"][item_name] = actor
+                self.env.active_shelves[scene_idx].append(item_name)
+
+                with open(Path(self.config_dir_path) / f'{fixture_name}.json') as f:
+                    shelf_arrangement = json.load(f)
                 
-                zone_id, shelf_id = _get_zone_shelf_ids(node, nodes_dict)
-                self.env.products2shelves[item_name] = (zone_id, shelf_id)
+                nodes_dict = {}
+                for node in shelf_arrangement["graph"]:
+                    nodes_dict[node[1]] = node
 
-    def _get_lamps_coords(self, x_cells, y_cells, num_lamps_x=4, num_lamps_y=4, dist_from_wall=0.0):
-        # TODO: compute num of lamps based on area?
-        """
-        Compute coordinates of lamps.
+                for node in shelf_arrangement["graph"]:
+                    parent_name, obj_name, props = node
+                    if '/' not in obj_name and 'SHELF' not in obj_name:
+                        abs_matrix = _get_absolute_matrix(node, nodes_dict)
+                        p, q = _get_pq(abs_matrix, [0., 0., 0.])
+                        prod_pose = pose * sapien.Pose(p=p, q=q)
+                        asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
+                        item_name = f'[ENV#{scene_idx}]_{obj_name}'
+                        actor = self.env.assets_lib[asset_name].ms_build_actor(item_name, self.env.scene, pose=prod_pose, scene_idxs=[scene_idx])
+                        self.env.actors["products"][item_name] = actor
+        # origin = - self.IMPORTED_SS_SCENE_SHIFT
 
-        :param x_cells: number of cells in the x direction
-        :param y_cells: number of cells in the y direction
-        :param num_lamps_x: number of lamps in x direction
-        :param num_lamps_y: number of lamps in y direction
-        :param dist_from_wall: free space from each side to avoid placing lamps close to walls
-        :return: array of lamp coordinates
-        """
+        # nodes_dict = {}
+        # for node in scene_data["graph"]:
+        #     nodes_dict[node[1]] = node
+
+        # for node in scene_data["graph"]:
+        #     parent_name, obj_name, props = node
+        #     if '/' not in obj_name:
+        #         abs_matrix = _get_absolute_matrix(node, nodes_dict)
+        #         p, q = _get_pq(abs_matrix, origin)
+        #         pose = sapien.Pose(p=p, q=q)
+        #         if 'SHELF' in obj_name:
+        #             shelf_name = re.sub(r"SHELF_\d+_", "", obj_name)
+        #             zone_id, shelf_id = shelf_name.split('.')
+        #             shelf_asset_name = self.env.cfg.ds.zones[zone_id][shelf_id].shelf_asset
+        #             if shelf_asset_name is None:
+        #                 shelf_asset_name = 'fixtures.shelf'
+        #             item_name = f'[ENV#{scene_idx}]_{obj_name}'
+        #             actor = self.env.assets_lib[shelf_asset_name].ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
+        #             self.env.actors["fixtures"]["shelves"][item_name] = actor
+        #             continue
+
+        #         asset_name = f'products_hierarchy.{obj_name.split(":")[0]}'
+        #         item_name = f'[ENV#{scene_idx}]_{obj_name}'
+        #         actor = self.env.assets_lib[asset_name].ms_build_actor(
+        #             item_name, 
+        #             self.env.scene, 
+        #             pose=pose, 
+        #             scene_idxs=[scene_idx],
+        #             force_static=self.env.all_static)
+        #         self.env.actors["products"][item_name] = actor
+                
+        #         zone_id, shelf_id = _get_zone_shelf_ids(node, nodes_dict)
+        #         self.env.products2shelves[item_name] = (zone_id, shelf_id)
+
+    def _get_lamps_coords(self, x_size, y_size, num_lamps_x=4, num_lamps_y=4, dist_from_wall=0.0):
         lamps_coords = []
-        step_x = (CELL_SIZE*x_cells - 2*dist_from_wall)/(num_lamps_x+1)
-        step_y = (CELL_SIZE*y_cells - 2*dist_from_wall)/(num_lamps_y+1)
+        step_x = (x_size - 2*dist_from_wall)/(num_lamps_x+1)
+        step_y = (y_size - 2*dist_from_wall)/(num_lamps_y+1)
         for x in range(1, num_lamps_x+1):
             for y in range(1, num_lamps_y+1):
                 lamps_coords.append((dist_from_wall+step_x*x, dist_from_wall+step_y*y))
         return lamps_coords
-
-    def _load_lamps(self, scene_idx, lamps_coords, height):
-        self.env.actors["fixtures"]["lamps"] = {}
-        for n, (x, y) in enumerate(lamps_coords):
-            pose = sapien.Pose(p=[x, y, height], q=[1, 0, 0, 0])
-            lamp = self.env.assets_lib['fixtures.lamp'].ms_build_actor(f'[ENV#{scene_idx}]_lamp_{n}', self.scene, pose=pose, scene_idxs=[scene_idx])
-            self.env.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
-    
-    def _load_lighting(self, scene_idx, lamps_coords, height, intensity=10, light_type="area"):
-        # TODO: compute intensity based on the scene?
-        """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
-
-        shadow = self.env.enable_shadow
-        self.env.scene.set_ambient_light([0.3, 0.3, 0.3])
-        self.scene.add_directional_light(
-            [1, 1, -1], [1, 1, 1], shadow=shadow, shadow_scale=5, shadow_map_size=2048
-        )
-        self.scene.add_directional_light([0, 0, -1], [1, 1, 1])
-
-        lamp_size = self.env.assets_lib['fixtures.lamp'].extents[0]
-        for x, y in lamps_coords:
-            # I have no idea what inner_fov and outer_fov mean :/
-            if light_type == "spot":
-                self.scene.add_spot_light([x, y, height],
-                                        [0, 0, -1],
-                                        inner_fov=10,
-                                        outer_fov=20,
-                                        color=[intensity, intensity, intensity],
-                                        shadow=shadow,
-                                        scene_idxs=[scene_idx])
-            elif light_type == "point":
-                self.scene.add_point_light([x, y, height],
-                                        color=[intensity, intensity, intensity],
-                                        shadow=shadow)
-            elif light_type == "area":
-                self.scene.add_area_light_for_ray_tracing(sapien.Pose([x, y, height], [np.cos(np.pi/4), 0, np.sin(np.pi/4), 0]), [intensity, intensity, intensity], lamp_size, lamp_size) # square light area pointing down
-            else:
-                raise Exception("Unknown light type. Must be spot, point or area")
 
     def build(self, build_config_idxs: Optional[List[int]] = None):
         if self.env.agent is not None:
@@ -217,7 +197,7 @@ class DarkstoreScene(RoboCasaSceneBuilder):
             build_config_idxs = []
             for i in range(self.env.num_envs):
                 # Total number of configs is 10 * 12 = 120
-                config_idx = self.env._batched_episode_rng[i].randint(0, self.num_generated_scenes * 12)
+                config_idx = self.env._batched_episode_rng[i].randint(0, self.num_generated_scenes)
                 build_config_idxs.append(config_idx)
 
         # random indexes for walls, floors and ceilings
@@ -231,23 +211,20 @@ class DarkstoreScene(RoboCasaSceneBuilder):
         ceiling_texture_idxs = [self.env._batched_episode_rng[i].randint(0, num_ceiling_textures) for i in range(len(build_config_idxs))]
 
         for scene_idx, build_config_idx in enumerate(build_config_idxs):
-            config_path = self.scene_config_paths[build_config_idx % self.num_generated_scenes]
+            config_path = self.scene_config_paths[build_config_idx]
             
             with open(config_path, "r") as f:
                 scene_data = json.load(f)
 
-            arena_data = get_arena_data(x_cells=scene_data['meta']['n'], 
-                           y_cells=scene_data['meta']['m'])
+            arena_data = get_arena_data(x_size=scene_data['size_x'], 
+                           y_size=scene_data['size_y'])
             
-            self.x_cells.append(arena_data['meta']['x_cells'])
-            self.y_cells.append(arena_data['meta']['y_cells'])
             self.x_size.append(arena_data['meta']['x_size'])
             self.y_size.append(arena_data['meta']['y_size'])
             self.height.append(arena_data['meta']['height'])
-            self.room.append(scene_data['meta']['room'])
-            self.rotations.append(scene_data['meta']['rotations'])
+            self.layout_data.append(scene_data['layout_data'])
 
-            self.ds_names.append(scene_data['meta'].get('ds_names', None))
+            # self.ds_names.append(scene_data['meta'].get('ds_names', None))
 
 
             arena_config = arena_data['arena_config']
@@ -593,15 +570,15 @@ class DarkstoreScene(RoboCasaSceneBuilder):
 
             self.load_arrangement_from_json(scene_idx, scene_data)
             lamp_coords = self._get_lamps_coords(
-                arena_data['meta']['x_cells'],
-                arena_data['meta']['y_cells'],
+                arena_data['meta']['x_size'],
+                arena_data['meta']['y_size'],
             )
             self._load_lamps(scene_idx, lamp_coords, arena_data['meta']['height'])
             self._load_lighting(scene_idx, lamp_coords, arena_data['meta']['height'])
-            self._load_door(scene_idx, arena_data['meta']['x_cells'], arena_data['meta']['y_cells'])
+            self._load_door(scene_idx, arena_data['meta']['x_size'], arena_data['meta']['y_size'])
 
         # disable collisions
-        if self.env.robot_uids in ["fetch", "ds_fetch", "ds_fetch_basket"]:
+        if self.env.robot_uids == "fetch":
             self.env.agent
             for link in [self.env.agent.l_wheel_link, self.env.agent.r_wheel_link]:
                 for bit_idx in range(25, 31):
@@ -612,123 +589,3 @@ class DarkstoreScene(RoboCasaSceneBuilder):
         elif self.env.robot_uids == "unitree_g1_simplified_upper_body":
             # TODO (stao): determine collisions to disable for unitree robot
             pass
-
-    def _generate_initial_placements(
-        self, fixtures, fixture_cfgs, rng: np.random.RandomState
-    ):
-        """Generate and places randomized fixtures and robot(s) into the scene. This code is not parallelized"""
-        fxtr_placement_initializer = self._get_placement_initializer(
-            fixtures, dict(), fixture_cfgs, z_offset=0.0, rng=rng
-        )
-        fxtr_placements = None
-        for i in range(10):
-            try:
-                fxtr_placements = fxtr_placement_initializer.sample()
-            except RandomizationError:
-                # if macros.VERBOSE:
-                #     print("Ranomization error in initial placement. Try #{}".format(i))
-                continue
-            break
-        if fxtr_placements is None:
-            # if macros.VERBOSE:
-            # print("Could not place fixtures.")
-            # self._load_model()
-            raise RuntimeError("Could not place fixtures.")
-
-        # setup internal references related to fixtures
-        # self._setup_kitchen_references()
-
-        # set robot position
-        # if self.init_robot_base_pos is not None:
-        #     ref_fixture = self.get_fixture(fixtures, self.init_robot_base_pos)
-        # else:
-        #     valid_src_fixture_classes = [
-        #         "CoffeeMachine",
-        #         "Toaster",
-        #         "Stove",
-        #         "Stovetop",
-        #         "SingleCabinet",
-        #         "HingeCabinet",
-        #         "OpenCabinet",
-        #         "Drawer",
-        #         "Microwave",
-        #         "Sink",
-        #         "Hood",
-        #         "Oven",
-        #         "Fridge",
-        #         "Dishwasher",
-        #     ]
-        #     while True:
-        #         ref_fixture = rng.choice(list(fixtures.values()))
-        #         fxtr_class = type(ref_fixture).__name__
-        #         if fxtr_class not in valid_src_fixture_classes:
-        #             continue
-        #         break
-
-        if self.env.agent is not None:
-            robot_base_pos = np.array([2.0, -5.5, 0.0])
-            robot_base_ori = np.array([0, 0, np.pi / 2])
-            
-        else:
-            robot_base_pos = None
-            robot_base_ori = None
-        return fxtr_placements, robot_base_pos, robot_base_ori
-
-    def _load_door(self, scene_idx, x_size, y_size):
-        self.env.actors["fixtures"]["doors"] = {}
-        pose = sapien.Pose(p=[x_size, y_size - self.env.assets_lib['fixtures.door'].extents[1], 0], q=[1, 0, 0, 0])
-        door = self.env.assets_lib['fixtures.door'].ms_build_actor(f'[ENV#{scene_idx}]_door', self.scene, pose=pose, scene_idxs=[scene_idx])
-        self.env.actors["fixtures"]["doors"][f'door_0'] = door
-
-class Ceiling(Wall):
-    def __init__(
-        self,
-        scene: ManiSkillScene,
-        size,
-        name="ceiling",
-        texture="textures/bricks/red_bricks.png",
-        mat_attrib={
-            "texrepeat": "2 2",
-            "texuniform": "true",
-            "reflectance": "0.1",
-            "shininess": "0.1",
-        },
-        *args,
-        **kwargs,
-    ):
-        super().__init__(
-            scene,
-            size=size,
-            name=name,
-            texture=texture,
-            wall_side="ceiling",
-            mat_attrib=mat_attrib,
-            *args,
-            **kwargs,
-        )
-        self.name = name
-        self.scene = scene
-
-    def build(self, scene_idxs: list[int]):
-        builder = self.scene.create_actor_builder()
-        if self.backing:
-            builder.add_box_visual(half_size=self.size, material=self.render_material)
-        else:
-            builder.add_plane_repeated_visual(
-                pose=sapien.Pose(q=[0, 0, 1, 0]),
-                half_size=self.size[:2],
-                mat=self.render_material,
-                texture_repeat=self.texture_repeat,
-            )
-            # Only ever add one plane collision
-            if 0 in scene_idxs:
-                builder.add_plane_collision(
-                    pose=sapien.Pose(q=[0.7071068, 0, -0.7071068, 0])
-                )
-        builder.initial_pose = sapien.Pose(p=self.pos, q=[0, 1, 0, 0])
-        builder.set_scene_idxs(scene_idxs)
-        self.actor = builder.build_static(name=self.name + f"_{scene_idxs[0]}")
-        return self
-
-    def get_quat(self):
-        return [0, 1, 0, 0]

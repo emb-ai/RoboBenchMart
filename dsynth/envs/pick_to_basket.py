@@ -77,15 +77,15 @@ class PickToBasketEnv(DarkstoreCellBaseEnv):
             
             if self.TARGET_PRODUCT_NAME is None:
                 # select random zone, shelf and product
-                zone_id = self._batched_episode_rng[scene_idx].choice(scene_prducts_df['zone_id'].unique())
+                zone_id = self._batched_episode_rng[scene_idx].choice(sorted(scene_prducts_df['zone_id'].unique()))
                 self.target_zones[scene_idx] = zone_id
 
                 zone_products_df = scene_prducts_df[scene_prducts_df['zone_id'] == zone_id]
-                shelf_id = self._batched_episode_rng[scene_idx].choice(zone_products_df['shelf_id'].unique())
+                shelf_id = self._batched_episode_rng[scene_idx].choice(sorted(zone_products_df['shelf_id'].unique()))
                 self.target_shelves[scene_idx] = shelf_id
 
                 shelf_products_df = zone_products_df[zone_products_df['shelf_id'] == shelf_id]
-                product_name = self._batched_episode_rng[scene_idx].choice(shelf_products_df['product_name'].unique())
+                product_name = self._batched_episode_rng[scene_idx].choice(sorted(shelf_products_df['product_name'].unique()))
                 self.target_product_names[scene_idx] = product_name
 
                 if self.target_products_df is None:
@@ -101,11 +101,11 @@ class PickToBasketEnv(DarkstoreCellBaseEnv):
                     raise RuntimeError(f"Product {self.TARGET_PRODUCT_NAME} is not present on scene #{scene_idx}")
                 
                 zones_w_target_product = scene_prducts_df[scene_prducts_df['product_name'] == self.TARGET_PRODUCT_NAME]
-                zone_id = self._batched_episode_rng[scene_idx].choice(zones_w_target_product['zone_id'].unique())
+                zone_id = self._batched_episode_rng[scene_idx].choice(sorted(zones_w_target_product['zone_id'].unique()))
                 self.target_zones[scene_idx] = zone_id
 
                 shelves_w_target_zone = zones_w_target_product[zones_w_target_product['zone_id'] == zone_id]
-                shelf_id = self._batched_episode_rng[scene_idx].choice(shelves_w_target_zone['shelf_id'].unique())
+                shelf_id = self._batched_episode_rng[scene_idx].choice(sorted(shelves_w_target_zone['shelf_id'].unique()))
                 self.target_shelves[scene_idx] = shelf_id
 
                 if self.target_products_df is None:

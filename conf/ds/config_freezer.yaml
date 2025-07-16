@@ -1,0 +1,28 @@
+defaults:
+  - main_darkstore_config_base
+  - /ds@zones: zones_freezer
+  - _self_
+
+layout:
+  0: [0, zone2.freezer_large1, 0, 0, 0]
+  1: [0, 0, 0, 0, zone3.freezer_large1]
+  2: [0, zone4.two_sided_mini_shelf1, zone4.two_sided_mini_shelf2, 0, 0]
+  3: [0, 0, 0, 0, 0]
+  4: [0, 'zone1.freezer_large1', 0, 0, 0]
+
+rotations:
+  0: [0, 90, 0, 0, 0]
+  1: [0, 0, 0, 0, 0]
+  2: [0, 0, 0, 0, 0]
+  3: [0, 0, 0, 0, 0]
+  4: [0, -90, 0, 0, 0]
+
+name: ds_freezer
+size_n: 5
+size_m: 5
+num_scenes: 1
+num_workers: 1
+layout_gen_type: FIXED_LAYOUT
+randomize_layout: false
+randomize_arrangements: true
+random_seed: 42

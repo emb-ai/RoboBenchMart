@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument("-r", "--robot-uids", type=str, default="ds_fetch", help=f"Robot id")
     parser.add_argument("-n", "--num-envs", type=int, default=1, help=f"Number of scenes")
     parser.add_argument("scene_dir", help="Путь к директории с JSON конфигом сцены")
-    parser.add_argument("--style_id", type=int, default=0, help="Style id (0-11)")
+    parser.add_argument("-s", "--seed", type=int, nargs='+', default=0)
     parser.add_argument('--shader',
                         default='default',
                         const='default',
@@ -47,7 +47,6 @@ def parse_args():
 def main(args):
 
     scene_dir = Path(args.scene_dir)
-    style_id = args.style_id
     gui = args.gui
     parallel_in_single_scene = args.num_envs > 1 and gui
     env = gym.make(args.env_id, 
@@ -60,14 +59,14 @@ def main(args):
                 #    render_mode="rgb_array", 
                    control_mode=None,
                    enable_shadow=True,
-                   sim_config={'spacing': 10},
+                   sim_config={'spacing': 20},
                    obs_mode='none' if gui else "rgbd",
                    sim_backend='auto',
                    parallel_in_single_scene = parallel_in_single_scene,
                    )
 
     new_traj_name = time.strftime("%Y%m%d_%H%M%S")
-    video_path = scene_dir / f"./videos_style={style_id}_shader={args.shader}"
+    video_path = scene_dir / f"./videos_seed={args.seed}_shader={args.shader}"
     env = RecordEpisode(
         env,
         output_dir=video_path,
@@ -81,7 +80,7 @@ def main(args):
     print("Video path:", video_path)
     print("Trajectoty name:", new_traj_name)
 
-    obs, _ = env.reset(seed=42, options={'reconfigure': True})
+    env.reset(seed=args.seed, options={'reconfigure': True})
 
     if gui:
         viewer = env.render()

@@ -684,6 +684,8 @@ class FetchQuasiStaticArmMotionPlanningSapienSolver(PandaArmMotionPlanningSapien
         return obs, reward, terminated, truncated, info
 
 class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
+    MAX_REFINE_STEPS = 200
+    
     def setup_planner(self, *args, **kwargs):
         planned_articulation = self._sim_scene.get_all_articulations()[0]
         planning_world = SapienPlanningWorldV2(self._sim_scene, [planned_articulation], disable_actors_collision=self.disable_actors_collision)
@@ -697,7 +699,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         planner.set_base_pose(mplib.Pose(self.base_pose.p, self.base_pose.q))
         return planner
     
-    def rotate_base_z(self, new_direction, n_init_qpos=20, dry_run=False):
+    def rotate_base_z(self, new_direction, n_init_qpos=20, dry_run=False, rotate_recalculation_enabled=True):
         assert new_direction[2] == 0.
         tcp_pose = self.base_env.agent.tcp.pose.sp
         base_link_pose = self.base_env.agent.base_link.pose.sp
@@ -727,8 +729,14 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             print(result["status"])
             self.render_wait()
             return -1
+        
+        if not rotate_recalculation_enabled:
+            if dry_run:
+                return result
+            self.render_wait()
+            return self.follow_rotation(result)
+
         self.render_wait()
-       
         res = self.follow_rotation(result)
 
         result = self.planner.plan_screw(
@@ -849,25 +857,36 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         target_tcp_pose = mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q)
         only_manipulate =[True, True, True, disable_lift_joint, False, False, False, False, False, False, False, False, False, False, False]
         fixed_joint_indices = [0, 1, 2, 3] if disable_lift_joint else [0, 1, 2]
-        result = self.planner.plan_pose(
-            target_tcp_pose,
+
+        result = self.planner.plan_screw(
+            mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            # use_point_cloud=self.use_point_cloud,
-            wrt_world=True,
-            verbose=True,
-            planning_time=4,
-            rrt_range=0.1,
-            simplify=True,
-            mask=only_manipulate,
-            fixed_joint_indices=fixed_joint_indices,
-            n_init_qpos=n_init_qpos   
+            masked_joints=~np.array(only_manipulate)
         )
 
         if result["status"] != "Success":
-            print(result["status"])
-            self.render_wait()
-            return -1
+
+            result = self.planner.plan_pose(
+                target_tcp_pose,
+                self.robot.get_qpos().cpu().numpy()[0],
+                time_step=self.base_env.control_timestep,
+                # use_point_cloud=self.use_point_cloud,
+                wrt_world=True,
+                verbose=True,
+                planning_time=4,
+                rrt_range=0.1,
+                simplify=True,
+                mask=only_manipulate,
+                fixed_joint_indices=fixed_joint_indices,
+                n_init_qpos=n_init_qpos   
+            )
+
+            if result["status"] != "Success":
+                print(result["status"])
+                self.render_wait()
+                return -1
+            
         self.render_wait()
 
         return self.follow_forward_path_w_refinement(result, refine=True)
@@ -934,7 +953,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         result = self.move_base_forward(taget_pose.p, dry_run=dry_run)
         return result
 
-    def rotate_z_delta(self, delta = 0., dry_run: bool = False):
+    def rotate_z_delta(self, delta = 0., dry_run: bool = False, rotate_recalculation_enabled: bool = True):
         cur_pose = self.base_env.agent.base_link.pose.sp
         direction = cur_pose.to_transformation_matrix()[:3, 0]
         direction[2] = 0.
@@ -943,11 +962,8 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
         new_direction = rot_matrix @ direction
         
-        result = self.rotate_base_z(new_direction, dry_run=dry_run)
-        if result["status"] != "Success":
-            print(result["status"])
-            self.render_wait()
-            return -1
+        result = self.rotate_base_z(new_direction, dry_run=dry_run, rotate_recalculation_enabled=rotate_recalculation_enabled)
+        
         return result
 
     def follow_rotation(self, result, refine_steps: int = 0):
@@ -1080,6 +1096,9 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
                         and (len(last_x_base_poses) > 4 and np.std(last_x_base_poses) < 1e-3):
                     # robot is stuck
                     print("Robot is stuck")
+                    break
+                if passed_refine_steps > self.MAX_REFINE_STEPS:
+                    print("Reached max refining steps!")
                     break
 
                 body_action = np.zeros_like(self.env_agent.controller.controllers['body'].qpos[0].cpu().numpy())

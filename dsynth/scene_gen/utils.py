@@ -5,6 +5,11 @@ import random
 from scene_synthesizer.utils import PositionIterator2D
 from shapely.geometry import Point
 from dsynth.assets.ss_assets import WIDTH, DEPTH
+from dataclasses import dataclass
+import numpy as np
+
+from dsynth.assets.asset import Asset
+
 class PositionIteratorPI(PositionIterator2D):
     def __init__(
         self,
@@ -134,6 +139,8 @@ class PositionIteratorGridColumns(PositionIterator2D):
         self.current_point = current_point
         self.num_cols = num_cols
         self.stop_iter = False
+        self.cur_col = 0
+        self.cur_row = 0
 
     def __next__(self):
         while not self.stop_iter:
@@ -146,10 +153,14 @@ class PositionIteratorGridColumns(PositionIterator2D):
                 x = self.current_point[0]
                 y = self.current_point[1]
                 self.current_point[1] += self.obj_d + self.y_gap
+                self.cur_row += 1
                 if self.current_point[1] + self.obj_d/2 >= self.end_point[1]:
                     self.current_point[0] += self.obj_w + self.x_gap
                     self.current_point[1] = self.start_point[1] + self.obj_d/2
                     self.num_cols -= 1
+
+                    self.cur_col += 1
+                    self.cur_row = 0
 
                 return np.array([x, y])
             elif self.current_point[0] + self.obj_w/2 >= self.end_point[0]:
@@ -180,6 +191,10 @@ class PositionIteratorGridColumns(PositionIterator2D):
 
     def update(self, *args, **kwargs):
         pass
+
+def object_id_generator(base_name, pos_generator: PositionIteratorGridColumns):
+    while True:
+        yield f"{base_name}{pos_generator.cur_col}:{pos_generator.cur_row}"
 
 def is_valid_cell(x, y, N, M):
     if x < 0 or y < 0 or x >= N or y >= M:
@@ -246,3 +261,102 @@ def find_paths(maze, source, destination):
     
     return paths
 
+@dataclass
+class RectFixture:
+    name: str = None
+    x: float = 0
+    y: float = 0
+    l: float = 1.55
+    w: float = 0.6
+    orientation: str = 'horizontal'
+    occupancy_width: float = 0.0
+    asset_name: str = None
+
+    # horizontal: y+ y-
+    # vertical: x+ x-
+
+    def __post_init__(self):
+        if not self.orientation in ['horizontal', 'vertical']:
+            raise RuntimeError(f"Wrong orientation: {self.orientation}")
+    
+    @classmethod
+    def make_from_asset(cls, asset: Asset, 
+                        name=None, x=0, y=0, 
+                        orientation='horizontal',
+                        occupancy_width=0.2,
+                        asset_name=None):
+        extents = asset.trimesh_scene.extents
+        return cls(name, x, y, l = extents[0], w=extents[1], orientation=orientation,
+                   occupancy_width=occupancy_width, asset_name=asset_name)
+        
+
+    def get_polygon(self):
+        if self.orientation == 'horizontal':            
+            polygon = [
+                [self.x - self.l / 2, self.y - self.w / 2],
+                [self.x + self.l / 2, self.y - self.w / 2],
+                [self.x + self.l / 2, self.y + self.w / 2],
+                [self.x - self.l / 2, self.y + self.w / 2],         
+            ]
+            occupancy_polygon = [
+                [polygon[0][0], polygon[0][1] - self.occupancy_width],
+                [polygon[1][0], polygon[1][1] - self.occupancy_width],
+                [polygon[2][0], polygon[2][1] + self.occupancy_width],
+                [polygon[3][0], polygon[3][1] + self.occupancy_width]
+            ]
+        elif self.orientation == 'vertical':
+            polygon = [
+                [self.x - self.w / 2, self.y - self.l / 2],
+                [self.x + self.w / 2, self.y - self.l / 2],
+                [self.x + self.w / 2, self.y + self.l / 2],
+                [self.x - self.w / 2, self.y + self.l / 2],         
+            ]
+            occupancy_polygon = [
+                [polygon[0][0] - self.occupancy_width, polygon[0][1]],
+                [polygon[1][0] + self.occupancy_width, polygon[1][1]],
+                [polygon[2][0] + self.occupancy_width, polygon[2][1]],
+                [polygon[3][0] - self.occupancy_width, polygon[3][1]]
+            ]
+        else:
+            raise RuntimeError("Wrong orientation")
+        return np.array(polygon), np.array(occupancy_polygon)
+    
+    def is_valid(self, size_x, size_y):
+        polygon, occupancy_polygon = self.get_polygon()
+        if np.any(occupancy_polygon[:, 0] > size_x) or np.any(occupancy_polygon[:, 0] < 0) or \
+            np.any(occupancy_polygon[:, 1] > size_y) or np.any(occupancy_polygon[:, 1] < 0):
+            return False
+        return True
+    
+    def draw(self, axes, show_occupancy=True, facecolor='skyblue',
+            edgecolor='blue', linewidth=2
+        ):
+        polygon, occupancy_polygon = self.get_polygon()
+        if show_occupancy:
+            axes.fill(occupancy_polygon[:, 0], occupancy_polygon[:, 1], facecolor='gray', edgecolor='black', linewidth=linewidth)
+        axes.fill(polygon[:, 0], polygon[:, 1], facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
+
+def check_overlap(l1, r1, l2, r2):
+    if r2[0] < l1[0] or r1[0] < l2[0]:
+        return False
+    if r2[1] < l1[1] or r1[1] < l2[1]:
+        return False
+    return True
+
+def check_shelfs_overlap(s1: RectFixture, s2: RectFixture):
+    poly1, occup1 = s1.get_polygon()
+    poly2, occup2 = s2.get_polygon()
+    if check_overlap(poly1[0], poly1[2], occup2[0], occup2[2]):
+        return True
+    if check_overlap(occup1[0], occup1[2], poly2[0], poly2[2]):
+        return True
+    if s1.orientation != s2.orientation: # !!!
+        if check_overlap(occup1[0], occup1[2], occup2[0], occup2[2]):
+            return True
+    return False
+
+def check_collisions(new_shelf: RectFixture, shelves_list: list):
+    for shelf in shelves_list:
+        if check_shelfs_overlap(new_shelf, shelf):
+            return True
+    return False

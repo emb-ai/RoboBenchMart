@@ -1,0 +1,46 @@
+defaults:
+  - main_darkstore_continuous_config_base
+  - _self_
+
+name: 'ds_continuous'
+size_x: 16
+size_y: 10
+num_scenes: 4
+num_workers: 1
+layout_gen_type: PROCEDURAL_TENSOR_FIELD_HORIZONTAL
+randomize_layout: true
+randomize_arrangements: true
+
+inactive_wall_shelvings_occupancy_width: 0.4
+inactive_shelvings_occupancy_width: 0.6
+inactive_shelvings_skip_prob: 0.0
+inactive_shelvings_passage_width: 2.0
+
+
+random_seed: 42
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.002
+    y_gap: 0.002
+    shelf_asset: fixtures.shelf_metal
+    shuffle_boards: True
+    board_product_numcol:
+      2:
+        food.dairy_products.milkCarton: 2
+      4:
+        food.drinks.coffeePackaging: 1
+      
+inactive_shelvings_list:
+  - fixtures.shelf
+  - fixtures.shelf_metal
+  - fixtures.small_shelf_two_sided
+
+inactive_wall_shelvings_list:
+  - fixtures.freezer_large
+
+scene_fixtures_list: 
+  - fixtures.pile_of_pallets
+  - fixtures.pallets_and_boxes
+  - fixtures.freezer_nestle
