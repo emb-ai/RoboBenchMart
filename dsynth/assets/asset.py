@@ -30,6 +30,12 @@ class Asset:
     ms_is_static: bool = False
     ms_is_nonconvex_collision: bool = False
 
+    disable_caching: bool = False
+    _ss_asset: Any = None
+    _trimesh_scene: Any = None
+    _ms_scale: Any = None
+    _ms_origin: Any = None
+
     asset_name: str = 'asset'
 
     def __post_init__(self):
@@ -39,15 +45,29 @@ class Asset:
 
     @property
     def ss_asset(self):
+        if self._ss_asset is not None:
+            return self._ss_asset
+        
         contructor = ASSET_TYPE_MAPPING.get(self.ss_asset_type, None)
         if contructor is None:
             raise ValueError(f"Wrong asset type: {self.ss_asset_type}, possible values: {list(ASSET_TYPE_MAPPING.keys())}")
+        
+        ss_asset = contructor(self.asset_file_path, **self.ss_params)
+        if not self.disable_caching:
+            self._ss_asset = ss_asset
 
-        return contructor(self.asset_file_path, **self.ss_params)
+        return ss_asset
     
     @property
     def trimesh_scene(self):
-        return self.ss_asset.as_trimesh_scene()
+        if self._trimesh_scene is not None:
+            return self._trimesh_scene
+        
+        trimesh_scene = self.ss_asset.as_trimesh_scene()
+        if not self.disable_caching:
+            self._trimesh_scene = trimesh_scene
+
+        return trimesh_scene
     
     @property
     def extents(self):
@@ -63,7 +83,7 @@ class Asset:
         
         scaled_scene = utils.scaled_trimesh_scene(trimesh_scene, scale=scale)
         center_mass = utils.center_mass(trimesh_scene=scaled_scene, node_names=scaled_scene.graph.nodes_geometry)
-        origin = self._ss_asset._get_origin_transform(
+        origin = self.ss_asset._get_origin_transform(
             bounds=scaled_scene.bounds,
             center_mass= center_mass,
             centroid=scaled_scene.centroid,
@@ -72,12 +92,24 @@ class Asset:
     
     @property
     def ms_scale(self):
-        scale,  origin = self.scale_and_transform()
+        if self._ms_scale is not None:
+            return self._ms_scale
+        
+        scale, origin = self.scale_and_transform()
+        if not self.disable_caching:
+            self._ms_scale, self._ms_origin = scale, origin
+
         return scale
     
     @property
     def ms_origin(self):
-        scale,  origin = self.scale_and_transform()
+        if self._ms_origin is not None:
+            return self._ms_origin
+
+        scale, origin = self.scale_and_transform()
+        if not self.disable_caching:
+            self._ms_scale, self._ms_origin = scale, origin
+
         return origin
     
     def ms_build_actor(
@@ -134,11 +166,11 @@ class Asset:
         builder.set_scene_idxs(scene_idxs)
         return builder.build(name=obj_name)
 
-def load_assets_lib(products_hierarchy_dict: DictConfig):
+def load_assets_lib(products_hierarchy_dict: DictConfig, disable_caching=False):
     assets_dict = {}
     products_dict = OmegaConf.to_container(products_hierarchy_dict, resolve = True)
     if 'asset_file_path' in products_dict.keys():
-        return Asset(**products_dict)
+        return Asset(**products_dict, disable_caching = disable_caching)
     for key, val in products_dict.items():
         if not isinstance(val, Dict):
             assets_dict[key] = val

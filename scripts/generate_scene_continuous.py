@@ -2,25 +2,15 @@ import logging
 log = logging.getLogger(__name__)
 # log.setLevel(logging.INFO)
 import hydra
-import random
 from omegaconf import OmegaConf
 from hydra.core.config_store import ConfigStore
-import os
 from pathlib import Path
-import json
 import sys
 import numpy as np
-from dataclasses import dataclass, asdict
-import scene_synthesizer as synth
 
 sys.path.append('.')
-from dsynth.scene_gen.scene_generator import SceneGeneratorContinuous, product_filling_from_shelf_config
-from dsynth.scene_gen.layouts.layout_generator import LAYOUT_CONTINUOUS_TO_CLS
-from dsynth.scene_gen.utils import flatten_dict
 from dsynth.scene_gen.hydra_configs import DsContinuousConfig, ShelfConfig
-from dsynth.assets.asset import load_assets_lib
-from dsynth.assets.ss_assets import DefaultShelf
-from dsynth.scene_gen.arrangements import set_shelf, add_objects_to_shelf_v2
+from dsynth.scene_gen.scene_generator import SceneGeneratorContinuous
 
 cs = ConfigStore.instance()
 cs.store(group="shelves", name="base_shelf_config", node=ShelfConfig)

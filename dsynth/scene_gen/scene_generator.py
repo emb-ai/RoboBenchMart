@@ -155,7 +155,7 @@ def _generate_continuous_routine(task_params):
     with open(Path(output_dir) / f'layout_data_{scene_name}.json', "w") as f:
         json.dump(results, f, indent=4)
 
-    product_assets_lib = flatten_dict(load_assets_lib(cfg.assets), sep='.')
+    product_assets_lib = flatten_dict(load_assets_lib(cfg.assets, disable_caching=True), sep='.')
 
     for active_fixture_cfg in cfg.ds_continuous.active_shelvings_list:
         filling, shelf_name, shelf_type = product_filling_from_shelf_config(active_fixture_cfg, 

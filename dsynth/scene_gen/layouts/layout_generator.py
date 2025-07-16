@@ -90,12 +90,12 @@ class TensorFieldLayout(LayoutGeneratorBase):
     def __init__(self,
                  name,
                  cfg,
-                 rng: random.Random = random.Random(42),
+                 rng,
                  ):
         self.cfg = cfg
         self.rng = rng
         self.name = name
-        self.product_assets_lib = flatten_dict(load_assets_lib(cfg.assets), sep='.')
+        self.product_assets_lib = flatten_dict(load_assets_lib(cfg.assets, disable_caching=True), sep='.')
         self.size_x = cfg.ds_continuous.size_x
         self.size_y = cfg.ds_continuous.size_y
 
