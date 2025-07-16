@@ -55,9 +55,16 @@ def main(cfg) -> None:
     layout_gen_cls = LAYOUT_CONTINUOUS_TO_CLS[cfg.ds_continuous.layout_gen_type]
     scene_sizes = (cfg.ds_continuous.size_x, cfg.ds_continuous.size_y)
     layout_generator = layout_gen_cls(sizes_xy=scene_sizes,
-                                                product_assets_lib=product_assets_lib,
-                                                cfg=cfg,
-                                                rng=random.Random(cfg.ds_continuous.random_seed))
+        product_assets_lib=product_assets_lib,
+        cfg=cfg,
+        rng=random.Random(cfg.ds_continuous.random_seed),
+
+        skip_object_prob = cfg.ds_continuous.skip_object_prob,
+        inactive_wall_shelvings_occupancy_width = cfg.ds_continuous.inactive_wall_shelvings_occupancy_width,
+        inactive_shelvings_occupancy_width = cfg.ds_continuous.inactive_shelvings_occupancy_width,
+        inactive_shelvings_skip_prob = cfg.ds_continuous.inactive_shelvings_skip_prob,
+        inactive_shelvings_passage_width = cfg.ds_continuous.inactive_shelvings_passage_width
+        )
 
     layout_data = layout_generator(name=f'{cfg.ds_continuous}_seed{cfg.ds_continuous.random_seed}')
     # layout_data = [asdict(fixture_data) for fixture_data in layout_data]

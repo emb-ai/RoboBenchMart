@@ -193,7 +193,14 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
         filling.append([])
     
     if shelf_config.shuffle_boards:
-        rng.shuffle(filling)
+        # shuffle only non-empty boards
+        non_empty_boards_idxs = [i for i in range(len(filling)) if len(filling[i]) > 0]
+        non_empty_boards_filling = [filling[i] for i in range(len(filling)) if len(filling[i]) > 0]
+        rng.shuffle(non_empty_boards_filling)
+        for i in range(len(non_empty_boards_filling)):
+            rng.shuffle(non_empty_boards_filling[i])
+        for i, board_filling in zip(non_empty_boards_idxs, non_empty_boards_filling):
+            filling[i] = board_filling
 
     return filling, shelf_name, shelf_type
 

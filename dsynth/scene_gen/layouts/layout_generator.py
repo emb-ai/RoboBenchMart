@@ -93,8 +93,12 @@ class TensorFieldLayout(LayoutGeneratorBase):
                  name='tf_layout',
                  rng: random.Random = random.Random(42),
                  max_tries = 20,
+                 
                  skip_object_prob: float = 0.0,
-                 spatial_step = 0.1
+                 inactive_wall_shelvings_occupancy_width = 0.4,
+                 inactive_shelvings_occupancy_width = 0.6,
+                 inactive_shelvings_skip_prob = 0.0,
+                 inactive_shelvings_passage_width = 1.5
                  ):
         assert len(sizes_xy) == 2
         self.product_assets_lib = product_assets_lib
@@ -106,6 +110,11 @@ class TensorFieldLayout(LayoutGeneratorBase):
         self.skip_object_prob = skip_object_prob
         self.all_fixtures = []
         self.name = name
+
+        self.inactive_wall_shelvings_occupancy_width = inactive_wall_shelvings_occupancy_width
+        self.inactive_shelvings_occupancy_width = inactive_shelvings_occupancy_width
+        self.inactive_shelvings_skip_prob = inactive_shelvings_skip_prob
+        self.inactive_shelvings_passage_width = inactive_shelvings_passage_width
 
     def _all_fixtures_list(self):
         all_fixtures = []
@@ -165,7 +174,7 @@ class TensorFieldLayout(LayoutGeneratorBase):
         self.rng.shuffle(perimeter_points)
         for asset_name in inactive_wall_shelvings_list:
             rect = RectFixture.make_from_asset(self.product_assets_lib[asset_name], name=f'inactive_wall_shelving:{asset_name}',
-                                               occupancy_width=0.4, 
+                                               occupancy_width=self.inactive_wall_shelvings_occupancy_width, 
                                         x=0., y=0., asset_name=asset_name)
             success = False
 
@@ -220,7 +229,7 @@ class TensorFieldLayout(LayoutGeneratorBase):
         sample_rects = []
         for asset_name in inactive_shelvings_list:
             rect = RectFixture.make_from_asset(self.product_assets_lib[asset_name], name=f'inactive_shelving:{asset_name}',
-                                                occupancy_width=0.6, 
+                                                occupancy_width=self.inactive_shelvings_occupancy_width, 
                                             x=0., y=0., asset_name=asset_name)
             sample_rects.append(rect)
         tf = tfield.TensorField(self.size_x + 1, self.size_y + 1) # TODO: redo
@@ -230,7 +239,8 @@ class TensorFieldLayout(LayoutGeneratorBase):
 
         res = tfield.place_shelves(tf,
                              sample_rects,
-                             passage_width=1.5,
+                             passage_width=self.inactive_shelvings_passage_width,
+                             skip_shelf_prob=self.inactive_shelvings_skip_prob,
                              scene_fixtures=self._all_fixtures_list()
                              )
         self.all_fixtures['inactive_shelvings'] = res
