@@ -20,8 +20,6 @@ OUTPUT_PATH = 'generated_envs'
 
 @hydra.main(version_base=None, config_name="config_continuous", config_path="../conf")
 def main(cfg) -> None:
-    log.info(OmegaConf.to_yaml(cfg))
-
     if cfg.ds_continuous.output_dir is not None:
         output_dir = Path(cfg.ds_continuous.output_dir)
         output_dir.mkdir(parents=True, exist_ok=cfg.ds_continuous.rewrite)
@@ -41,7 +39,8 @@ def main(cfg) -> None:
 
     generator = SceneGeneratorContinuous(cfg, output_dir)
     results = generator.generate()
-        
+
+    results = np.array(results)
     if np.all(results):
         log.info(f"Done")
     elif np.all(~results):

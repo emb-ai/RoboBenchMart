@@ -2,6 +2,7 @@ from itertools import cycle
 import numpy as np
 from scipy import interpolate
 import matplotlib.pyplot as plt
+import random
 
 from dsynth.scene_gen.utils import RectFixture, check_collisions
 
@@ -148,6 +149,7 @@ def is_vertical(vec, thresh=0.2):
 
 def place_shelves(tf: TensorField, 
                   sample_rects: RectFixture,
+                  rng: random.Random,
                   start_point=np.array([1., 1.]), 
                   passage_width=0.5, 
                   skip_shelf_prob=0., 
@@ -182,7 +184,7 @@ def place_shelves(tf: TensorField,
 
         
         if is_horizontal(eigen_major, thresh):
-            if np.random.rand() > skip_shelf_prob:
+            if rng.random() > skip_shelf_prob:
                 shelf = RectFixture(x=cur_position[0], y=cur_position[1], w=shelf_w, l=shelf_l, 
                                     occupancy_width=occupancy_width,
                                     name=rect_example.name, asset_name=rect_example.asset_name)
@@ -199,14 +201,22 @@ def place_shelves(tf: TensorField,
                 cur_position[0] = start_point[0]
                 cur_position[1] += y_step
 
-                rect_example = next(sample_rects_sampler)
-                shelf_l, shelf_w = rect_example.l, rect_example.w
-                occupancy_width = rect_example.occupancy_width
+                if not is_first_shelf:
+                    rect_example = next(sample_rects_sampler)
+                    shelf_l, shelf_w = rect_example.l, rect_example.w
+                    occupancy_width = rect_example.occupancy_width
 
             else:
                 break
 
     cur_position = start_point.copy()
+
+    sample_rects_sampler = cycle(sample_rects)
+    rect_example = next(sample_rects_sampler)
+
+    shelf_l, shelf_w = rect_example.l, rect_example.w
+    occupancy_width = rect_example.occupancy_width
+
     x_step = shelf_w + passage_width 
     y_step = shelf_l + 1e-2 
 
@@ -216,7 +226,7 @@ def place_shelves(tf: TensorField,
         eigen_major = _get_major_eigen(cur_position)
         
         if is_vertical(eigen_major, thresh):
-            if np.random.rand() > skip_shelf_prob:
+            if rng.random() > skip_shelf_prob:
                 shelf = RectFixture(x=cur_position[0], y=cur_position[1], w=shelf_w, l=shelf_l, 
                                     orientation = 'vertical', occupancy_width=occupancy_width,
                                     name=rect_example.name, asset_name=rect_example.asset_name)
@@ -233,9 +243,10 @@ def place_shelves(tf: TensorField,
                 cur_position[1] = start_point[1]
                 cur_position[0] += x_step
 
-                rect_example = next(sample_rects_sampler)
-                shelf_l, shelf_w = rect_example.l, rect_example.w
-                occupancy_width = rect_example.occupancy_width
+                if not is_first_shelf:
+                    rect_example = next(sample_rects_sampler)
+                    shelf_l, shelf_w = rect_example.l, rect_example.w
+                    occupancy_width = rect_example.occupancy_width
 
             else:
                 break

@@ -97,16 +97,15 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
 
             actor_shelf_name = self.active_shelves[idx][0]
             shelf_pose = self.actors["fixtures"]["shelves"][actor_shelf_name].pose.sp
-            shelf_direction = shelf_pose.to_transformation_matrix()[:3, 1]
+            direction_to_shelf = shelf_pose.to_transformation_matrix()[:3, 1]
 
-            direction_to_scene_center = np.array([self.scene_builder.x_size[idx] / 2, self.scene_builder.y_size[idx] / 2, 0.]) - shelf_pose.p
-            direction_to_scene_center /= (np.linalg.norm(direction_to_scene_center) + 1e-3)
+            # direction_to_scene_center = np.array([self.scene_builder.x_size[idx] / 2, self.scene_builder.y_size[idx] / 2, 0.]) - shelf_pose.p
+            # direction_to_scene_center /= (np.linalg.norm(direction_to_scene_center) + 1e-3)
 
-            if np.dot(direction_to_scene_center, shelf_direction) < 0:
-                shelf_direction = -shelf_direction
+            # if np.dot(direction_to_scene_center, shelf_direction) < 0:
+            #     shelf_direction = -shelf_direction
 
-            origin = shelf_pose.p + 1.5 * shelf_direction
-            direction_to_shelf = -shelf_direction
+            origin = shelf_pose.p - 1.7 * direction_to_shelf
 
             base_x_axis = np.array([1, 0, 0])
             angle = np.arccos(np.dot(direction_to_shelf, base_x_axis))

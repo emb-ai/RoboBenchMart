@@ -119,6 +119,13 @@ class DarkstoreSceneContinuous(DarkstoreScene):
                 q = euler2quat(0, 0, angle)
                 pose = sapien.Pose(p=p, q=q)
 
+                # rotate shelf to center of the scene
+                shelf_direction = pose.to_transformation_matrix()[:3, 1]
+                direction_to_scene_center = np.array([self.x_size[scene_idx] / 2, self.y_size[scene_idx] / 2, 0.]) - pose.p
+                direction_to_scene_center /= (np.linalg.norm(direction_to_scene_center) + 1e-3)
+                if np.dot(direction_to_scene_center, shelf_direction) > 0:
+                    pose = pose * sapien.Pose(p=[0, 0, 0], q=euler2quat(0, 0, 3.14))
+
                 asset = self.env.assets_lib[shelf_id]
                 asset.ms_is_nonconvex_collision = True
                 actor = asset.ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])

@@ -105,7 +105,8 @@ class TensorFieldLayout(LayoutGeneratorBase):
         self.inactive_wall_shelvings_occupancy_width = cfg.ds_continuous.inactive_wall_shelvings_occupancy_width
         self.inactive_shelvings_occupancy_width = cfg.ds_continuous.inactive_shelvings_occupancy_width
         self.inactive_shelvings_skip_prob = cfg.ds_continuous.inactive_shelvings_skip_prob
-        self.inactive_shelvings_passage_width = cfg.ds_continuous.inactive_shelvings_passage_width
+        self.passage_width = cfg.ds_continuous.passage_width
+        self.fixtures_occupancy_width = cfg.ds_continuous.fixtures_occupancy_width
 
     def _all_fixtures_list(self):
         all_fixtures = []
@@ -134,8 +135,9 @@ class TensorFieldLayout(LayoutGeneratorBase):
         self.place_inactive_wall_shelvings()
         self.place_active_wall_shelvings()
         self.place_inactive_shelvings()
-        self.place_active_shelvings()
-
+        res = self.place_active_shelvings()
+        if not res:
+            return None
         return self.rect_fixture2dict(self.all_fixtures)
 
     def rect_fixture2dict(self, rect_fixture_dict: list):
@@ -145,7 +147,7 @@ class TensorFieldLayout(LayoutGeneratorBase):
         scene_fixtures_list = self.cfg.ds_continuous.scene_fixtures_list
         for asset_name in scene_fixtures_list:
             rect = RectFixture.make_from_asset(self.product_assets_lib[asset_name], name=f'scene_fixture:{asset_name}',
-                                               occupancy_width=0.0, 
+                                               occupancy_width=self.fixtures_occupancy_width, 
                                         x=0., y=0., asset_name=asset_name)
             success = False
             for _ in range(self.max_tries):
@@ -157,6 +159,7 @@ class TensorFieldLayout(LayoutGeneratorBase):
                 rect.y = self.rng.uniform(0.0, self.size_y)
             if not success:
                 log.warning('Failed to place scene fixture')
+        return True
     
     def place_inactive_wall_shelvings(self):
         inactive_wall_shelvings_list = self.cfg.ds_continuous.inactive_wall_shelvings_list
@@ -205,6 +208,8 @@ class TensorFieldLayout(LayoutGeneratorBase):
                 
             if not success:
                 log.warning('Failed to place scene fixture')
+        
+        return True
     
     
     def place_active_wall_shelvings(self):
@@ -221,7 +226,10 @@ class TensorFieldLayout(LayoutGeneratorBase):
     def place_inactive_shelvings(self):
         res = []
         inactive_shelvings_list = self.cfg.ds_continuous.inactive_shelvings_list
-
+        for shelf in self.cfg.ds_continuous.active_shelvings_list:
+            if shelf['shelf_asset'] in inactive_shelvings_list:
+                inactive_shelvings_list.remove(shelf['shelf_asset'])
+            inactive_shelvings_list = [shelf['shelf_asset']] + inactive_shelvings_list
 
         # asset_name = inactive_shelvings_list[0]
         sample_rects = []
@@ -235,7 +243,8 @@ class TensorFieldLayout(LayoutGeneratorBase):
 
         res = tfield.place_shelves(tf,
                              sample_rects,
-                             passage_width=self.inactive_shelvings_passage_width,
+                             self.rng,
+                             passage_width=self.passage_width,
                              skip_shelf_prob=self.inactive_shelvings_skip_prob,
                              scene_fixtures=self._all_fixtures_list()
                              )
@@ -246,7 +255,7 @@ class TensorFieldLayout(LayoutGeneratorBase):
             fixture.draw(ax[1], show_occupancy=False)
         fig.savefig(Path(self.cfg.ds_continuous.output_dir) / f'{self.name}_tf.jpg')
 
-        return res
+        return True
     
     def place_active_shelvings(self):
         res = []
@@ -259,13 +268,15 @@ class TensorFieldLayout(LayoutGeneratorBase):
         for i, fixture in enumerate(self.all_fixtures['inactive_shelvings']):
             if fixture.asset_name == asset_name:
                 to_be_replaced_idxs.append(i)
-        assert len(to_be_replaced_idxs) > 0
+        if len(to_be_replaced_idxs) < 1:
+            return False
 
         to_be_replaced_shelf_idx = self.rng.choice(to_be_replaced_idxs)
         active_shelf = self.all_fixtures['inactive_shelvings'].pop(to_be_replaced_shelf_idx)
         active_shelf.name = f'{self.name}_{active_fixture.name}'
         
         self.all_fixtures['active_shelvings'].append(active_shelf)
+        return True
 
 class TensorFieldHorisontalLayout(TensorFieldLayout):
     def compose_tensor_field(self, decay):

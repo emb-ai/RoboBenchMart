@@ -111,5 +111,6 @@ class DsContinuousConfig:
     inactive_wall_shelvings_occupancy_width: float = 0.4
     inactive_shelvings_occupancy_width: float = 0.6
     inactive_shelvings_skip_prob: float = 0.0
-    inactive_shelvings_passage_width: float = 1.5
+    fixtures_occupancy_width: float = 0.2
+    passage_width: float = 1.5
 
