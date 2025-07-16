@@ -11,8 +11,9 @@ import matplotlib.pyplot as plt
 
 from dsynth.scene_gen.layouts.random_connectivity import add_many_zones, get_orientation
 from dsynth.scene_gen.hydra_configs import LayoutGenType, LayoutContGenType
-from dsynth.scene_gen.utils import RectFixture, check_collisions
+from dsynth.scene_gen.utils import RectFixture, check_collisions, flatten_dict
 import dsynth.scene_gen.layouts.tensor_field as tfield
+from dsynth.assets.asset import load_assets_lib
 class LayoutGeneratorBase(ABC):
     def __init__(self, 
                  sizes_nm: Tuple[int], 
@@ -86,35 +87,26 @@ LAYOUT_TYPES_TO_CLS = {
 }
 
 class TensorFieldLayout(LayoutGeneratorBase):
-    def __init__(self, 
-                 sizes_xy: Tuple[int], 
-                 product_assets_lib,
+    def __init__(self,
+                 name,
                  cfg,
-                 name='tf_layout',
                  rng: random.Random = random.Random(42),
-                 max_tries = 20,
-                 
-                 skip_object_prob: float = 0.0,
-                 inactive_wall_shelvings_occupancy_width = 0.4,
-                 inactive_shelvings_occupancy_width = 0.6,
-                 inactive_shelvings_skip_prob = 0.0,
-                 inactive_shelvings_passage_width = 1.5
                  ):
-        assert len(sizes_xy) == 2
-        self.product_assets_lib = product_assets_lib
         self.cfg = cfg
-        self.size_x = sizes_xy[0]
-        self.size_y = sizes_xy[1]
         self.rng = rng
-        self.max_tries = max_tries
-        self.skip_object_prob = skip_object_prob
-        self.all_fixtures = []
         self.name = name
+        self.product_assets_lib = flatten_dict(load_assets_lib(cfg.assets), sep='.')
+        self.size_x = cfg.ds_continuous.size_x
+        self.size_y = cfg.ds_continuous.size_y
 
-        self.inactive_wall_shelvings_occupancy_width = inactive_wall_shelvings_occupancy_width
-        self.inactive_shelvings_occupancy_width = inactive_shelvings_occupancy_width
-        self.inactive_shelvings_skip_prob = inactive_shelvings_skip_prob
-        self.inactive_shelvings_passage_width = inactive_shelvings_passage_width
+        self.skip_object_prob = cfg.ds_continuous.skip_object_prob
+        self.max_tries = cfg.ds_continuous.max_tries
+        self.all_fixtures = []
+
+        self.inactive_wall_shelvings_occupancy_width = cfg.ds_continuous.inactive_wall_shelvings_occupancy_width
+        self.inactive_shelvings_occupancy_width = cfg.ds_continuous.inactive_shelvings_occupancy_width
+        self.inactive_shelvings_skip_prob = cfg.ds_continuous.inactive_shelvings_skip_prob
+        self.inactive_shelvings_passage_width = cfg.ds_continuous.inactive_shelvings_passage_width
 
     def _all_fixtures_list(self):
         all_fixtures = []
@@ -263,10 +255,11 @@ class TensorFieldLayout(LayoutGeneratorBase):
         for i, fixture in enumerate(self.all_fixtures['inactive_shelvings']):
             if fixture.asset_name == asset_name:
                 to_be_replaced_idxs.append(i)
+        assert len(to_be_replaced_idxs) > 0
 
         to_be_replaced_shelf_idx = self.rng.choice(to_be_replaced_idxs)
         active_shelf = self.all_fixtures['inactive_shelvings'].pop(to_be_replaced_shelf_idx)
-        active_shelf.name = active_fixture.name
+        active_shelf.name = f'{self.name}_{active_fixture.name}'
         
         self.all_fixtures['active_shelvings'].append(active_shelf)
 

@@ -197,7 +197,7 @@ class DarkstoreSceneContinuous(DarkstoreScene):
             build_config_idxs = []
             for i in range(self.env.num_envs):
                 # Total number of configs is 10 * 12 = 120
-                config_idx = self.env._batched_episode_rng[i].randint(0, self.num_generated_scenes * 12)
+                config_idx = self.env._batched_episode_rng[i].randint(0, self.num_generated_scenes)
                 build_config_idxs.append(config_idx)
 
         # random indexes for walls, floors and ceilings
@@ -211,7 +211,7 @@ class DarkstoreSceneContinuous(DarkstoreScene):
         ceiling_texture_idxs = [self.env._batched_episode_rng[i].randint(0, num_ceiling_textures) for i in range(len(build_config_idxs))]
 
         for scene_idx, build_config_idx in enumerate(build_config_idxs):
-            config_path = self.scene_config_paths[build_config_idx % self.num_generated_scenes]
+            config_path = self.scene_config_paths[build_config_idx]
             
             with open(config_path, "r") as f:
                 scene_data = json.load(f)

@@ -103,6 +103,7 @@ class DsContinuousConfig:
     randomize_layout: bool = False
     randomize_arrangements: bool = True
     random_seed: int = 42
+    max_tries: int = 20
 
     skip_object_prob: float = 0.0
     inactive_wall_shelvings_occupancy_width: float = 0.4
