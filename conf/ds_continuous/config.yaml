@@ -5,6 +5,14 @@ defaults:
 name: 'ds_continuous'
 size_x: 16
 size_y: 10
+
+skip_object_prob: 0.0
+inactive_wall_shelvings_occupancy_width: 0.4
+inactive_shelvings_occupancy_width: 0.6
+inactive_shelvings_skip_prob: 0.0
+inactive_shelvings_passage_width: 2.0
+
+
 random_seed: 42
 
 active_shelvings_list:
@@ -12,35 +20,14 @@ active_shelvings_list:
     filling_type: BOARDWISE_COLUMNS
     x_gap: 0.002
     y_gap: 0.002
-    shelf_asset: fixtures.shelf
+    shelf_asset: fixtures.shelf_metal
+    shuffle_boards: True
     board_product_numcol:
-      # 0:
-      #   food.drinks.chaosCola2l: 3
-      #   food.drinks.cocaColaNoSugar1p5l: 6
-        # food.drinks.sprite2p25l: 2
-      #   food.drinks.fantaNaranja1p35l: 5
-      # 1:
-      #   food.grocery.cerealescornflakescora: 3
-      #   food.grocery.cornFlakesRetroEditionSmall: 2
-      #   food.grocery.nestleFitnessChocolateCerealBox: 2
       2:
-      #   food.dairy_products.milk: 6
         food.dairy_products.milkCarton: 2
-      #   food.dairy_products.milkHandle: 3
-      # 3:
-      #   food.drinks.cocaColaCan: 5
-      #   food.drinks.pepsi: 4
-      #   food.drinks.fanta: 4
-      #   food.drinks.mountainDew: 4
       4:
         food.drinks.coffeePackaging: 1
-      #   food.drinks.coffeePaperBag: 1
-      #   food.drinks.coffeePackaging1: 1
-      #   food.drinks.coffeeCapsulesDolceGusto: 1
-      #   food.drinks.nescafesimple: 2
-      #   food.drinks.pgTipsTeaBox: 2
-      #   food.drinks.sirWinstonTea: 1
-
+      
 inactive_shelvings_list:
   - fixtures.shelf
   - fixtures.shelf_metal

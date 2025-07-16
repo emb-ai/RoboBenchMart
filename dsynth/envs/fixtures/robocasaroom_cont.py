@@ -100,23 +100,30 @@ class DarkstoreSceneContinuous(DarkstoreScene):
                 q = euler2quat(0, 0, angle)
                 pose = sapien.Pose(p=p, q=q)
 
-                actor = self.env.assets_lib[shelf_id].ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                asset = self.env.assets_lib[shelf_id]
+                asset.ms_is_nonconvex_collision = False
+                actor = asset.ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
                 self.env.actors["fixtures"]["shelves"][item_name] = actor
         
+        self.env.active_shelves[scene_idx] = []
+
         for fixture_category in active_fixtures_categories:
-            for i, inactive_fixture in enumerate(scene_data['layout_data'][fixture_category]):
-                shelf_id = inactive_fixture['asset_name']
-                fixture_name = inactive_fixture['name']
+            for i, active_fixture in enumerate(scene_data['layout_data'][fixture_category]):
+                shelf_id = active_fixture['asset_name']
+                fixture_name = active_fixture['name']
                 item_name = f'[ENV#{scene_idx}]_active_{fixture_name}_{i}'
-                p = np.array([inactive_fixture['x'], inactive_fixture['y'], 0.])
+                p = np.array([active_fixture['x'], active_fixture['y'], 0.])
                 angle = 0.
-                if inactive_fixture['orientation'] == 'vertical':
+                if active_fixture['orientation'] == 'vertical':
                     angle = 3.14 / 2.
                 q = euler2quat(0, 0, angle)
                 pose = sapien.Pose(p=p, q=q)
 
-                actor = self.env.assets_lib[shelf_id].ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
+                asset = self.env.assets_lib[shelf_id]
+                asset.ms_is_nonconvex_collision = True
+                actor = asset.ms_build_actor(item_name, self.env.scene, pose=pose, scene_idxs=[scene_idx])
                 self.env.actors["fixtures"]["shelves"][item_name] = actor
+                self.env.active_shelves[scene_idx].append(item_name)
 
                 with open(Path(self.config_dir_path) / f'{fixture_name}.json') as f:
                     shelf_arrangement = json.load(f)
