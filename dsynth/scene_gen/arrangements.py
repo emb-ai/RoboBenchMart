@@ -4,7 +4,7 @@ from scene_synthesizer import procedural_assets as pa
 from scene_synthesizer import procedural_scenes as ps
 from scene_synthesizer.assets import TrimeshSceneAsset
 from dsynth.assets.ss_assets import DefaultShelf
-from dsynth.scene_gen.utils import PositionIteratorPI, PositionIteratorGridColumns
+from dsynth.scene_gen.utils import PositionIteratorPI, PositionIteratorGridColumns, object_id_generator
 from scene_synthesizer import utils
 from shapely.geometry import Point
 import trimesh.transformations as tra
@@ -159,18 +159,19 @@ def add_objects_to_shelf_v2(
 
                 bounds = support_data[0].polygon.bounds
                 max_obj = int(np.ceil((bounds[3] - bounds[1]) / min(dims[0], dims[1])) * num_col) #upperbound on how many objects can fit
-                scene.place_objects(
-                    obj_id_iterator=utils.object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:"),
-                    obj_asset_iterator=(obj for _ in range(max_obj)), 
-                    obj_support_id_iterator=utils.cycle_list(support_data, [board_idx]),
-                    obj_position_iterator=PositionIteratorGridColumns(obj_width=dims[0], 
+                obj_position_iterator = PositionIteratorGridColumns(obj_width=dims[0], 
                                                                       obj_depth=dims[1], 
                                                                       x_gap=x_gap, 
                                                                       y_gap=y_gap, 
                                                                       delta_x=delta_x,
                                                                       delta_y=delta_y,
                                                                       current_point=start_point, 
-                                                                      num_cols = num_col),
+                                                                      num_cols = num_col)
+                scene.place_objects(
+                    obj_id_iterator=object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:", obj_position_iterator),
+                    obj_asset_iterator=(obj for _ in range(max_obj)), 
+                    obj_support_id_iterator=utils.cycle_list(support_data, [board_idx]),
+                    obj_position_iterator=obj_position_iterator,
                     obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0,0),
                 )
     else:

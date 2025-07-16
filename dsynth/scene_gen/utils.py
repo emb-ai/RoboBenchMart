@@ -139,6 +139,8 @@ class PositionIteratorGridColumns(PositionIterator2D):
         self.current_point = current_point
         self.num_cols = num_cols
         self.stop_iter = False
+        self.cur_col = 0
+        self.cur_row = 0
 
     def __next__(self):
         while not self.stop_iter:
@@ -151,10 +153,14 @@ class PositionIteratorGridColumns(PositionIterator2D):
                 x = self.current_point[0]
                 y = self.current_point[1]
                 self.current_point[1] += self.obj_d + self.y_gap
+                self.cur_row += 1
                 if self.current_point[1] + self.obj_d/2 >= self.end_point[1]:
                     self.current_point[0] += self.obj_w + self.x_gap
                     self.current_point[1] = self.start_point[1] + self.obj_d/2
                     self.num_cols -= 1
+
+                    self.cur_col += 1
+                    self.cur_row = 0
 
                 return np.array([x, y])
             elif self.current_point[0] + self.obj_w/2 >= self.end_point[0]:
@@ -185,6 +191,10 @@ class PositionIteratorGridColumns(PositionIterator2D):
 
     def update(self, *args, **kwargs):
         pass
+
+def object_id_generator(base_name, pos_generator: PositionIteratorGridColumns):
+    while True:
+        yield f"{base_name}{pos_generator.cur_col}:{pos_generator.cur_row}"
 
 def is_valid_cell(x, y, N, M):
     if x < 0 or y < 0 or x >= N or y >= M:
