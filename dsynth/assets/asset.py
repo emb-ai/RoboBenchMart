@@ -30,11 +30,6 @@ class Asset:
     ms_is_static: bool = False
     ms_is_nonconvex_collision: bool = False
 
-    _ss_asset: Any = None
-    _trimesh_scene: Any = None
-    _ms_scale: Any = None
-    _ms_origin: Any = None
-
     asset_name: str = 'asset'
 
     def __post_init__(self):
@@ -44,22 +39,15 @@ class Asset:
 
     @property
     def ss_asset(self):
-        if self._ss_asset is not None:
-            return self._ss_asset
-        
         contructor = ASSET_TYPE_MAPPING.get(self.ss_asset_type, None)
         if contructor is None:
             raise ValueError(f"Wrong asset type: {self.ss_asset_type}, possible values: {list(ASSET_TYPE_MAPPING.keys())}")
-        
-        self._ss_asset = contructor(self.asset_file_path, **self.ss_params)
 
-        return self._ss_asset
+        return contructor(self.asset_file_path, **self.ss_params)
     
     @property
     def trimesh_scene(self):
-        if self._trimesh_scene is None:
-            self._trimesh_scene = self.ss_asset.as_trimesh_scene()
-        return self._trimesh_scene
+        return self.ss_asset.as_trimesh_scene()
     
     @property
     def extents(self):
@@ -84,15 +72,13 @@ class Asset:
     
     @property
     def ms_scale(self):
-        if self._ms_scale is None:
-            self._ms_scale, self._ms_origin = self.scale_and_transform()
-        return self._ms_scale
+        scale,  origin = self.scale_and_transform()
+        return scale
     
     @property
     def ms_origin(self):
-        if self._ms_origin is None:
-            self._ms_scale, self._ms_origin = self.scale_and_transform()
-        return self._ms_origin
+        scale,  origin = self.scale_and_transform()
+        return origin
     
     def ms_build_actor(
         self,
