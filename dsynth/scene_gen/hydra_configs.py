@@ -12,6 +12,8 @@ class LayoutGenType(Enum):
 class LayoutContGenType(Enum):
     FIXED_LAYOUT = 'FIXED_LAYOUT'
     PROCEDURAL_TENSOR_FIELD = 'PROCEDURAL_TENSOR_FIELD'
+    PROCEDURAL_TENSOR_FIELD_HORIZONTAL = 'PROCEDURAL_TENSOR_FIELD_HORIZONTAL'
+    PROCEDURAL_TENSOR_FIELD_VERTICAL = 'PROCEDURAL_TENSOR_FIELD_VERTICAL'
 
 class FillingType(Enum):
     BLOCKWISE_AUTO = 'BLOCKWISE_AUTO'
@@ -105,7 +107,7 @@ class DsContinuousConfig:
     random_seed: int = 42
     max_tries: int = 20
 
-    skip_object_prob: float = 0.0
+    tf_blending_decay: float = 12.
     inactive_wall_shelvings_occupancy_width: float = 0.4
     inactive_shelvings_occupancy_width: float = 0.6
     inactive_shelvings_skip_prob: float = 0.0

@@ -5,8 +5,12 @@ defaults:
 name: 'ds_continuous'
 size_x: 16
 size_y: 10
+num_scenes: 4
+num_workers: 1
+layout_gen_type: PROCEDURAL_TENSOR_FIELD_HORIZONTAL
+randomize_layout: true
+randomize_arrangements: true
 
-skip_object_prob: 0.0
 inactive_wall_shelvings_occupancy_width: 0.4
 inactive_shelvings_occupancy_width: 0.6
 inactive_shelvings_skip_prob: 0.0

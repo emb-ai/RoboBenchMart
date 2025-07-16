@@ -45,6 +45,7 @@ class TensorField:
         )
     def add_line(self, line, closed = False, sample_step=None):
         n_points = len(line)
+        line = np.array(line)
         for i in range(n_points):
             cur_point = line[i]
             if i == n_points - 1:
@@ -122,8 +123,6 @@ class TensorField:
         ax[0].quiver(X.T, Y.T, -U, -V, color='r')
         ax[0].quiver(X.T, Y.T, -U_minor, -V_minor, color='g')
 
-        print(X.shape, Y.shape, U.shape, V.shape)
-        seed_points = np.array([[10], [10]])
         # ax[1].axis('equal')
         ax[1].set_aspect('equal', adjustable='box')
         ax[1].set_xlim(0, N-1)

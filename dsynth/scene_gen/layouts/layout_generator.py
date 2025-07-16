@@ -99,7 +99,6 @@ class TensorFieldLayout(LayoutGeneratorBase):
         self.size_x = cfg.ds_continuous.size_x
         self.size_y = cfg.ds_continuous.size_y
 
-        self.skip_object_prob = cfg.ds_continuous.skip_object_prob
         self.max_tries = cfg.ds_continuous.max_tries
         self.all_fixtures = []
 
@@ -212,6 +211,13 @@ class TensorFieldLayout(LayoutGeneratorBase):
         active_wall_shelvings = self.cfg.ds_continuous.active_wall_shelvings_list
         return []
     
+    def compose_tensor_field(self, decay):
+        tf = tfield.TensorField(self.size_x + 1, self.size_y + 1) # TODO: redo
+        tf.add_boundary()
+        tf.add_fixture_list(self._all_fixtures_list())
+        tf.calculate_field(decay=decay)
+        return tf
+    
     def place_inactive_shelvings(self):
         res = []
         inactive_shelvings_list = self.cfg.ds_continuous.inactive_shelvings_list
@@ -224,10 +230,8 @@ class TensorFieldLayout(LayoutGeneratorBase):
                                                 occupancy_width=self.inactive_shelvings_occupancy_width, 
                                             x=0., y=0., asset_name=asset_name)
             sample_rects.append(rect)
-        tf = tfield.TensorField(self.size_x + 1, self.size_y + 1) # TODO: redo
-        tf.add_boundary()
-        tf.add_fixture_list(self._all_fixtures_list())
-        tf.calculate_field(decay=12.)
+
+        tf = self.compose_tensor_field(decay = self.cfg.ds_continuous.tf_blending_decay)
 
         res = tfield.place_shelves(tf,
                              sample_rects,
@@ -263,8 +267,25 @@ class TensorFieldLayout(LayoutGeneratorBase):
         
         self.all_fixtures['active_shelvings'].append(active_shelf)
 
+class TensorFieldHorisontalLayout(TensorFieldLayout):
+    def compose_tensor_field(self, decay):
+        tf = tfield.TensorField(self.size_x + 1, self.size_y + 1) # TODO: redo
+        tf.add_line([[0, 0], [self.size_x, 0]], sample_step=0.5)
+        tf.add_line([[0, self.size_y], [self.size_x, self.size_y]], sample_step=0.5)
+        tf.calculate_field(decay=decay)
+        return tf
+    
+class TensorFieldVerticallLayout(TensorFieldLayout):
+    def compose_tensor_field(self, decay):
+        tf = tfield.TensorField(self.size_x + 1, self.size_y + 1) # TODO: redo
+        tf.add_line([[0, 0], [0, self.size_y]], sample_step=0.5)
+        tf.add_line([[self.size_x, 0], [self.size_x, self.size_y]], sample_step=0.5)
+        tf.calculate_field(decay=decay)
+        return tf
 
 
 LAYOUT_CONTINUOUS_TO_CLS = {
     LayoutContGenType.PROCEDURAL_TENSOR_FIELD: TensorFieldLayout,
+    LayoutContGenType.PROCEDURAL_TENSOR_FIELD_HORIZONTAL: TensorFieldHorisontalLayout,
+    LayoutContGenType.PROCEDURAL_TENSOR_FIELD_VERTICAL: TensorFieldVerticallLayout
 }
