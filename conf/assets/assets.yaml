@@ -501,14 +501,6 @@ products_hierarchy:
           up: [0, 1, 0]
           front: [-1, 0, 0]
           origin: [center, bottom, center]
-      M&M'SChocolateCandies:
-        asset_file_path: ${assets.assets_dir_path}/mms_chocolate_bunties_candy.glb
-        asset_name: M&M's Chocolate Candies
-        ss_params:
-          height: 0.11
-          up: [0, 1, 0]
-          front: [-1, 0, 0]
-          origin: [center, bottom, center]
       FruitGum:
         asset_file_path: ${assets.assets_dir_path}/fruit_gum_rotated.glb
         asset_name: Fruit Gum
