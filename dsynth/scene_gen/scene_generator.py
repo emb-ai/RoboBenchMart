@@ -3,6 +3,7 @@ log = logging.getLogger(__name__)
 import os
 import random
 from functools import partial
+import traceback
 from multiprocessing import Pool
 import json
 from pathlib import Path
@@ -212,6 +213,7 @@ def _generate_continuous_routine(task_params):
     
     except Exception as e:
         log.error(f"Failed to generate {scene_name}! Unexpected error: {e}")
+        traceback.print_exc()
         return False
 
 
