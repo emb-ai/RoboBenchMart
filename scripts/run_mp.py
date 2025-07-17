@@ -38,6 +38,7 @@ def parse_args(args=None):
     parser.add_argument("-b", "--sim-backend", type=str, default="auto", help="Which simulation backend to use. Can be 'auto', 'cpu', 'gpu'")
     parser.add_argument("--render-mode", type=str, default="rgb_array", help="can be 'sensors' or 'rgb_array' which only affect what is saved to videos")
     parser.add_argument("--vis", action="store_true", help="whether or not to open a GUI to visualize the solution live")
+    parser.add_argument("--debug", action="store_true")
     parser.add_argument("--save-video", action="store_true", help="whether or not to save videos locally")
     parser.add_argument("--traj-name", type=str, help="The name of the trajectory .h5 file that will be created.")
     parser.add_argument("--shader", default="default", type=str, help="Change shader used for rendering. Default is 'default' which is very fast. Can also be 'rt' for ray tracing and generating photo-realistic renders. Can also be 'rt-fast' for a faster but lower quality ray-traced renderer")
@@ -61,7 +62,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
                 #    render_mode="human" if gui else "rgb_array", 
                    render_mode="rgb_array", 
                    enable_shadow=True,
-                   obs_mode='rgbd',
+                   obs_mode=args.obs_mode,
                    parallel_in_single_scene = False,
                    )
     if env_id not in MP_SOLUTIONS:
@@ -95,7 +96,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
     passed = 0
     while True:
         try:
-            res = solve(env, seed=seed, debug=True, vis=True if args.vis else False)
+            res = solve(env, seed=seed, debug=args.debug, vis=True if args.vis else False)
         except Exception as e:
             print(f"Cannot find valid solution because of an error in motion planning solution: {e}")
             res = -1
@@ -110,7 +111,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
         successes.append(success)
 
         if args.only_count_success and not success:
-            seed += 1
+            seed += args.num_procs
             env.flush_trajectory(save=False)
             if args.save_video:
                 env.flush_video(save=False)
@@ -129,7 +130,7 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
                     # min_episode_length=np.min(solution_episode_lengths)
                 )
             )
-            seed += 1
+            seed += args.num_procs
             passed += 1
             if passed == args.num_traj:
                 break
@@ -141,7 +142,8 @@ def main(args):
         if args.num_traj < args.num_procs:
             raise ValueError("Number of trajectories should be greater than or equal to number of processes")
         args.num_traj = args.num_traj // args.num_procs
-        seeds = [*range(0, args.num_procs * args.num_traj, args.num_traj)]
+        # seeds = [*range(0, args.num_procs * args.num_traj, args.num_traj)]
+        seeds = [*range(0, args.num_procs)]
         pool = mp.Pool(args.num_procs)
         proc_args = [(deepcopy(args), i, seeds[i]) for i in range(args.num_procs)]
         res = pool.starmap(_main, proc_args)
