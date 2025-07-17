@@ -285,6 +285,44 @@ class TensorFieldHorisontalLayout(TensorFieldLayout):
         tf.add_line([[0, self.size_y], [self.size_x, self.size_y]], sample_step=0.5)
         tf.calculate_field(decay=decay)
         return tf
+
+    def __call__(self, *args, **kwargs):
+        self.all_fixtures = {
+            "service": [],
+            "scene_fixtures": [],
+            "inactive_wall_shelvings": [],
+            "active_wall_shelvings": [],
+            "inactive_shelvings": [],
+            "active_shelvings": []
+        }
+
+        self.all_fixtures['service'].append(
+            RectFixture('blocked_area',
+                        x=self.size_x,
+                        y=self.size_y - 2,
+                        l=2, w=2, )
+        )
+        self.all_fixtures['service'].append(
+            RectFixture('blocked_area',
+                        x=0.5,
+                        y=self.size_y / 2,
+                        l=self.size_y, w=0.5, orientation='vertical')
+        )
+        self.all_fixtures['service'].append(RectFixture('blocked_area',
+                        x=self.size_x - 0.5,
+                        y=self.size_y / 2,
+                        l=self.size_y, w=0.5, orientation='vertical')
+        )
+
+
+        self.place_fixtures()
+        self.place_inactive_wall_shelvings()
+        self.place_active_wall_shelvings()
+        self.place_inactive_shelvings()
+        res = self.place_active_shelvings()
+        if not res:
+            return None
+        return self.rect_fixture2dict(self.all_fixtures)
     
 class TensorFieldVerticallLayout(TensorFieldLayout):
     def compose_tensor_field(self, decay):
