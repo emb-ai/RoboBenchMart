@@ -711,7 +711,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         if np.cross(base_x_axis, new_direction)[2] < 0:
             angle = -angle
         
-        if np.abs(angle) < 1e-3:
+        if np.abs(angle) < 1e-2:
             return self.idle_steps(t=1)
 
         rotation_wrt_base_link = sapien.Pose(q=euler2quat(0, 0, angle))
@@ -792,7 +792,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            # masked_joints=[True, True, True] + [False] * 12
+            # masked_joints=[True, True, True] + [False] + [True] * 11
         )
         
         self.render_wait()

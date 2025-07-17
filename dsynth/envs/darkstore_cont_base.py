@@ -105,7 +105,7 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
             # if np.dot(direction_to_scene_center, shelf_direction) < 0:
             #     shelf_direction = -shelf_direction
 
-            origin = shelf_pose.p - 1.5 * direction_to_shelf
+            origin = shelf_pose.p - 1.4 * direction_to_shelf
 
             base_x_axis = np.array([1, 0, 0])
             angle = np.arccos(np.dot(direction_to_shelf, base_x_axis))

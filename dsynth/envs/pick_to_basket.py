@@ -350,6 +350,8 @@ class PickToBasketStaticSpriteEnv(PickToBasketEnv):
 class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
     TARGET_PRODUCT_NAME = None
     ROBOT_INIT_POSE_RANDOM_ENABLED = True
+
+    TARGET_POS_THRESH = 0.2
     
     def _load_scene(self, options: dict):
         super()._load_scene(options)
@@ -437,10 +439,10 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
                 direction_to_shelf = directions_to_shelf[idx]
                 perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
 
-                delta_par = (self._batched_episode_rng[idx].rand() - 0.5) * 0.3
-                delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 0.7
+                delta_par = self._batched_episode_rng[idx].rand() * 0.2
+                delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 0.5
 
-                robot_origins[idx] += direction_to_shelf * delta_par + perp_direction * delta_perp
+                robot_origins[idx] += -direction_to_shelf * delta_par + perp_direction * delta_perp
                 robot_angles[idx] += (self._batched_episode_rng[idx].rand() - 0.5) * np.pi / 4
 
         return robot_origins, robot_angles, directions_to_shelf
@@ -471,8 +473,9 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
 
     def evaluate(self):
         target_pos = self.calc_target_pose().p 
-        target_pos[:, 2] -= self.target_sizes[2] / 2
-        tolerance = torch.tensor(self.target_sizes / 2, dtype=torch.float32).to(self.device)
+        # target_pos[:, 2] -= self.target_sizes[2] / 2
+        # tolerance = torch.tensor(self.target_sizes / 2, dtype=torch.float32).to(self.device)
+        tolerance = torch.tensor([self.TARGET_POS_THRESH, self.TARGET_POS_THRESH, self.TARGET_POS_THRESH]).to(self.device)
         is_obj_placed = []
 
         for scene_idx in range(self.num_envs):
@@ -551,3 +554,12 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
 @register_env('PickToBasketContNiveaEnv', max_episode_steps=200000)
 class PickToBasketContNiveaEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Nivea Body Milk'
+
+@register_env('PickToBasketContStarsEnv', max_episode_steps=200000)
+class PickToBasketContStarsEnv(PickToBasketContEnv):
+    TARGET_PRODUCT_NAME = 'Nestle Honey Stars'
+    TARGET_POS_THRESH = 0.25
+
+@register_env('PickToBasketContFantaEnv', max_episode_steps=200000)
+class PickToBasketContFantaEnv(PickToBasketContEnv):
+    TARGET_PRODUCT_NAME = 'Fanta Sabor Naranja 2L'

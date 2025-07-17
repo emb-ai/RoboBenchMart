@@ -87,21 +87,8 @@ def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None
         return get_tcp_matrix()[:3, 3]
 
 
-    FINGER_LENGTH = 0.07
+    FINGER_LENGTH = 0.04
     env = env.unwrapped
-    
-    # -------------------------------------------------------------------------- #
-    # Go to shelf
-    # -------------------------------------------------------------------------- #
-    actor_shelf_name = env.active_shelves[0][0]
-    shelf_pose = env.actors["fixtures"]["shelves"][actor_shelf_name].pose.sp
-    origin = shelf_pose.p - 1.5 * env.directions_to_shelf[0]
-
-
-    res = planner.drive_base(origin, target_view_vec=env.directions_to_shelf[0])
-    if res == -1:
-        return res
-    planner.planner.update_from_simulation()
 
     # -------------------------------------------------------------------------- #
     # Setup target product
@@ -120,6 +107,25 @@ def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None
     target_product_actor = env.actors['products'][target_product_name]
     obb = get_actor_obb(target_product_actor)
     target_product_center = get_obb_center(obb)
+    
+    # -------------------------------------------------------------------------- #
+    # Go to shelf
+    # -------------------------------------------------------------------------- #
+    actor_shelf_name = env.active_shelves[0][0]
+    shelf_pose = env.actors["fixtures"]["shelves"][actor_shelf_name].pose.sp
+    origin = shelf_pose.p - 1.4 * env.directions_to_shelf[0]
+
+    res = planner.drive_base(origin)
+    if res == -1:
+        return res
+    view_to_target = target_product_center - get_base_pose().sp.p
+    view_to_target[2] = 0.
+    res = planner.rotate_base_z(view_to_target)
+    if res == -1:
+        return res
+
+    planner.planner.update_from_simulation()
+
 
     # -------------------------------------------------------------------------- #
     # Lift end-effector hand
@@ -148,11 +154,16 @@ def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None
     pre_grasp_base_translation[2] = 0.
     # pre_grasp_base_direction = common.np_normalize_vector(pre_grasp_base_translation)
 
-    # move base to position 0.1m in fornt of the target object
+    # move base to position 0.15m in fornt of the target object
     base_target_pos = get_base_pose().sp.p + \
         (1 - 0.15 / np.linalg.norm(pre_grasp_base_translation)) * pre_grasp_base_translation
     
-    res = planner.drive_base(base_target_pos, env.directions_to_shelf[0])
+    res = planner.drive_base(base_target_pos)
+    if res == -1:
+        return res
+    view_to_target = target_product_center - get_base_pose().sp.p
+    view_to_target[2] = 0.
+    res = planner.rotate_base_z(view_to_target)
     if res == -1:
         return res
     planner.planner.update_from_simulation()
@@ -164,8 +175,8 @@ def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None
     if is_mesh_cylindrical(target_product_actor):
         # if the mesh is cylindrical (can, bottle, etc.) we can grasp it from any side
         # we assume that diameter is less than grasp width
-        grasp_approaching = target_product_center - get_tcp_center()
-        # grasp_approaching = env.directions_to_shelf[0].copy()
+        # grasp_approaching = target_product_center - get_tcp_center()
+        grasp_approaching = env.directions_to_shelf[0].copy()
         grasp_approaching[2] = 0.
         grasp_approaching = common.np_normalize_vector(grasp_approaching)
 
@@ -190,7 +201,6 @@ def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None
 
     grasp_pose = env.agent.build_grasp_pose(grasp_approaching, grasp_closing, grasp_center)
 
-    # WTF: idk why this collision happens
     planner.planner.planning_world.get_allowed_collision_matrix().set_default_entry(
         get_fcl_object_name(target_product_actor), True
     )
@@ -219,7 +229,7 @@ def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None
     # Move backward
     # -------------------------------------------------------------------------- #
 
-    res = planner.move_forward_delta(delta=-0.5)
+    res = planner.move_forward_delta(delta=-0.4)
     if res == -1:
         return res
     planner.planner.update_from_simulation()
@@ -235,7 +245,7 @@ def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None
     goal_closing = - get_base_pose().sp.to_transformation_matrix()[:3, 1]
 
     goal_pose = env.agent.build_grasp_pose(goal_approaching, goal_closing, goal_center)
-    goal_pose = goal_pose * sapien.Pose(p=[-0.04, 0., -0.2])
+    goal_pose = goal_pose * sapien.Pose(p=[-0.03, 0., -0.35])
 
     res = planner.static_manipulation(goal_pose, n_init_qpos=100, disable_lift_joint=False)
     if res == -1:
