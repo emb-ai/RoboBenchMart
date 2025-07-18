@@ -357,39 +357,6 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
         super()._load_scene(options)
         
         self.target_sizes = np.array([0.3, 0.3, 0.3])
-
-        if self.markers_enabled:
-            self.target_volumes = {}
-            for n_env in range(self.num_envs):
-                self.target_volumes[n_env] = actors.build_box(
-                    self.scene,
-                    half_sizes=list(self.target_sizes/2),
-                    color=[0, 1, 0, 0.5],
-                    name=f"target_box_{n_env}",
-                    body_type="kinematic",
-                    add_collision=False,
-                    scene_idxs=[n_env],
-                    initial_pose=sapien.Pose(p=[0, 0, 0]),
-                )
-                self.hide_object(self.target_volumes[n_env])
-        
-            self.target_markers = {}
-            for n_env in range(self.num_envs):
-                self.target_markers[n_env] = []
-                for i in range(self.NUM_MARKERS):
-                    self.target_markers[n_env].append(
-                                    actors.build_sphere(
-                                        self.scene,
-                                        radius=0.05,
-                                        color=[0, 1, 0, 1],
-                                        name=f"target_product_{n_env}_{i}",
-                                        body_type="kinematic",
-                                        add_collision=False,
-                                        initial_pose=sapien.Pose(p=[0., 0., 0.]),
-                                        scene_idxs=[n_env]
-                                    )
-                                )
-                    self.hide_object(self.target_markers[n_env][-1])
     
     def setup_target_objects(self, env_idxs):
         self.target_product_names = {}
@@ -512,7 +479,7 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
 
                     if self.markers_enabled:
                         # make marker red if non-target product moved
-                        render_component = self.target_volumes[scene_idx]._objs[0].find_component_by_type(
+                        render_component = self.target_volumes[scene_idx][0]._objs[0].find_component_by_type(
                             sapien.pysapien.render.RenderBodyComponent
                         )
                         render_component.render_shapes[0].material.base_color = [1.0, 0.0, 0.0, 0.5]
@@ -545,7 +512,7 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
         if self.markers_enabled:
             target_pose = self.calc_target_pose()
             for scene_idx in range(self.num_envs):
-                self.target_volumes[scene_idx].set_pose(
+                self.target_volumes[scene_idx][0].set_pose(
                     Pose.create_from_pq(p=target_pose.p[scene_idx],
                                         q=target_pose.q[scene_idx])
                 )
