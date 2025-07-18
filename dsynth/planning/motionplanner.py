@@ -792,7 +792,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            # masked_joints=[True, True, True] + [False] + [True] * 11
+            masked_joints=[True, True, True] + [False] + [True] * 11
         )
         
         self.render_wait()
@@ -808,6 +808,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            masked_joints=[True, True, True] + [False] + [True] * 11
             # masked_joints=[True, True, True] + [False] * 12
         )
 

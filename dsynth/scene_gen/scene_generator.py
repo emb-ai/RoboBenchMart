@@ -102,6 +102,9 @@ class SceneGeneratorContinuous:
         seeds_arrangements = [random_seed] * num_scenes
         if cfg.ds_continuous.randomize_arrangements:
             seeds_arrangements = np.arange(num_scenes) + random_seed
+        
+        with open(output_dir / f"input_config.yaml", "w") as f:
+            f.write(OmegaConf.to_yaml(cfg))
 
         self.task_params = []
         for n, (seed_layout, seed_arr) in enumerate(zip(seeds_layout, seeds_arrangements)):
@@ -335,10 +338,12 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
         non_empty_boards_idxs = [i for i in range(len(filling)) if len(filling[i]) > 0]
         non_empty_boards_filling = [filling[i] for i in range(len(filling)) if len(filling[i]) > 0]
         rng.shuffle(non_empty_boards_filling)
-        for i in range(len(non_empty_boards_filling)):
-            rng.shuffle(non_empty_boards_filling[i])
         for i, board_filling in zip(non_empty_boards_idxs, non_empty_boards_filling):
             filling[i] = board_filling
+
+    if shelf_config.shuffle_items_on_board:
+        for i in range(len(filling)):
+            rng.shuffle(filling[i])
 
     return filling, shelf_name, shelf_type
 

@@ -47,6 +47,7 @@ class ShelfConfig:
 
     num_boards: int = 5
     shuffle_boards: bool = False
+    shuffle_items_on_board: bool = True
     board_product_numcol: Dict[int, Dict[str, int]] = field(default_factory=lambda: {})
     x_gap: float = 0.002
     y_gap: float = 0.002
