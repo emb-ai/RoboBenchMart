@@ -12,5 +12,9 @@ MP_SOLUTIONS = {
 
     "PickToBasketContNiveaEnv": solve_fetch_pick_to_basket_cont_one_prod,
     "PickToBasketContStarsEnv": solve_fetch_pick_to_basket_cont_one_prod,
-    "PickToBasketContFantaEnv": solve_fetch_pick_to_basket_cont_one_prod
+    "PickToBasketContFantaEnv": solve_fetch_pick_to_basket_cont_one_prod,
+
+    "MoveFromBoardToBoardVanishContEnv": solve_fetch_move_to_board_cont_one_prod,
+    "MoveFromBoardToBoardNestleContEnv": solve_fetch_move_to_board_cont_one_prod,
+    "MoveFromBoardToBoardDuffContEnv": solve_fetch_move_to_board_cont_one_prod
 }

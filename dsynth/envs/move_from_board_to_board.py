@@ -11,6 +11,8 @@ from mani_skill.utils.registration import register_env
 from mani_skill.utils.structs.pose import Pose
 from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
 from dsynth.envs.darkstore_cell_base import DarkstoreCellBaseEnv
+from dsynth.envs.pick_to_basket import PickToBasketContEnv
+
 from dsynth.scene_gen.arrangements import CELL_SIZE
 from transforms3d.euler import euler2quat
 
@@ -324,3 +326,107 @@ class MoveFromBoardToBoardStaticEnv(MoveFromBoardToBoardEnv):
 class MoveFromBoardToBoardStaticOneProdEnv(MoveFromBoardToBoardEnv):
     TARGET_PRODUCT_NAME = 'sprite'
     ROBOT_INIT_POSE_RANDOM_ENABLED = False
+
+
+@register_env('MoveFromBoardToBoardContEnv', max_episode_steps=200000)
+class MoveFromBoardToBoardContEnv(PickToBasketContEnv):
+    def setup_target_objects(self, env_idxs):
+        if self.TARGET_PRODUCT_NAME is None:
+            raise NotImplementedError # target object must be specified manually
+        
+        super().setup_target_objects(env_idxs)
+        
+        if self.markers_enabled:
+            target_volumes_iterator = {key: iter(val) for key, val in self.target_volumes.items()}
+
+            for scene_idx in env_idxs:
+                scene_idx = scene_idx.cpu().item()
+                target_products = self.target_products_df[self.target_products_df['scene_idx'] == scene_idx]
+                for actor_name in target_products['actor_name']:
+                    target_pose = self.calc_target_pose(actor_name)
+                    try:
+                        target_volume = next(target_volumes_iterator[scene_idx])
+                    except StopIteration:
+                        raise RuntimeError(f"Number of target objects exceeds number of markers ({self.NUM_MARKERS}) for scene #{scene_idx}")
+                    target_volume.set_pose(target_pose)
+
+    def get_interboard_height(self):
+        # clearance between two boards
+        return 0.397
+
+    def calc_target_pose(self, actor_name):
+        t_pose = self.actors['products'][actor_name].pose
+        p = t_pose.p
+        p[:, 2] += self.get_interboard_height()
+        target_pose = Pose.create_from_pq(p=p, q=t_pose.q)
+        return target_pose
+    
+    def evaluate(self):
+        tolerance = torch.tensor(self.target_sizes / 2, dtype=torch.float32).to(self.device)
+        is_obj_placed = []
+
+        for scene_idx in range(self.num_envs):
+            scene_is_obj_placed = False
+            scene_target_products_df = self.target_products_df[self.target_products_df['scene_idx'] == scene_idx]
+            for actor_name in scene_target_products_df['actor_name']:
+                target_pos = self.products_initial_poses[actor_name][:, :3].clone()
+                target_pos[:, 2] += self.get_interboard_height()
+                target_pos[:, 2] -= self.target_sizes[2] / 2
+                target_product_pos = self.actors['products'][actor_name].pose.p
+                scene_is_obj_placed = torch.all(
+                    (target_product_pos >= (target_pos[scene_idx] - tolerance)) & 
+                    (target_product_pos <= (target_pos[scene_idx] + tolerance)),
+                    dim=-1
+                )
+                if scene_is_obj_placed:
+                    break
+            
+            is_obj_placed.append(scene_is_obj_placed)
+
+        is_obj_placed = torch.cat(is_obj_placed)
+        
+        is_robot_static = self.agent.is_static(0.2)
+
+        is_non_target_produncts_replaced = torch.zeros_like(is_robot_static, dtype=bool)
+
+        for scene_idx in range(self.num_envs):
+            scene_products_df = self.products_df[self.products_df['scene_idx'] == scene_idx]
+
+            scene_target_products_df = self.target_products_df[self.target_products_df['scene_idx'] == scene_idx]
+            non_target_actors = set(scene_products_df['actor_name']) - set(scene_target_products_df['actor_name'])
+            
+            for actor_name in non_target_actors:
+                actor = self.actors['products'][actor_name]
+                if not torch.all(torch.isclose(actor.pose.raw_pose, self.products_initial_poses[actor_name], rtol=0.1, atol=0.1)):
+                    is_non_target_produncts_replaced[scene_idx] = True
+
+                    if self.markers_enabled:
+                        # make marker red if non-target product moved
+                        render_component = self.target_volumes[scene_idx][0]._objs[0].find_component_by_type(
+                            sapien.pysapien.render.RenderBodyComponent
+                        )
+                        render_component.render_shapes[0].material.base_color = [1.0, 0.0, 0.0, 0.5]
+
+                    break
+        return {
+            "is_obj_placed" : is_obj_placed,
+            "is_robot_static" : is_robot_static,
+            "is_non_target_produncts_displaced" : is_non_target_produncts_replaced,
+            "success": is_obj_placed & is_robot_static & (~is_non_target_produncts_replaced),
+            # "success": is_obj_placed & is_robot_static,
+        }
+    
+    def _after_simulation_step(self):
+        pass
+
+@register_env('MoveFromBoardToBoardVanishContEnv', max_episode_steps=200000)
+class MoveFromBoardToBoardVanishContEnv(MoveFromBoardToBoardContEnv):
+    TARGET_PRODUCT_NAME = 'Vanish Stain Remover'
+
+@register_env('MoveFromBoardToBoardNestleContEnv', max_episode_steps=200000)
+class MoveFromBoardToBoardNestleContEnv(MoveFromBoardToBoardContEnv):
+    TARGET_PRODUCT_NAME = 'Nestle Fitness Chocolate Cereals'
+
+@register_env('MoveFromBoardToBoardDuffContEnv', max_episode_steps=200000)
+class MoveFromBoardToBoardDuffContEnv(MoveFromBoardToBoardContEnv):
+    TARGET_PRODUCT_NAME = 'Duff Beer Can'
