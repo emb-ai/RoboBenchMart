@@ -99,7 +99,7 @@ class ProductnameIterator:
         self.queries = queries
         products = []
         for query in self.queries:
-            products.extend(get_needed_names(rf'{query}', all_product_names))
+            products.extend(get_needed_names(rf'products_hierarchy.{query}', all_product_names))
         if shuffle:
             rng.shuffle(products)
         self.products_iterator = iter(products)
@@ -125,9 +125,12 @@ class PositionIteratorGridColumns(PositionIterator2D):
         delta_x, 
         delta_y,
         current_point,
-        num_cols
+        num_cols,
+        seed,
+        noise_std_x=0.0,
+        noise_std_y=0.0,
     ):
-        super().__init__()
+        super().__init__(seed)
         self.obj_w = obj_width
         self.obj_d = obj_depth
         self.x_gap = x_gap
@@ -141,6 +144,9 @@ class PositionIteratorGridColumns(PositionIterator2D):
         self.stop_iter = False
         self.cur_col = 0
         self.cur_row = 0
+        self.noise_std_x = noise_std_x
+        self.noise_std_y = noise_std_y
+        
 
     def __next__(self):
         while not self.stop_iter:
@@ -162,7 +168,12 @@ class PositionIteratorGridColumns(PositionIterator2D):
                     self.cur_col += 1
                     self.cur_row = 0
 
-                return np.array([x, y])
+                if self.noise_std_x > 0 or self.noise_std_y > 0:
+                    p = self.rng.normal([x, y], [self.noise_std_x, self.noise_std_y])
+                else:
+                    p = np.array([x, y])
+                return p
+            
             elif self.current_point[0] + self.obj_w/2 >= self.end_point[0]:
                 self.current_point[0] -= self.obj_w/2
                 self.current_point[1] -= self.obj_d/2

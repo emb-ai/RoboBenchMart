@@ -90,7 +90,7 @@ class TensorFieldLayout(LayoutGeneratorBase):
     def __init__(self,
                  name,
                  cfg,
-                 rng,
+                 rng: random.Random,
                  ):
         self.cfg = cfg
         self.rng = rng
@@ -134,8 +134,7 @@ class TensorFieldLayout(LayoutGeneratorBase):
         self.place_fixtures()
         self.place_inactive_wall_shelvings()
         self.place_active_wall_shelvings()
-        self.place_inactive_shelvings()
-        res = self.place_active_shelvings()
+        res = self.place_shelvings()
         if not res:
             return None
         return self.rect_fixture2dict(self.all_fixtures)
@@ -223,15 +222,15 @@ class TensorFieldLayout(LayoutGeneratorBase):
         tf.calculate_field(decay=decay)
         return tf
     
-    def place_inactive_shelvings(self):
-        res = []
+    def place_shelvings(self):
         inactive_shelvings_list = self.cfg.ds_continuous.inactive_shelvings_list
-        for shelf in self.cfg.ds_continuous.active_shelvings_list:
-            if shelf['shelf_asset'] in inactive_shelvings_list:
-                inactive_shelvings_list.remove(shelf['shelf_asset'])
-            inactive_shelvings_list = [shelf['shelf_asset']] + inactive_shelvings_list
 
-        # asset_name = inactive_shelvings_list[0]
+        assert len(self.cfg.ds_continuous.active_shelvings_list) <= 1
+        
+        active_fixture = self.cfg.ds_continuous.active_shelvings_list[0]
+        if active_fixture['shelf_asset'] not in inactive_shelvings_list:
+            inactive_shelvings_list.append(active_fixture['shelf_asset'])
+
         sample_rects = []
         for asset_name in inactive_shelvings_list:
             rect = RectFixture.make_from_asset(self.product_assets_lib[asset_name], name=f'inactive_shelving:{asset_name}',
@@ -239,44 +238,59 @@ class TensorFieldLayout(LayoutGeneratorBase):
                                             x=0., y=0., asset_name=asset_name)
             sample_rects.append(rect)
 
-        tf = self.compose_tensor_field(decay = self.cfg.ds_continuous.tf_blending_decay)
+        success = False
+        for _ in range(self.max_tries):
+            self.rng.shuffle(sample_rects)
 
-        res = tfield.place_shelves(tf,
-                             sample_rects,
-                             self.rng,
-                             passage_width=self.passage_width,
-                             skip_shelf_prob=self.inactive_shelvings_skip_prob,
-                             scene_fixtures=self._all_fixtures_list()
-                             )
-        self.all_fixtures['inactive_shelvings'] = res
+            tf = self.compose_tensor_field(decay = self.cfg.ds_continuous.tf_blending_decay)
+            inactive_shelvings = tfield.place_shelves(tf,
+                                sample_rects,
+                                self.rng,
+                                passage_width=self.passage_width,
+                                skip_shelf_prob=self.inactive_shelvings_skip_prob,
+                                scene_fixtures=self._all_fixtures_list()
+                                )
+            
+            if active_fixture['shelf_asset'] in [r.asset_name for r in inactive_shelvings]:
+                success = True
+                break
+
+        if not success:
+            return False
+
+        self.all_fixtures['inactive_shelvings'] = inactive_shelvings
 
         fig, ax = tf.vis_field()
         for fixture in self._all_fixtures_list():
             fixture.draw(ax[1], show_occupancy=False)
         fig.savefig(Path(self.cfg.ds_continuous.output_dir) / f'{self.name}_tf.jpg')
 
+        self.all_fixtures['active_shelvings'].append(RectFixture.make_from_asset(
+            self.product_assets_lib[active_fixture.shelf_asset], name=f'{self.name}_{active_fixture.name}',
+            asset_name=active_fixture.shelf_asset
+        ))
         return True
     
-    def place_active_shelvings(self):
-        res = []
-        active_shelvings_list = self.cfg.ds_continuous.active_shelvings_list
-        assert len(active_shelvings_list) <= 1
-        active_fixture = active_shelvings_list[0]
+    # def place_active_shelvings(self):
+    #     res = []
+    #     active_shelvings_list = self.cfg.ds_continuous.active_shelvings_list
+    #     assert len(active_shelvings_list) <= 1
+    #     active_fixture = active_shelvings_list[0]
 
-        asset_name = active_fixture['shelf_asset']
-        to_be_replaced_idxs = []
-        for i, fixture in enumerate(self.all_fixtures['inactive_shelvings']):
-            if fixture.asset_name == asset_name:
-                to_be_replaced_idxs.append(i)
-        if len(to_be_replaced_idxs) < 1:
-            return False
+    #     asset_name = active_fixture['shelf_asset']
+    #     to_be_replaced_idxs = []
+    #     for i, fixture in enumerate(self.all_fixtures['inactive_shelvings']):
+    #         if fixture.asset_name == asset_name:
+    #             to_be_replaced_idxs.append(i)
+    #     if len(to_be_replaced_idxs) < 1:
+    #         return False
 
-        to_be_replaced_shelf_idx = self.rng.choice(to_be_replaced_idxs)
-        active_shelf = self.all_fixtures['inactive_shelvings'].pop(to_be_replaced_shelf_idx)
-        active_shelf.name = f'{self.name}_{active_fixture.name}'
+    #     to_be_replaced_shelf_idx = self.rng.choice(to_be_replaced_idxs)
+    #     active_shelf = self.all_fixtures['inactive_shelvings'].pop(to_be_replaced_shelf_idx)
+    #     active_shelf.name = f'{self.name}_{active_fixture.name}'
         
-        self.all_fixtures['active_shelvings'].append(active_shelf)
-        return True
+    #     self.all_fixtures['active_shelvings'].append(active_shelf)
+    #     return True
 
 class TensorFieldHorisontalLayout(TensorFieldLayout):
     def compose_tensor_field(self, decay):
@@ -318,8 +332,7 @@ class TensorFieldHorisontalLayout(TensorFieldLayout):
         self.place_fixtures()
         self.place_inactive_wall_shelvings()
         self.place_active_wall_shelvings()
-        self.place_inactive_shelvings()
-        res = self.place_active_shelvings()
+        res = self.place_shelvings()
         if not res:
             return None
         return self.rect_fixture2dict(self.all_fixtures)

@@ -152,9 +152,11 @@ def _generate_continuous_routine(task_params):
             log.error(f"Failed to generate {scene_name}!")
             return False
         
+        fake_arrangements_mapping = OmegaConf.to_container(cfg.ds_continuous.fake_arrangements_mapping, resolve = True)
         results = dict(layout_data=layout_data, 
                     size_x=cfg.ds_continuous.size_x, 
-                    size_y=cfg.ds_continuous.size_y)
+                    size_y=cfg.ds_continuous.size_y,
+                    fake_arrangements_mapping=fake_arrangements_mapping)
         
         results['hash'] = config_hash
         results['scene_id'] = scene_id
@@ -202,7 +204,12 @@ def _generate_continuous_routine(task_params):
                         active_fixture_cfg.delta_y,
                         active_fixture_cfg.start_point_x,
                         active_fixture_cfg.start_point_y,
-                        active_fixture_cfg.filling_type
+                        active_fixture_cfg.filling_type,
+                        seed_arrangement_gen,
+                        active_fixture_cfg.noise_std_x,
+                        active_fixture_cfg.noise_std_y,
+                        active_fixture_cfg.rotation_lower,
+                        active_fixture_cfg.rotation_upper,
                     )
             
             json_str = synth.exchange.export.export_json(scene, include_metadata=False)
@@ -269,6 +276,8 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
     assert 0 <= shelf_config.start_filling_board <= shelf_config.end_filling_from_board <= shelf_config.num_boards
     shelf_name = shelf_config.name
     shelf_type = shelf_config.shelf_type.name
+
+    # all_product_names = ['products_hierarchy.' + name for name in all_product_names]
 
     filling = [[] for _ in range(shelf_config.start_filling_board)]
 

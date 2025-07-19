@@ -1,0 +1,30 @@
+defaults:
+  - base_shelf_config
+  - _self_
+
+name: 'shelf_fake_2'
+filling_type: BOARDWISE_COLUMNS
+shelf_asset: fixtures.shelf_low_res
+board_product_numcol:
+  0:
+    food.STRONG_ALCO.ChivasRegalScotchWhisky: 7
+    food.STRONG_ALCO.KarlovarskaBecherovka: 7
+  1:
+    food.STRONG_ALCO.HavanaClubRum: 10
+    food.STRONG_ALCO.MalibuCaribbeanRumWithCoconut: 10
+  2:
+    food.STRONG_ALCO.BaileysLiquor: 10
+  3:
+    food.STRONG_ALCO.JackDanielsWhiskey: 6
+    food.STRONG_ALCO.PernodParis: 5
+
+x_gap: 0.02
+y_gap: 0.02
+
+rotation_lower: -0.1
+rotation_upper: 0.1
+noise_std_x: 0.001
+noise_std_y: 0.001
+
+delta_x: 0.1
+delta_y: 0.1

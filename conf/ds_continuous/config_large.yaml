@@ -3,8 +3,8 @@ defaults:
   - _self_
 
 name: 'ds_continuous'
-size_x: 16
-size_y: 10
+size_x: 32
+size_y: 20
 num_scenes: 1
 num_workers: 1
 layout_gen_type: PROCEDURAL_TENSOR_FIELD
@@ -14,7 +14,7 @@ randomize_arrangements: true
 inactive_wall_shelvings_occupancy_width: 0.4
 inactive_shelvings_occupancy_width: 0.6
 inactive_shelvings_skip_prob: 0.0
-passage_width: 2.0
+passage_width: 1.7
 
 
 random_seed: 42

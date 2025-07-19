@@ -2396,6 +2396,10 @@ fixtures:
     asset_file_path: ${assets.assets_dir_path}/shelf_woodenglb.glb
     ms_is_static: true
     ms_is_nonconvex_collision: true
+  shelf_low_res:
+    asset_file_path: ${assets.assets_dir_path}/shelf_woodenglb_low_res.glb
+    ms_is_static: true
+    ms_is_nonconvex_collision: false
   metal_double_shelf: 
     asset_file_path: ${assets.assets_dir_path}/double_metal_shelf.glb
     ms_is_static: true
@@ -2418,16 +2422,34 @@ fixtures:
     asset_file_path: ${assets.assets_dir_path}/store_mini_shelf_two_sided.glb
     ms_is_static: true
     ms_is_nonconvex_collision: true
-    ss_params:
-        origin: ["center", "bottom", "center"]
-        up: [0, 1, 0]
-        front: [0, 0, -1]
   pile_of_pallets: 
     asset_file_path: ${assets.assets_dir_path}/pile_of_pallets.glb
     ms_is_static: true
   pallets_and_boxes:
     asset_file_path: ${assets.assets_dir_path}/pallets_and_boxes.glb
     ms_is_static: true
+  shelf_fake_1:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_fake_1.glb
+    ms_is_static: true
+  shelf_fake_2:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_fake_2.glb
+    ms_is_static: true
+  shelf_fake_3:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_fake_3.glb
+    ms_is_static: true
+  shelf_metal_fake_1:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_metal_fake_1.glb
+    ms_is_static: true
+  shelf_metal_fake_2:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_metal_fake_2.glb
+    ms_is_static: true
+  small_shelf_two_sided_fake_1:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/small_shelf_two_sided_fake_1.glb
+    ms_is_static: true
+  small_shelf_two_sided_fake_2:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/small_shelf_two_sided_fake_2.glb
+    ms_is_static: true
+
 scene_assets:
   shoppingCart:
     asset_file_path: ${assets.assets_dir_path}/smallShoppingCart2.glb

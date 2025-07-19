@@ -1,0 +1,39 @@
+defaults:
+  - base_shelf_config
+  - _self_
+
+name: 'small_shelf_two_sided_fake_1'
+filling_type: BOARDWISE_COLUMNS
+shelf_asset: fixtures.small_shelf_two_sided
+board_product_numcol:
+  0:
+    food.CRACKERS_COOKIES.CookiesAndBiscuitsBox: 7
+    food.CRACKERS_COOKIES.CoraCookies: 5
+  1:
+    food.CRACKERS_COOKIES.DeliciaBiscuits: 5
+    food.CRACKERS_COOKIES.EvergreenMultigrainBakedCrackers: 6
+  2:
+    food.CRACKERS_COOKIES.OreoLemonCremeSandwichCookies: 5
+    food.CRACKERS_COOKIES.PockyCoconutAndBrownSugar: 10
+  3:
+    food.CHIPS.PaprikaPotatoChips: 8
+    food.CRACKERS_COOKIES.TohatoCookies: 4
+  4:
+    food.CHIPS.PaprikaPotatoChips: 5
+    food.QUICK_FOOD.Borsch: 5
+  5:
+    food.QUICK_FOOD.BucketheadChickenNoodles: 7
+    food.QUICK_FOOD.BuldackCarbonaraNoodles: 5
+
+
+
+
+
+
+x_gap: 0.01
+y_gap: 0.01
+
+rotation_lower: -0.01
+rotation_upper: 0.02
+noise_std_x: 0.001
+noise_std_y: 0.001

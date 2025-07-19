@@ -28,21 +28,21 @@ cs.store(name="base_shelf_config", node=ShelfConfig)
 OUTPUT_PATH = 'generated_envs'
 CONF_PATH = '../conf'
 
-with initialize(version_base=None, config_path=CONF_PATH):
-    assets_cfg = compose(config_name="assets/assets")
+with initialize(version_base=None, config_path=CONF_PATH ):
+    assets_cfg = compose(config_name="assets/assets_downscaled")
 
-@hydra.main(version_base=None, config_name="mixed_shelf.yaml", config_path=str(Path(CONF_PATH) / "shelves"))
+@hydra.main(version_base=None, config_name="assets/shelf_fake_1.yaml", config_path=str(Path(CONF_PATH) / "shelves"))
 def main(shelf_cfg) -> None:
     seed_arrangement = 42
     log.info(OmegaConf.to_yaml(shelf_cfg))
     product_assets_lib = flatten_dict(load_assets_lib(assets_cfg.assets), sep='.')
     filling, shelf_name, shelf_type = product_filling_from_shelf_config(shelf_cfg, list(product_assets_lib.keys()), rng=random.Random(seed_arrangement))
-    print(filling, shelf_name, shelf_type)
+    # print(filling, shelf_name, shelf_type)
 
     scene = synth.Scene()
     
     shelf_asset_name = shelf_cfg.shelf_asset
-
+    
     if shelf_asset_name is None:
         shelf = DefaultShelf
         shelf_asset_name = 'fixtures.shelf'
@@ -58,6 +58,7 @@ def main(shelf_cfg) -> None:
         f'SHELF_{shelf_name}',
         f'support_SHELF_{shelf_name}',
     )
+    scene.show_supports()
     add_objects_to_shelf_v2(
                 scene,
                 0,
@@ -70,12 +71,17 @@ def main(shelf_cfg) -> None:
                 shelf_cfg.delta_y,
                 shelf_cfg.start_point_x,
                 shelf_cfg.start_point_y,
-                shelf_cfg.filling_type
+                shelf_cfg.filling_type,
+                seed_arrangement,
+                shelf_cfg.noise_std_x,
+                shelf_cfg.noise_std_y,
+                shelf_cfg.rotation_lower,
+                shelf_cfg.rotation_upper,
             )
     scene.show()
-    scene.export('fake_shelf1.glb')
-    # scene._scene.simplify_quadric_decimation(float(0.5))
-    # scene.export('fake_shelf1_downscaled.glb')
+    out_name = f'assets/fake_shelves/{shelf_cfg.name}.glb'
+    scene.export(out_name)
+    print(f"Write to {out_name}")
 
 if __name__ == "__main__":
     main()

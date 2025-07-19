@@ -1,0 +1,29 @@
+defaults:
+  - base_shelf_config
+  - _self_
+
+name: 'shelf_fake_3'
+filling_type: BOARDWISE_COLUMNS
+shelf_asset: fixtures.shelf_low_res
+board_product_numcol:
+  0:
+    food.COOKING.AriddlSeaSalt: 20
+  1:
+    food.CRACKERS_COOKIES.AlmondCookies: 20
+  2:
+    food.SAUCES.CocinaCarbonaraPastaSauce: 20
+  3:
+    food.CEREALS.Rangston'SCocoaCritters: 20
+  4:
+    food.drinks.coffeePackaging1: 20
+
+x_gap: 0.02
+y_gap: 0.02
+
+rotation_lower: -0.1
+rotation_upper: 0.1
+noise_std_x: 0.001
+noise_std_y: 0.001
+
+delta_x: 0.1
+delta_y: 0.1

@@ -1,0 +1,31 @@
+defaults:
+  - base_shelf_config
+  - _self_
+
+name: 'shelf_fake_1'
+filling_type: BOARDWISE_COLUMNS
+shelf_asset: fixtures.shelf_low_res
+
+board_product_numcol:
+  0:
+    food.CANNED.ArgonautAlaskaSalmon: 7
+    food.CANNED.BakedBeansHappyAnniversary: 7
+  1:
+    food.CANNED.BakedBeansInTomatoSauce: 10
+    food.CANNED.BeefRidersExtraBeef: 10
+  2:
+    food.CANNED.DelMonteCutGreenBeans: 10
+  3:
+    food.CANNED.FallsColumbiaRiverSalmon: 6
+    food.CANNED.HeinzBeansInARichTomatoSauce: 5
+
+x_gap: 0.02
+y_gap: 0.02
+
+rotation_lower: -0.1
+rotation_upper: 0.1
+noise_std_x: 0.001
+noise_std_y: 0.001
+
+delta_x: 0.1
+delta_y: 0.1

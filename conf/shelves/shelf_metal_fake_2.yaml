@@ -1,0 +1,35 @@
+defaults:
+  - base_shelf_config
+  - _self_
+
+name: 'shelf_metal_fake_2'
+filling_type: BOARDWISE_COLUMNS
+shelf_asset: fixtures.shelf_metal
+board_product_numcol:
+  0:
+    food.HOUSEHOLD.BlenderKitchenCleaningSpray: 15
+    food.HOUSEHOLD.SiffieFloorCleanerSpray: 10
+  1:
+    food.HOUSEHOLD.VanishStainRemoverSpray: 10
+    food.HOUSEHOLD.X-TraTotalDetergent: 12
+  2:
+    food.HYGIENE.AxeApolloDeodorant: 10
+    food.HYGIENE.BarbasolShavingCream: 8
+  3:
+    food.HYGIENE.MaimaraHairSpray: 10
+    food.HYGIENE.KasivoideHandCream: 10
+  4:
+    food.HYGIENE.DeodorantKrakengard: 10
+    food.HYGIENE.GoopHandCleaner: 10
+
+
+x_gap: 0.02
+y_gap: 0.02
+
+rotation_lower: -0.1
+rotation_upper: 0.1
+noise_std_x: 0.001
+noise_std_y: 0.001
+
+delta_x: 0.1
+delta_y: 0.1
