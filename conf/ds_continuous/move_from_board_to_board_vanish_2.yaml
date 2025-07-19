@@ -1,0 +1,38 @@
+defaults:
+  - config
+  - _self_
+
+name: 'move_from_board_to_board_vanish_2'
+output_dir: demo_envs/move_from_board_to_board_vanish
+rewrite: true
+num_scenes: 5
+num_workers: 2
+
+random_seed: 54
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.06
+    y_gap: 0.02
+    delta_x: 0.1
+    shelf_asset: fixtures.shelf
+    shuffle_boards: False
+    shuffle_items_on_board: True
+    board_product_numcol:
+      0:
+        food.CEREALS.NestleFitnessChocolateCereals: 4 # train
+        food.HYGIENE.NiveaBodyMilk: 4 # test OOD
+
+        food.CANNED.SlamLuncheonMeat: 3 # inactive
+      1:
+        food.BEER.DuffBeerCan: 4 # train
+        food.CEREALS.NestleHoneyStars: 3 # test OOD
+        
+        food.CANNED.HeinzBeansInARichTomatoSauce: 2 # inactive
+        food.CRACKERS_COOKIES.BananiaCookies: 3 # inactive
+      2:
+        food.HOUSEHOLD.VanishStainRemover: 3 # train [TARGET]
+        food.DRINKS_SODA.FantaSaborNaranja2L: 3 # test OOD
+
+        food.ENERGY_DRINKS.MonsterEnergyDrink: 4 # inactive
