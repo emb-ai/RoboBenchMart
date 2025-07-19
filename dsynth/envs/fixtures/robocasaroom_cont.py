@@ -88,11 +88,40 @@ class DarkstoreSceneContinuous(DarkstoreScene):
             "inactive_wall_shelvings",
             "scene_fixtures"
             ]
+        
+        # pick random suitable inactive shelf and replace it to active
+        active_shelving = scene_data['layout_data']["active_shelvings"][0]
+
+        inactive_shelvings = scene_data['layout_data']['inactive_shelvings']
+        to_be_replaced_idxs = []
+        for i, fixture in enumerate(inactive_shelvings):
+            if fixture['asset_name'] == active_shelving['asset_name']:
+                to_be_replaced_idxs.append(i)
+        if len(to_be_replaced_idxs) < 1:
+            return RuntimeError("No suitable shelvings!")
+        to_be_replaced_shelf_idx = self.env._batched_episode_rng[scene_idx].choice(to_be_replaced_idxs)
+        active_shelf = inactive_shelvings.pop(to_be_replaced_shelf_idx)
+        
+        active_shelving['x'] = active_shelf['x']
+        active_shelving['y'] = active_shelf['y']
+        active_shelving['orientation'] = active_shelf['orientation']
+
+        scene_data['layout_data']["inactive_shelvings"] = inactive_shelvings
+        scene_data['layout_data']["active_shelvings"][0] = active_shelving
+
+
+
+        fake_shelfs_mapping = scene_data['fake_arrangements_mapping']
         for fixture_category in inactive_fixtures_categories:
             for i, inactive_fixture in enumerate(scene_data['layout_data'][fixture_category]):
                 shelf_id = inactive_fixture['asset_name']
                 fixture_name = inactive_fixture['name']
-                item_name = f'[ENV#{scene_idx}]_inactive_{fixture_name}_{i}'
+                if shelf_id in fake_shelfs_mapping:
+                    fake_shelves_id = fake_shelfs_mapping[shelf_id]
+                    shelf_id = self.env._batched_episode_rng[scene_idx].choice(fake_shelves_id)
+
+
+                item_name = f'[ENV#{scene_idx}]_inactive_{fixture_name}_{i}_{shelf_id}'
                 p = np.array([inactive_fixture['x'], inactive_fixture['y'], 0.])
                 angle = 0.
                 if inactive_fixture['orientation'] == 'vertical':
