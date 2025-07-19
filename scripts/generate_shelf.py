@@ -58,7 +58,7 @@ def main(shelf_cfg) -> None:
         f'SHELF_{shelf_name}',
         f'support_SHELF_{shelf_name}',
     )
-    scene.show_supports()
+    # scene.show_supports()
     add_objects_to_shelf_v2(
                 scene,
                 0,
@@ -78,7 +78,7 @@ def main(shelf_cfg) -> None:
                 shelf_cfg.rotation_lower,
                 shelf_cfg.rotation_upper,
             )
-    scene.show()
+    # scene.show()
     out_name = f'assets/fake_shelves/{shelf_cfg.name}.glb'
     scene.export(out_name)
     print(f"Write to {out_name}")
