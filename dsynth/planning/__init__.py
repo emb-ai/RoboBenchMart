@@ -20,4 +20,7 @@ MP_SOLUTIONS = {
 
     "PickFromFloorSlamContEnv": solve_fetch_pick_from_floor_cont,
     "PickFromFloorBeansContEnv": solve_fetch_pick_from_floor_cont,
+
+    "OpenDoorShowcaseContEnv": solve_fetch_open_door_showcase_cont,
+    "OpenDoorFridgeContEnv": solve_fetch_open_door_fridge_cont
 }
