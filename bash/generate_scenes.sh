@@ -12,4 +12,5 @@ python scripts/generate_scene_continuous.py ds_continuous=move_from_board_to_boa
 python scripts/generate_scene_continuous.py ds_continuous=move_from_board_to_board_duff_1
 python scripts/generate_scene_continuous.py ds_continuous=move_from_board_to_board_duff_2
 
-python scripts/generate_scene_continuous.py ds_continuous=pick_from_floor
+python scripts/generate_scene_continuous.py ds_continuous=pick_from_floor_1
+python scripts/generate_scene_continuous.py ds_continuous=pick_from_floor_2

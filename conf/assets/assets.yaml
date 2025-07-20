@@ -3207,9 +3207,15 @@ fixtures:
   freezer_large:
     asset_file_path: ${assets.assets_dir_path}/food_showcase/urdf/food_showcase.urdf
     ss_asset_type: URDFAsset
+  freezer_large_filled:
+    asset_file_path: ${assets.assets_dir_path}/food_showcase/urdf/food_showcase_filled.urdf
+    ss_asset_type: URDFAsset
   freezer_nestle:
     asset_file_path: ${assets.assets_dir_path}/fridge_urdf/nestle.urdf
     ss_asset_type: URDFAsset
+  showcase_glb:
+    asset_file_path: ${assets.assets_dir_path}/showcase.glb
+    ms_is_static: true
   small_shelf_two_sided:
     asset_file_path: ${assets.assets_dir_path}/store_mini_shelf_two_sided.glb
     ms_is_static: true
@@ -3245,6 +3251,9 @@ fixtures:
         origin: ["center", "bottom", "center"]
         up: [0, 1, 0]
         front: [0, 0, -1]
+  large_showcase_fake:
+    asset_file_path: ${assets.assets_dir_path}/large_fridge_fake.glb
+    ms_is_static: true
 
 scene_assets:
   shoppingCart:

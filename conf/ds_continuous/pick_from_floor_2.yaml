@@ -17,7 +17,7 @@ active_shelvings_list:
     y_gap: 0.02
     delta_x: 0.1
     shelf_asset: fixtures.shelf
-    shuffle_boards: True
+    shuffle_boards: False
     shuffle_items_on_board: True
     board_product_numcol:
       0:
