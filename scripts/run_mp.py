@@ -20,7 +20,7 @@ from dsynth.envs import *
 from dsynth.robots import *
 
 from dsynth.planning import MP_SOLUTIONS
-
+from dsynth.planning.utils import BAD_ENV_ERROR_CODE
 
 OPEN = 1
 CLOSED = -1
@@ -100,6 +100,14 @@ def _main(args, proc_id: int = 0, start_seed: int = 0) -> str:
         except Exception as e:
             print(f"Cannot find valid solution because of an error in motion planning solution: {e}")
             res = -1
+            
+        if res == BAD_ENV_ERROR_CODE:
+            print(f"Bad environment! Skipping...")
+            seed += args.num_procs
+            env.flush_trajectory(save=False)
+            if args.save_video:
+                env.flush_video(save=False)
+            continue
 
         if res == -1:
             success = False

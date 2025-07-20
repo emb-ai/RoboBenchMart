@@ -356,7 +356,7 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
     def _load_scene(self, options: dict):
         super()._load_scene(options)
         
-        self.target_sizes = np.array([0.3, 0.3, 0.3])
+        self.target_sizes = np.array([self.TARGET_POS_THRESH, self.TARGET_POS_THRESH, self.TARGET_POS_THRESH])
     
     def setup_target_objects(self, env_idxs):
         self.target_product_names = {}

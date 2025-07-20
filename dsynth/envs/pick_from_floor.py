@@ -71,7 +71,7 @@ class PickFromFloorContEnv(PickToBasketContEnv):
 
     def setup_target_objects(self, env_idxs):
         self.target_product_names = {}
-        self.fallen_actors = {}
+        self.fallen_items = {}
         self.target_pose = {}
         self.target_products_df = None
         
@@ -95,10 +95,11 @@ class PickFromFloorContEnv(PickToBasketContEnv):
             
             target_products_df = scene_prducts_df[scene_prducts_df['product_name'] == product_name]
             target_products_df = target_products_df[target_products_df['row_idxs'] == '0']
-            fallen_actor_name = self._batched_episode_rng[scene_idx].choice(sorted(target_products_df['actor_name'].unique()))
-            self.fallen_actors[scene_idx] = fallen_actor_name
+            fallen_actor_id = self._batched_episode_rng[scene_idx].choice(sorted(target_products_df['actor_name'].unique()))
             
-            actor = self.actors['products'][fallen_actor_name]
+            self.fallen_items[scene_idx] = fallen_actor_id
+            
+            actor = self.actors['products'][fallen_actor_id]
 
             self.target_pose[scene_idx] = actor.pose
 
@@ -118,11 +119,11 @@ class PickFromFloorContEnv(PickToBasketContEnv):
             fall_position = shelf_pose.p - 1.4 * direction_to_shelf
             perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
 
-            delta_par = 0.3 + self._batched_episode_rng[idx].rand() * 0.3
+            delta_par = 0.3 + self._batched_episode_rng[idx].rand() * 0.4
             delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 0.5
 
 
-            actor = self.actors['products'][self.fallen_actors[idx]]
+            actor = self.actors['products'][self.fallen_items[idx]]
             extents = get_actor_obb(actor).primitive.extents
 
             fall_position += direction_to_shelf * delta_par + perp_direction * delta_perp
@@ -135,11 +136,56 @@ class PickFromFloorContEnv(PickToBasketContEnv):
                 self.target_markers[idx][0].set_pose(sapien.Pose(p=fall_position))
 
     def evaluate(self):
-        return DarkstoreContinuousBaseEnv.evaluate(self)
+        target_pos = self.calc_target_pose().p 
+        tolerance = torch.tensor([self.TARGET_POS_THRESH, self.TARGET_POS_THRESH, self.TARGET_POS_THRESH]).to(self.device)
+        
+        is_obj_placed = []
+
+        for scene_idx in range(self.num_envs):
+            target_product_pos = self.actors['products'][self.fallen_items[scene_idx]].pose.p
+            scene_is_obj_placed = torch.all(
+                (target_product_pos >= (target_pos[scene_idx] - tolerance)) & 
+                (target_product_pos <= (target_pos[scene_idx] + tolerance)),
+                dim=-1
+            )
+            
+            is_obj_placed.append(scene_is_obj_placed)
+
+        is_obj_placed = torch.cat(is_obj_placed)
+        
+        is_robot_static = self.agent.is_static(0.2)
+        
+        is_non_target_produncts_replaced = torch.zeros_like(is_robot_static, dtype=bool)
+
+        for scene_idx in range(self.num_envs):
+            scene_products_df = self.products_df[self.products_df['scene_idx'] == scene_idx]
+
+            non_target_actors = set(scene_products_df['actor_name']) - set([self.fallen_items[scene_idx]])
+            
+            for actor_name in non_target_actors:
+                actor = self.actors['products'][actor_name]
+                if not torch.all(torch.isclose(actor.pose.raw_pose, self.products_initial_poses[actor_name], rtol=0.1, atol=0.1)):
+                    is_non_target_produncts_replaced[scene_idx] = True
+
+                    if self.markers_enabled:
+                        # make marker red if non-target product moved
+                        render_component = self.target_volumes[scene_idx][0]._objs[0].find_component_by_type(
+                            sapien.pysapien.render.RenderBodyComponent
+                        )
+                        render_component.render_shapes[0].material.base_color = [1.0, 0.0, 0.0, 0.5]
+                    break
+
+        return {
+            "is_obj_placed" : is_obj_placed,
+            "is_robot_static" : is_robot_static,
+            "is_non_target_produncts_displaced" : is_non_target_produncts_replaced,
+            "success": is_obj_placed & is_robot_static & (~is_non_target_produncts_replaced),
+        }
     
     def calc_target_pose(self):
-        target_pose = [self.target_pose[scene_idx] for scene_idx in range(self.num_envs)]
-        return Pose.create_from_pq(p=target_pose)
+        target_pose_p = [self.target_pose[scene_idx].sp.p for scene_idx in range(self.num_envs)]
+        target_pose_q = [self.target_pose[scene_idx].sp.q for scene_idx in range(self.num_envs)]
+        return Pose.create_from_pq(p=target_pose_p, q=target_pose_q)
     
     def _after_simulation_step(self):
         pass
