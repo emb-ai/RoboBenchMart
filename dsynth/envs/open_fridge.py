@@ -11,6 +11,7 @@ from mani_skill.utils.building import actors
 from mani_skill.utils.registration import register_env
 from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
 from dsynth.envs.darkstore_cell_base import DarkstoreCellBaseEnv
+from dsynth.envs.darkstore_cont_base import DarkstoreContinuousBaseEnv
 from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
 from mani_skill.agents.robots.fetch import FETCH_WHEELS_COLLISION_BIT
 from mani_skill.utils.structs.pose import Pose
@@ -215,3 +216,136 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
             "is_robot_static" : is_robot_static,
             "success": is_door_opened & is_robot_static
         }    
+    
+
+@register_env('OpenDoorShowcaseContEnv', max_episode_steps=200000)
+class OpenDoorShowcaseContEnv(DarkstoreContinuousBaseEnv):
+    ROBOT_INIT_POSE_RANDOM_ENABLED = True
+    SUCCESS_THRESH_ANGLE = 0.2
+    DOOR_NAMES = ['first', 'second', 'third', 'fourth']
+    DOOR_NAMES_2_IDX = {name: i + 1 for i, name in enumerate(DOOR_NAMES)}
+    
+    def _load_scene(self, options: dict):
+        super()._load_scene(options)
+        
+    def setup_target_objects(self, env_idxs):
+        # no guarantees that target shelving is exactly a showcase - TODO
+        self.target_actor_name = {}
+        self.target_door_names = {}
+
+        for scene_idx in env_idxs:
+            scene_idx = scene_idx.cpu().item()
+
+            assert len(self.active_shelves[scene_idx]) == 1
+            self.target_actor_name[scene_idx] = self.active_shelves[scene_idx][0]
+            
+            self.target_door_names[scene_idx] = self._batched_episode_rng[scene_idx].choice(self.DOOR_NAMES)
+
+    def _compute_robot_init_pose(self, env_idx = None):
+        robot_origins, robot_angles, directions_to_shelf = super()._compute_robot_init_pose(env_idx)
+        for idx in env_idx:
+            robot_origins[idx] -= 0.15 * directions_to_shelf[idx]
+            if self.ROBOT_INIT_POSE_RANDOM_ENABLED:
+                # base movement enabled, add initial pose randomization
+                idx = idx.cpu().item()
+                direction_to_shelf = directions_to_shelf[idx]
+                perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
+
+
+                delta_par = self._batched_episode_rng[idx].rand() * 1.55 * 0.4
+                delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 2 * 1.55 * 0.4
+
+
+                robot_origins[idx] += - direction_to_shelf * delta_par + perp_direction * delta_perp
+                # robot_origins[idx] += -direction_to_shelf * delta_par + perp_direction * delta_perp
+                robot_angles[idx] += (self._batched_episode_rng[idx].rand() - 0.5) * np.pi / 4
+
+        return robot_origins, robot_angles, directions_to_shelf
+
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            door_name = self.target_door_names[scene_idx]
+            self.language_instructions.append(f'open the {door_name} door of showcase')
+
+    def evaluate(self):
+        is_door_opened = []
+        for scene_idx in range(self.num_envs):
+            target_showcase_name = self.target_actor_name[scene_idx]
+            showcase_actor = self.actors['fixtures']['shelves'][target_showcase_name]
+            num_door = self.DOOR_NAMES_2_IDX[self.target_door_names[scene_idx]]
+            is_door_opened.append(
+                torch.abs(showcase_actor.joints_map[f'door{num_door}_link_joint'].qpos - 1.57) < self.SUCCESS_THRESH_ANGLE
+            )
+        is_door_opened = torch.cat(is_door_opened)
+        
+        is_robot_static = self.agent.is_static(0.2)
+
+        return {
+            "is_door_opened" : is_door_opened,
+            "is_robot_static" : is_robot_static,
+            "success": is_door_opened & is_robot_static
+        }   
+    
+
+@register_env('OpenDoorFridgeContEnv', max_episode_steps=200000)
+class OpenDoorFridgeContEnv(OpenDoorShowcaseContEnv):
+    ROBOT_INIT_POSE_RANDOM_ENABLED = True
+    SUCCESS_THRESH_ANGLE = 0.1
+
+    def setup_target_objects(self, env_idxs):
+        # no guarantees that target shelving is exactly a fridge - TODO
+        super().setup_target_objects(env_idxs)
+
+    def _compute_robot_init_pose(self, env_idx = None):
+        robot_origins, robot_angles, directions_to_shelf = DarkstoreContinuousBaseEnv._compute_robot_init_pose(self, env_idx)
+        for idx in env_idx:
+            # robot_origins[idx] -= 0.15 * directions_to_shelf[idx]
+            if self.ROBOT_INIT_POSE_RANDOM_ENABLED:
+                # base movement enabled, add initial pose randomization
+                idx = idx.cpu().item()
+                direction_to_shelf = directions_to_shelf[idx]
+                perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
+
+                delta_par = self._batched_episode_rng[idx].rand() * 0.2
+                delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 0.5
+
+                robot_origins[idx] += direction_to_shelf * delta_par + perp_direction * delta_perp
+                robot_angles[idx] += (self._batched_episode_rng[idx].rand() - 0.5) * np.pi / 4
+
+        return robot_origins, robot_angles, directions_to_shelf
+
+    def _initialize_episode(self, env_idx, options):
+        super()._initialize_episode(env_idx, options)
+    
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            target_showcase_name = self.target_actor_name[scene_idx]
+            fridge_actor = self.actors['fixtures']['shelves'][target_showcase_name]
+            fridge_actor.set_pose(fridge_actor.pose * sapien.Pose(q=euler2quat(0, 0, 3.14)))
+
+    def evaluate(self):
+        is_door_opened = []
+        for scene_idx in range(self.num_envs):
+            target_showcase_name = self.target_actor_name[scene_idx]
+            showcase_actor = self.actors['fixtures']['shelves'][target_showcase_name]
+            is_door_opened.append(
+                torch.abs(showcase_actor.joints_map[f'right_cover_joint'].qpos - 0.624) < self.SUCCESS_THRESH_ANGLE
+            )
+        is_door_opened = torch.cat(is_door_opened)
+        
+        is_robot_static = self.agent.is_static(0.2)
+
+        return {
+            "is_door_opened" : is_door_opened,
+            "is_robot_static" : is_robot_static,
+            "success": is_door_opened & is_robot_static
+        }   
+
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            door_name = self.target_door_names[scene_idx]
+            self.language_instructions.append(f'open the fridge')

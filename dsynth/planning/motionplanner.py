@@ -702,7 +702,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         return planner
     
     def rotate_base_z(self, new_direction, n_init_qpos=20, dry_run=False, rotate_recalculation_enabled=True):
-        assert new_direction[2] == 0.
+        assert np.isclose(new_direction[2], 0)
         tcp_pose = self.base_env.agent.tcp.pose.sp
         base_link_pose = self.base_env.agent.base_link.pose.sp
         base_x_axis = base_link_pose.to_transformation_matrix()[:3, 0]
