@@ -167,57 +167,58 @@ def _generate_continuous_routine(task_params):
 
         product_assets_lib = flatten_dict(load_assets_lib(cfg.assets, disable_caching=True), sep='.')
 
-        for active_fixture_cfg in cfg.ds_continuous.active_shelvings_list:
-            filling, shelf_name, shelf_type = product_filling_from_shelf_config(active_fixture_cfg, 
-                                    list(product_assets_lib.keys()), rng=random.Random(seed_arrangement_gen)
-                                    )
-            
-            scene = synth.Scene()
-            shelf_name = f'{scene_name}_{active_fixture_cfg.name}'
-            shelf_asset_name = active_fixture_cfg.shelf_asset
+        for shelvings_list in [cfg.ds_continuous.active_shelvings_list, cfg.ds_continuous.active_wall_shelvings_list]:
+            for active_fixture_cfg in shelvings_list:
+                filling, shelf_name, shelf_type = product_filling_from_shelf_config(active_fixture_cfg, 
+                                        list(product_assets_lib.keys()), rng=random.Random(seed_arrangement_gen)
+                                        )
+                
+                scene = synth.Scene()
+                shelf_name = f'{scene_name}_{active_fixture_cfg.name}'
+                shelf_asset_name = active_fixture_cfg.shelf_asset
 
-            if shelf_asset_name is None:
-                shelf = DefaultShelf
-                shelf_asset_name = 'fixtures.shelf'
-            else:
-                shelf = product_assets_lib[shelf_asset_name].ss_asset
+                if shelf_asset_name is None:
+                    shelf = DefaultShelf
+                    shelf_asset_name = 'fixtures.shelf'
+                else:
+                    shelf = product_assets_lib[shelf_asset_name].ss_asset
 
-            support_data = set_shelf(
-                scene,
-                shelf,
-                0,
-                0,
-                0,
-                f'SHELF_{shelf_name}',
-                f'support_SHELF_{shelf_name}',
-            )
+                support_data = set_shelf(
+                    scene,
+                    shelf,
+                    0,
+                    0,
+                    0,
+                    f'SHELF_{shelf_name}',
+                    f'support_SHELF_{shelf_name}',
+                )
 
-            add_objects_to_shelf_v2(
-                        scene,
-                        0,
-                        filling,
-                        product_assets_lib,
-                        support_data,
-                        active_fixture_cfg.x_gap,
-                        active_fixture_cfg.y_gap,
-                        active_fixture_cfg.delta_x,
-                        active_fixture_cfg.delta_y,
-                        active_fixture_cfg.start_point_x,
-                        active_fixture_cfg.start_point_y,
-                        active_fixture_cfg.filling_type,
-                        seed_arrangement_gen,
-                        active_fixture_cfg.noise_std_x,
-                        active_fixture_cfg.noise_std_y,
-                        active_fixture_cfg.rotation_lower,
-                        active_fixture_cfg.rotation_upper,
-                    )
-            
-            json_str = synth.exchange.export.export_json(scene, include_metadata=False)
-            data = json.loads(json_str)
-            del data["geometry"]
-            output_name = f'{shelf_name}.json'
-            with open(Path(output_dir) / output_name, "w") as f:
-                json.dump(data, f, indent=4)
+                add_objects_to_shelf_v2(
+                            scene,
+                            0,
+                            filling,
+                            product_assets_lib,
+                            support_data,
+                            active_fixture_cfg.x_gap,
+                            active_fixture_cfg.y_gap,
+                            active_fixture_cfg.delta_x,
+                            active_fixture_cfg.delta_y,
+                            active_fixture_cfg.start_point_x,
+                            active_fixture_cfg.start_point_y,
+                            active_fixture_cfg.filling_type,
+                            seed_arrangement_gen,
+                            active_fixture_cfg.noise_std_x,
+                            active_fixture_cfg.noise_std_y,
+                            active_fixture_cfg.rotation_lower,
+                            active_fixture_cfg.rotation_upper,
+                        )
+                
+                json_str = synth.exchange.export.export_json(scene, include_metadata=False)
+                data = json.loads(json_str)
+                del data["geometry"]
+                output_name = f'{shelf_name}.json'
+                with open(Path(output_dir) / output_name, "w") as f:
+                    json.dump(data, f, indent=4)
 
         return True
     

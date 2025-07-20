@@ -3252,7 +3252,7 @@ fixtures:
         up: [0, 1, 0]
         front: [0, 0, -1]
   large_showcase_fake:
-    asset_file_path: ${assets.assets_dir_path}/large_fridge_fake.glb
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/large_fridge_fake.glb
     ms_is_static: true
 
 scene_assets:

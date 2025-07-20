@@ -89,25 +89,26 @@ class DarkstoreSceneContinuous(DarkstoreScene):
             "scene_fixtures"
             ]
         
-        # pick random suitable inactive shelf and replace it to active
-        active_shelving = scene_data['layout_data']["active_shelvings"][0]
+        if len(scene_data['layout_data']["active_shelvings"]) > 0:
+            # pick random suitable inactive shelf and replace it to active
+            active_shelving = scene_data['layout_data']["active_shelvings"][0]
 
-        inactive_shelvings = scene_data['layout_data']['inactive_shelvings']
-        to_be_replaced_idxs = []
-        for i, fixture in enumerate(inactive_shelvings):
-            if fixture['asset_name'] == active_shelving['asset_name']:
-                to_be_replaced_idxs.append(i)
-        if len(to_be_replaced_idxs) < 1:
-            return RuntimeError("No suitable shelvings!")
-        to_be_replaced_shelf_idx = self.env._batched_episode_rng[scene_idx].choice(to_be_replaced_idxs)
-        active_shelf = inactive_shelvings.pop(to_be_replaced_shelf_idx)
-        
-        active_shelving['x'] = active_shelf['x']
-        active_shelving['y'] = active_shelf['y']
-        active_shelving['orientation'] = active_shelf['orientation']
+            inactive_shelvings = scene_data['layout_data']['inactive_shelvings']
+            to_be_replaced_idxs = []
+            for i, fixture in enumerate(inactive_shelvings):
+                if fixture['asset_name'] == active_shelving['asset_name']:
+                    to_be_replaced_idxs.append(i)
+            if len(to_be_replaced_idxs) < 1:
+                return RuntimeError("No suitable shelvings!")
+            to_be_replaced_shelf_idx = self.env._batched_episode_rng[scene_idx].choice(to_be_replaced_idxs)
+            active_shelf = inactive_shelvings.pop(to_be_replaced_shelf_idx)
+            
+            active_shelving['x'] = active_shelf['x']
+            active_shelving['y'] = active_shelf['y']
+            active_shelving['orientation'] = active_shelf['orientation']
 
-        scene_data['layout_data']["inactive_shelvings"] = inactive_shelvings
-        scene_data['layout_data']["active_shelvings"][0] = active_shelving
+            scene_data['layout_data']["inactive_shelvings"] = inactive_shelvings
+            scene_data['layout_data']["active_shelvings"][0] = active_shelving
 
 
 
@@ -178,6 +179,7 @@ class DarkstoreSceneContinuous(DarkstoreScene):
                         item_name = f'[ENV#{scene_idx}]_{obj_name}'
                         actor = self.env.assets_lib[asset_name].ms_build_actor(item_name, self.env.scene, pose=prod_pose, scene_idxs=[scene_idx])
                         self.env.actors["products"][item_name] = actor
+                
         # origin = - self.IMPORTED_SS_SCENE_SHIFT
 
         # nodes_dict = {}

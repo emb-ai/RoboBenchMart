@@ -54,7 +54,8 @@ from dsynth.planning.utils import (
     get_fcl_object_name, 
     compute_box_grasp_thin_side_info,
     convert_actor_convex_mesh_to_fcl,
-    is_mesh_cylindrical
+    is_mesh_cylindrical,
+    BAD_ENV_ERROR_CODE
 )
 
 def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None, debug=False, vis=False):
@@ -86,6 +87,8 @@ def solve_fetch_pick_to_basket_cont_one_prod(env: PickToBasketContEnv, seed=None
     def get_tcp_center():
         return get_tcp_matrix()[:3, 3]
 
+    if len(planner.planner.planning_world.check_collision()) > 0:
+        return BAD_ENV_ERROR_CODE
 
     FINGER_LENGTH = 0.04
     env = env.unwrapped

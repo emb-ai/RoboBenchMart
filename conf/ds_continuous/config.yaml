@@ -39,7 +39,7 @@ inactive_shelvings_list:
   - fixtures.small_shelf_two_sided
 
 inactive_wall_shelvings_list:
-  - fixtures.freezer_large
+  - fixtures.freezer_large_filled
 
 scene_fixtures_list: 
   - fixtures.pile_of_pallets

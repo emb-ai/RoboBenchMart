@@ -505,7 +505,7 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
         self.language_instructions = []
         for scene_idx in env_idx:
             scene_idx = scene_idx.cpu().item()
-            self.language_instructions.append(f'move to the shelf and pick {self.target_product_names[scene_idx]} and put to the basket')
+            self.language_instructions.append(f'move to shelf and pick {self.target_product_names[scene_idx]} to basket')
 
     def _after_simulation_step(self):
         #does not work on gpu sim

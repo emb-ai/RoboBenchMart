@@ -2456,7 +2456,7 @@ fixtures:
     asset_file_path: ${assets.assets_dir_path}/fake_shelves/small_shelf_two_sided_fake_2.glb
     ms_is_static: true
   large_showcase_fake:
-    asset_file_path: ${assets.assets_dir_path}/large_fridge_fake.glb
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/large_fridge_fake.glb
     ms_is_static: true
 
 scene_assets:

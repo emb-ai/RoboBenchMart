@@ -132,8 +132,10 @@ class TensorFieldLayout(LayoutGeneratorBase):
         )
 
         self.place_fixtures()
-        self.place_inactive_wall_shelvings()
-        self.place_active_wall_shelvings()
+        # self.place_inactive_wall_shelvings()
+        res = self.place_wall_shelvings()
+        if not res:
+            return None
         res = self.place_shelvings()
         if not res:
             return None
@@ -160,11 +162,34 @@ class TensorFieldLayout(LayoutGeneratorBase):
                 log.warning('Failed to place scene fixture')
         return True
     
-    def place_inactive_wall_shelvings(self):
-        inactive_wall_shelvings_list = self.cfg.ds_continuous.inactive_wall_shelvings_list
+    def place_wall_shelvings(self):
         half_perimeter = self.size_x + self.size_y
         perimeter_points = np.linspace(0, half_perimeter, 40)
         self.rng.shuffle(perimeter_points)
+        
+        active_wall_shelvings_list = self.cfg.ds_continuous.active_wall_shelvings_list
+        for wall_active_shelving in active_wall_shelvings_list:
+            rect = RectFixture.make_from_asset(
+                self.product_assets_lib[wall_active_shelving.shelf_asset], name=f'{self.name}_{wall_active_shelving.name}',
+                occupancy_width=self.inactive_wall_shelvings_occupancy_width,
+                asset_name=wall_active_shelving.shelf_asset
+            )
+
+            success = False
+
+            for point in perimeter_points:
+                rect = self._place_rect_at_point(rect, point)
+                
+                if rect.is_valid(self.size_x, self.size_y) and not check_collisions(rect, self._all_fixtures_list()):
+                    success = True
+                    self.all_fixtures['active_wall_shelvings'].append(rect)
+                    break
+                
+            if not success:
+                return False
+
+
+        inactive_wall_shelvings_list = self.cfg.ds_continuous.inactive_wall_shelvings_list
         for asset_name in inactive_wall_shelvings_list:
             rect = RectFixture.make_from_asset(self.product_assets_lib[asset_name], name=f'inactive_wall_shelving:{asset_name}',
                                                occupancy_width=self.inactive_wall_shelvings_occupancy_width, 
@@ -172,34 +197,8 @@ class TensorFieldLayout(LayoutGeneratorBase):
             success = False
 
             for point in perimeter_points:
-                if point <= self.size_x:
-                    x = point
-                    y = self.size_y
-                    rect.orientation = 'horizontal'
-                elif self.size_x < point <= self.size_x + self.size_y:
-                    x = 0
-                    y = point - self.size_x
-                    rect.orientation = 'vertical'
-                else:
-                    raise RuntimeError
-                # elif self.size_x + self.size_y < point <= 2 * self.size_x + self.size_y:
-                #     x = point - self.size_x - self.size_y
-                #     y = self.size_y
-                #     rect.orientation = 'horizontal'
-                # else:
-                #     x = 0
-                #     y = point - 2 * self.size_x - self.size_y
-                #     rect.orientation = 'vertical'
+                rect = self._place_rect_at_point(rect, point)
                 
-                if rect.orientation == 'horizontal':
-                    if y == self.size_y:
-                        y -= rect.w / 2 + rect.occupancy_width + 1e-2
-                if rect.orientation == 'vertical':
-                    if x == 0:
-                        x += rect.w / 2 + rect.occupancy_width + 1e-2
-
-                rect.x = x
-                rect.y = y
                 if rect.is_valid(self.size_x, self.size_y) and not check_collisions(rect, self._all_fixtures_list()):
                     success = True
                     self.all_fixtures['inactive_wall_shelvings'].append(rect)
@@ -210,7 +209,30 @@ class TensorFieldLayout(LayoutGeneratorBase):
         
         return True
     
+    def _place_rect_at_point(self, rect, point):
+        if point <= self.size_x:
+            x = point
+            y = self.size_y
+            rect.orientation = 'horizontal'
+        elif self.size_x < point <= self.size_x + self.size_y:
+            x = 0
+            y = point - self.size_x
+            rect.orientation = 'vertical'
+        else:
+            raise RuntimeError
     
+        if rect.orientation == 'horizontal':
+            if y == self.size_y:
+                y -= rect.w / 2 + rect.occupancy_width + 1e-2
+        if rect.orientation == 'vertical':
+            if x == 0:
+                x += rect.w / 2 + rect.occupancy_width + 1e-2
+
+        rect.x = x
+        rect.y = y
+        return rect
+
+
     def place_active_wall_shelvings(self):
         active_wall_shelvings = self.cfg.ds_continuous.active_wall_shelvings_list
         return []
@@ -227,9 +249,12 @@ class TensorFieldLayout(LayoutGeneratorBase):
 
         assert len(self.cfg.ds_continuous.active_shelvings_list) <= 1
         
-        active_fixture = self.cfg.ds_continuous.active_shelvings_list[0]
-        if active_fixture['shelf_asset'] not in inactive_shelvings_list:
-            inactive_shelvings_list.append(active_fixture['shelf_asset'])
+        if len(self.cfg.ds_continuous.active_shelvings_list) > 0:
+            active_fixture = self.cfg.ds_continuous.active_shelvings_list[0]
+            if active_fixture['shelf_asset'] not in inactive_shelvings_list:
+                inactive_shelvings_list.append(active_fixture['shelf_asset'])
+        else:
+            active_fixture = None
 
         sample_rects = []
         for asset_name in inactive_shelvings_list:
@@ -251,7 +276,10 @@ class TensorFieldLayout(LayoutGeneratorBase):
                                 scene_fixtures=self._all_fixtures_list()
                                 )
             
-            if active_fixture['shelf_asset'] in [r.asset_name for r in inactive_shelvings]:
+            if active_fixture is None:
+                success = True
+                break
+            elif active_fixture['shelf_asset'] in [r.asset_name for r in inactive_shelvings]:
                 success = True
                 break
 
@@ -265,10 +293,11 @@ class TensorFieldLayout(LayoutGeneratorBase):
             fixture.draw(ax[1], show_occupancy=False)
         fig.savefig(Path(self.cfg.ds_continuous.output_dir) / f'{self.name}_tf.jpg')
 
-        self.all_fixtures['active_shelvings'].append(RectFixture.make_from_asset(
-            self.product_assets_lib[active_fixture.shelf_asset], name=f'{self.name}_{active_fixture.name}',
-            asset_name=active_fixture.shelf_asset
-        ))
+        if active_fixture is not None:
+            self.all_fixtures['active_shelvings'].append(RectFixture.make_from_asset(
+                self.product_assets_lib[active_fixture.shelf_asset], name=f'{self.name}_{active_fixture.name}',
+                asset_name=active_fixture.shelf_asset
+            ))
         return True
     
     # def place_active_shelvings(self):

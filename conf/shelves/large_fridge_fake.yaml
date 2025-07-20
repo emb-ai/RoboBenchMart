@@ -1,0 +1,49 @@
+defaults:
+  - base_shelf_config
+  - _self_
+
+name: 'large_fridge_fake'
+filling_type: BOARDWISE_COLUMNS
+shelf_asset: fixtures.showcase_glb
+
+board_product_numcol:
+  0:
+    food.MILK.BetaniaMilk: 7
+    food.MILK.BomBaMilk: 5
+    food.MILK.IntegralMilk: 8
+    food.MILK.ItalacMilk: 4
+  1:
+    food.MILK.DailyFreshMilkNatural: 5
+    food.MILK.DosPinosMilk: 6
+    food.MILK.LactelMilk: 8
+  2:
+    food.MILK.FreshMilk: 15
+    food.MILK.MilkBioNonVegan: 6
+    food.MILK.MilkOfHumanKindness: 6
+    food.MILK.MlekarnaKuninMilk: 6
+  3:
+    food.BEER.AleBeerBottle: 7
+    food.BEER.AsahiBeerBottle: 5
+    food.BEER.AsahiBeerCan: 8
+    food.BEER.Baltika9BeerCan: 4
+  4:
+    food.BEER.BlueLakeLager: 5
+    food.BEER.BudLightBeerBottle: 6
+    food.BEER.CoronaExtraJapan: 8
+  8:
+    food.BEER.DuffBeerCan: 15
+    food.BEER.GuinnessBeerCan: 6
+    food.BEER.KaniBeerCan: 6
+    food.BEER.KirinIchibanBeerCan: 6
+
+
+shuffle_boards: False
+shuffle_items_on_board: False
+
+x_gap: 0.001
+y_gap: 0.001
+
+rotation_lower: -0.01
+rotation_upper: 0.01
+noise_std_x: 0.0001
+noise_std_y: 0.0001

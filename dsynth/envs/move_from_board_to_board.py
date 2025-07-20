@@ -419,6 +419,13 @@ class MoveFromBoardToBoardContEnv(PickToBasketContEnv):
     def _after_simulation_step(self):
         pass
 
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            self.language_instructions.append(f'pick {self.TARGET_PRODUCT_NAME} and place on empty board')
+
+
 @register_env('MoveFromBoardToBoardVanishContEnv', max_episode_steps=200000)
 class MoveFromBoardToBoardVanishContEnv(MoveFromBoardToBoardContEnv):
     TARGET_PRODUCT_NAME = 'Vanish Stain Remover'
