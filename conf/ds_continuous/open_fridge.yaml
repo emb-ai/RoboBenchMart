@@ -1,0 +1,33 @@
+defaults:
+  - config
+  - _self_
+
+name: 'open_fridge'
+output_dir: demo_envs/open_fridge
+size_x: 15
+size_y: 12 
+rewrite: true
+num_scenes: 1
+num_workers: 1
+layout_gen_type: PROCEDURAL_TENSOR_FIELD
+randomize_layout: true
+randomize_arrangements: true
+
+random_seed: 42
+
+
+inactive_shelvings_occupancy_width: 1.5
+fixtures_occupancy_width: 0.5
+passage_width: 1.7
+inactive_shelvings_skip_prob: 0.1
+
+active_shelvings_list:
+  - name: 'fridge'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.06
+    y_gap: 0.02
+    delta_x: 0.1
+    shelf_asset: fixtures.freezer_nestle
+    shuffle_boards: True
+    shuffle_items_on_board: True
+    
