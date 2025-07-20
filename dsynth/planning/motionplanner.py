@@ -226,8 +226,10 @@ class PandaArmMotionPlanningSapienSolver(PandaArmMotionPlanningSolverV2):
         joint_vel_limits=0.9,
         joint_acc_limits=0.9,
         objects = [],
-        disable_actors_collision=False
+        disable_actors_collision=False,
+        verbose=True
     ):
+        self.verbose = verbose
         self.disable_actors_collision = disable_actors_collision
         super().__init__(env, debug, vis, base_pose, visualize_target_grasp_pose, print_env_info, joint_vel_limits, joint_acc_limits, objects)
         
@@ -709,7 +711,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         if np.cross(base_x_axis, new_direction)[2] < 0:
             angle = -angle
         
-        if np.abs(angle) < 1e-3:
+        if np.abs(angle) < 1e-2:
             return self.idle_steps(t=1)
 
         rotation_wrt_base_link = sapien.Pose(q=euler2quat(0, 0, angle))
@@ -790,7 +792,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            # masked_joints=[True, True, True] + [False] * 12
+            masked_joints=[True, True, True] + [False] + [True] * 11
         )
         
         self.render_wait()
@@ -806,6 +808,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            masked_joints=[True, True, True] + [False] + [True] * 11
             # masked_joints=[True, True, True] + [False] * 12
         )
 
@@ -873,7 +876,7 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
                 time_step=self.base_env.control_timestep,
                 # use_point_cloud=self.use_point_cloud,
                 wrt_world=True,
-                verbose=True,
+                verbose=self.verbose,
                 planning_time=4,
                 rrt_range=0.1,
                 simplify=True,
@@ -985,8 +988,9 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             base_action[1] = qvel[2]
 
             action = np.hstack([arm_action, self.gripper_state, body_action, base_action])
-            print("base Action:", np.round(base_action, 4))
-            print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+            if self.verbose:
+                print("base Action:", np.round(base_action, 4))
+                print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
             obs, reward, terminated, truncated, info = self.env.step(action)
 
             self.elapsed_steps += 1
@@ -1016,8 +1020,9 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             base_action[0] = is_forward * np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
 
             action = np.hstack([arm_action, self.gripper_state, body_action, base_action])
-            print("base Action:", np.round(base_action, 4))
-            print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+            if self.verbose:
+                print("base Action:", np.round(base_action, 4))
+                print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
             obs, reward, terminated, truncated, info = self.env.step(action)
 
             self.elapsed_steps += 1
@@ -1066,10 +1071,11 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             base_action[0] =  np.sqrt(qvel[0] ** 2 + qvel[1] ** 2)
 
             action = np.hstack([arm_action, self.gripper_state, body_action, base_action])
-            print("arm Action:", np.round(arm_action, 4))
-            print("body Action:", np.round(body_action, 4))
-            print("base Action:", np.round(base_action, 4))
-            print("qpos: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+            if self.verbose:
+                print("arm Action:", np.round(arm_action, 4))
+                print("body Action:", np.round(body_action, 4))
+                print("base Action:", np.round(base_action, 4))
+                print("qpos: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
             obs, reward, terminated, truncated, info = self.env.step(action)
 
             self.elapsed_steps += 1
@@ -1087,7 +1093,8 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             last_x_base_poses = deque(maxlen=10)
             last_lift_vels = deque(maxlen=10)
             last_x_base_vels = deque(maxlen=10)
-            print("==== REFINEMENT ====")
+            if self.verbose:
+                print("==== REFINEMENT ====")
     
             while not self.check_body_base_close_to_target(qpos_dict_final):
                 if (len(last_lift_vels) > 4 and np.std(last_lift_vels) < 1e-3) \
@@ -1114,10 +1121,11 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
                 last_x_base_vels.append(self.env_agent.controller.controllers['base'].qvel[0].cpu().numpy()[0])
 
                 action = np.hstack([arm_action, self.gripper_state, body_action, base_action])
-                print("arm Action:", np.round(arm_action, 4))
-                print("body Action:", np.round(body_action, 4))
-                print("base Action:", np.round(base_action, 4))
-                print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
+                if self.verbose:
+                    print("arm Action:", np.round(arm_action, 4))
+                    print("body Action:", np.round(body_action, 4))
+                    print("base Action:", np.round(base_action, 4))
+                    print("Full: ", np.round(self.robot.get_qpos().cpu().numpy()[0], 4))
                 obs, reward, terminated, truncated, info = self.env.step(action)
                 passed_refine_steps += 1
                 self.elapsed_steps += 1

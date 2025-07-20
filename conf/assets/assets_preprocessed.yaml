@@ -1,0 +1,2465 @@
+assets_dir_path: assets
+products_hierarchy:
+  food:
+    grocery:
+      baby:
+        ss_asset_type: MeshAsset
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/baby.glb
+        asset_name: baby food
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      cerealsForSS:
+        ss_asset_type: MeshAsset
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cerealsForSS.glb
+        asset_name: cereals
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      cerealescornflakescora:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cerealescornflakescora.glb
+        asset_name: corn cereals
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      cornFlakesRetroEditionSmall:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cornFlakesRetroEditionSmall.glb
+        asset_name: retro corn flakes
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      nestleFitnessChocolateCerealBox:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nestleFitnessChocolateCerealBox.glb
+        asset_name: chocolate cereal box
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    dairy_products:
+      milk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk.glb
+        asset_name: milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      milkHandle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milkHandle.glb
+        asset_name: plastic milk bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      milkCarton:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milkCarton.glb
+        asset_name: auchan milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    drinks:
+      cocaColaCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cocaColaCan.glb
+        asset_name: coca cola can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      pepsi:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pepsi.glb
+        asset_name: pepsi bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      fanta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/fanta.glb
+        asset_name: fanta bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      mountainDew:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/mountainDew.glb
+        asset_name: mountain dew can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      chaosCola2l:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/chaosCola2l.glb
+        asset_name: chaos cola
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      cocaColaNoSugar1p5l:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cocaColaNoSugar1p5l.glb
+        asset_name: cola with no sugar
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      sprite2p25l:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/sprite2p25l.glb
+        asset_name: sprite
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      fantaNaranja1p35l:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/fantaNaranja1p35l.glb
+        asset_name: fanta bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      coffeePackaging:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coffeePackaging.glb
+        asset_name: myboo coffee package
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      coffeePaperBag:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coffeePaperBag.glb
+        asset_name: paper coffee package
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      coffeePackaging1:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coffeePackaging1.glb
+        asset_name: coffee package
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      coffeeCapsulesDolceGusto:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coffeeCapsulesDolceGusto.glb
+        asset_name: capsules dolce gusto
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      nescafesimple:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nescafesimple.glb
+        asset_name: nescafe
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      pgTipsTeaBox:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pgTipsTeaBox.glb
+        asset_name: tea tips
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      sirWinstonTea:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/sirWinstonTea.glb
+        asset_name: winston tea
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    CANNED:
+      ArgonautAlaskaSalmon:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/canned_fish-freepoly.org_rotated.glb
+        asset_name: Argonaut Alaska Salmon
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FallsColumbiaRiverSalmon:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/canned_fish_2-freepoly.org_rotated.glb
+        asset_name: Falls Columbia River Salmon
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TunaCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/tuna_can.glb
+        asset_name: Tuna Can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CannedCorn:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/vintage_canned_corn_1.glb
+        asset_name: Canned Corn
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BakedBeansHappyAnniversary:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/canned_bean_rotated.glb
+        asset_name: Baked Beans Happy Anniversary
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HeinzBeansWithTomatoSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/food_can_rotated.glb
+        asset_name: Heinz Beans with tomato sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DelMonteCrushedPineapple:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/canned_food_rotated.glb
+        asset_name: Del Monte Crushed Pineapple
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Frank'SBeans:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/food_can_415g_rotated.glb
+        asset_name: Frank's Beans
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BeefRidersExtraBeef:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/beef_can_rotated.glb
+        asset_name: Beef Riders Extra Beef
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SlamLuncheonMeat:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/lunch_canned_luncheon_meat_rotated.glb
+        asset_name: SLAM luncheon meat
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SaborGreenOlives:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/canarian_cafe-_jar_of_olives_rotated.glb
+        asset_name: Sabor Green Olives
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PickledCucumbers:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pickled_cucumbers_rotated.glb
+        asset_name: Pickled Cucumbers
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BakedBeansInTomatoSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/beans_rotated.glb
+        asset_name: Baked Beans in Tomato Sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HeinzBeansInARichTomatoSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/a_can_of_beans_rotated.glb
+        asset_name: Heinz Beans in a rich tomato sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DelMonteCutGreenBeans:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/green_beans_rotated.glb
+        asset_name: Del Monte Cut Green Beans
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HeinzBakedBeansInTomatoSauce33P:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bean_tin_rotated.glb
+        asset_name: Heinz Baked Beans in tomato sauce 33p
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RadonezhCorn:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/can_of_sweet_corn.glb
+        asset_name: Radonezh Corn
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    COFFEE_TEA:
+      GeorgiaCannedCoffee:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/canned_coffee_-_lighting_test.glb
+        asset_name: Georgia Canned Coffee
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AsahiWondaCoffee:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/extreme_wonda.glb
+        asset_name: Asahi Wonda Coffee
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Detwiler'SSaltedCaramelCoffee:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/detwilers_salted_caramel__coffee_grounds_bag_rotated.glb
+        asset_name: Detwiler's Salted Caramel Coffee
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      EternalSunshineSpiceTea:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/spice_tea-_black_tea_collada.glb
+        asset_name: Eternal Sunshine Spice Tea
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KaferCaffeEspresso:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coffee_pack_rotated.glb
+        asset_name: Kafer Caffe Espresso
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JacobsCappuccino:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/jacobsmilka.glb
+        asset_name: Jacobs Cappuccino
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DrosteCacao:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/vintage_dutch_tin_of_chocolate_powder_rotated.glb
+        asset_name: Droste Cacao
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MaybooCoffee:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coffee_packaging_2.glb
+        asset_name: Mayboo Coffee
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TheCafeCubaSerranoSuperiorLavado:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coffee_paper_bag_3d_scan_1.glb
+        asset_name: The Cafe Cuba Serrano Superior Lavado
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NescafeDolceGustoEspressoCapsules:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coffee_capsules_pack_dolce_gusto_espresso_1.glb
+        asset_name: Nescafe Dolce Gusto Espresso Capsules
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NescafeOriginal:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nescafesimple_1_rotated.glb
+        asset_name: Nescafe Original
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PgTipsTeaBox:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pg_tips_tea_box_1_rotated.glb
+        asset_name: PG Tips Tea Box
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SirWinstonTea:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/sir_winston_tea_1_rotated.glb
+        asset_name: Sir Winston Tea
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    SWEET:
+      HeartsInAJar:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/heart_in_a_jar.glb
+        asset_name: Hearts in a Jar
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FrankCooper'SMarmalade:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/vintage_marmalade_jar_rotated.glb
+        asset_name: Frank Cooper's Marmalade
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HomemadeJam:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/jam_jam_rotated.glb
+        asset_name: Homemade Jam
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Nutella:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nutella_rotated.glb
+        asset_name: Nutella
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NutellaHazelnutSpreadWithCocoa:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nutella_2_rotated.glb
+        asset_name: Nutella Hazelnut Spread with Cocoa
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RaspberryJam:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/casual_jar_of_raspberry_jam_rotated.glb
+        asset_name: Raspberry Jam
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FaragelloFigJam:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/jam_2k_3_rotated.glb
+        asset_name: Faragello Fig Jam
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FaragelloMixedJam:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/jam_2k_4_rotated.glb
+        asset_name: Faragello Mixed Jam
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FruitGum:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/fruit_gum_rotated.glb
+        asset_name: Fruit Gum
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GumLoveIs:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/chewing_gum_love_is_rotated.glb
+        asset_name: Gum Love Is
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OreoChocolatePieCookies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/box_oreo_rotated.glb
+        asset_name: Oreo Chocolate Pie Cookies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OrionChoco-Pie:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/choco_pie_rotated.glb
+        asset_name: Orion Choco-Pie
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TanukiDrops:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/tanuki_drops_candy__japanese_hard_candy.glb
+        asset_name: Tanuki Drops
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      EclipseMints:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/mint_candy_box_rotated.glb
+        asset_name: Eclipse Mints
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      WonkaRuntsCandies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wonka_runts_box_rotated.glb
+        asset_name: Wonka Runts Candies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SakumaDropsCandies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/sakuma_drops_candy.glb
+        asset_name: Sakuma Drops Candies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TicTacGreen:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/tic_tac_rotated.glb
+        asset_name: Tic Tac Green
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      LoveSomeHoney:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/honey_bear_bottle_rotated.glb
+        asset_name: Love Some Honey
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NaturalFlowerHoneyBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/honey_bottle_rotated.glb
+        asset_name: Natural Flower Honey Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PeterPanPeanutButter:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/peanut_butter_1_rotated.glb
+        asset_name: Peter Pan Peanut Butter
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JifPeanutButter:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/peanut_butter_rotated.glb
+        asset_name: Jif Peanut Butter
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    QUICK_FOOD:
+      Campbell'SCondensedTomatoSoup:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/campbells_can_rotated.glb
+        asset_name: Campbell's Condensed Tomato Soup
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BucketheadChickenNoodles:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/buckethead_chicken_noodles_rotated.glb
+        asset_name: Buckethead Chicken Noodles
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Campbell'SCondensedPrimordialSoup:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/can_soup_rotated.glb
+        asset_name: Campbell's Condensed Primordial Soup
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ExtraCreamyChickenSoup:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/creamy_chicken_soup_can_rotated.glb
+        asset_name: Extra Creamy Chicken Soup
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Campbell'SCondenseChickenNoodleSoup:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/campbells_chicken_noodle_soup_rotated.glb
+        asset_name: Campbell's Condense Chicken Noodle Soup
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Borsch:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/f43bb07e13bd4422bb7d4cbe6a213957_rotated.glb
+        asset_name: Borsch
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RoycoChickenSoup:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/royco_quick_soup_rotated.glb
+        asset_name: Royco Chicken Soup
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NissinCurry:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/b71c925d07134c2b869ffd778bbb0616_rotated.glb
+        asset_name: Nissin Curry
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NissinCupNoodlesSeafood:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nissin_cup_noodles_-_seafood_flavour.glb
+        asset_name: Nissin Cup Noodles Seafood
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Cup'ONoodlesChicken:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/noodle_cup_rotated.glb
+        asset_name: Cup'o Noodles Chicken
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Jin-RamenNoodles:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/jin-ramen_cup_noodle_rotated.glb
+        asset_name: Jin-Ramen Noodles
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NongshimShinRamen:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/ramen.glb
+        asset_name: Nongshim Shin Ramen
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BuldackCarbonaraNoodles:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/carbonara_buldack_cup_rotated.glb
+        asset_name: Buldack Carbonara Noodles
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MaruchanConCamaronNoodles:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/maruchan_con_camaron_rotated.glb
+        asset_name: Maruchan Con Camaron Noodles
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NissinSpicyRoastBeefNoodles:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/scan_instant_noodles-freepoly.org_1_rotated.glb
+        asset_name: Nissin Spicy Roast Beef Noodles
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NissinCupNoodlesChicken:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nissin_cup_noodles_-_chicken_flavour_rotated.glb
+        asset_name: Nissin Cup Noodles Chicken
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    BEER:
+      KuimiBeerPuroMalteCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/generic_beverage_can_rotated.glb
+        asset_name: Kuimi Beer Puro Malte Can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SamuelMihaiLagerBeerBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/samuel_beer_rotated.glb
+        asset_name: Samuel Mihai Lager Beer Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KaniBeerCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/kani_beer.glb
+        asset_name: Kani Beer Can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HeinekenLagerBeerBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/heibeken_beer.glb
+        asset_name: Heineken Lager Beer Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BudLightBeerBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bud_light_rotated.glb
+        asset_name: Bud Light Beer Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CoronaExtraBeerBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/beer_bottle_rotated.glb
+        asset_name: Corona Extra Beer Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DuffBeerCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/duff_can_rotated.glb
+        asset_name: Duff Beer Can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AleBeerBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/beer_bottle_1_rotated.glb
+        asset_name: Ale Beer Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AsahiBeerCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/asahi_beer_can_rotated.glb
+        asset_name: Asahi Beer Can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BlueLakeLager:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/beer_rotated.glb
+        asset_name: Blue Lake Lager
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AsahiBeerBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/asahi_beer_bottle_rotated.glb
+        asset_name: Asahi Beer Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CoronaExtraJapan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/corona_extra_355ml_bottle_japan_rotated.glb
+        asset_name: Corona Extra Japan
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KirinIchibanBeerCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/japanese_beer_rotated.glb
+        asset_name: Kirin Ichiban Beer Can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NadirBeerBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bottle_beer_nadir_rotated.glb
+        asset_name: Nadir Beer Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GuinnessBeerCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/guinness_beer_can_rotated.glb
+        asset_name: Guinness Beer Can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Baltika9BeerCan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/6955f9c074ee4969b131c746e26be16f_rotated.glb
+        asset_name: Baltika 9 Beer Can
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    RICE_SPAGHETTI:
+      RiceARoniLongGrainRice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/rice_a_roni_long_grain_rice_box.glb
+        asset_name: Rice a Roni Long Grain Rice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      EssentialWaitrosePennePasta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pasta_sample.glb
+        asset_name: Essential Waitrose Penne Pasta
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BeneaRigatoniPasta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pasta.glb
+        asset_name: Benea Rigatoni Pasta
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BeneaFusilliPasta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pasta_1.glb
+        asset_name: Benea Fusilli Pasta
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BeneaTrigalFusilli:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pasta_2_rotated.glb
+        asset_name: Benea Trigal Fusilli
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GibsPastaElbowMacaroni:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pasta_elbow_macaroni.glb
+        asset_name: Gibs Pasta Elbow Macaroni
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      VicenzoFarfallePasta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pasta_3_rotated.glb
+        asset_name: Vicenzo Farfalle Pasta
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BeneaCavatappiPasta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pasta_benea_rotated.glb
+        asset_name: Benea Cavatappi Pasta
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BanzaCavatappiPasta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/banza_pasta_higher_res_rotated.glb
+        asset_name: Banza Cavatappi Pasta
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BeneaPenneRigatePasta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pasta_benea_propuesta_rotated.glb
+        asset_name: Benea Penne Rigate Pasta
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BarillaFarfallePasta:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/day_205_dinner_rotated.glb
+        asset_name: Barilla farfalle Pasta
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    SAUCES:
+      MarikenAndMartinOliveOil:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/olive_oil_rotated.glb
+        asset_name: Mariken and Martin Olive Oil
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CalveMayonaise:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/calve_mayonaise.glb
+        asset_name: Calve Mayonaise
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PudliszkyKetchup:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/ketchup_rotated.glb
+        asset_name: Pudliszky Ketchup
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AridllTomatoKetchup:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/ketchup_aridll_rotated.glb
+        asset_name: Aridll Tomato Ketchup
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CocinaCarbonaraPastaSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/carbonara_jar_rotated.glb
+        asset_name: Cocina Carbonara Pasta Sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FaragelloTomatoPuree:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/350_jar_rotated.glb
+        asset_name: Faragello Tomato Puree
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GreyPouponMustard:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/glass_bottle_3d_scan_rotated.glb
+        asset_name: Grey Poupon Mustard
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JiooTomatoPaste:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/tomato_paste_tin.glb
+        asset_name: Jioo Tomato Paste
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      McilhennyTabascoPepperSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/tabasco_sauce_rotated.glb
+        asset_name: McIlhenny Tabasco Pepper Sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Hellmann'SHotSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/hellmanns_hot_sauce_rotated.glb
+        asset_name: Hellmann's Hot Sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SweetBabyRay'SBarbecueSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/sweet_baby_rays_bbq_sauce_rotated.glb
+        asset_name: Sweet Baby Ray's Barbecue Sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AbcSoySauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/soy_sauce_1_rotated.glb
+        asset_name: ABC Soy Sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Devil'SHotSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/hot_sauce_bottle_rotated.glb
+        asset_name: Devil's Hot Sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ChiliPumSauce:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/3d_sauce_bottle_-_optimized_and_ready_for_use_rotated.glb
+        asset_name: chili pum sauce
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    YOGHURTS:
+      ShoburtisimoYogurt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/plastic_yogurt_bottle_rotated.glb
+        asset_name: Shoburtisimo Yogurt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      YaourtBanana:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/yogurt_rotated.glb
+        asset_name: Yaourt Banana
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ChobaniYogurt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/chobani_yogurt_no_base.glb
+        asset_name: Chobani Yogurt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AriddlNaturalYougurt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/yogurt_aridll.glb
+        asset_name: Ariddl Natural Yougurt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GreekDrinkingYogurt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/drinking_yogurt_bottle_rotated.glb
+        asset_name: Greek Drinking Yogurt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DulceGabyYogurt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/yogurt_natural_de_arandano_dulce_gaby_individual_rotated.glb
+        asset_name: Dulce Gaby Yogurt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      LacchiMughalMilkDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/lacchi_rotated.glb
+        asset_name: Lacchi Mughal Milk Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TeosYogurtNatural:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/teos__yogurt__bottle_0225151825_texture22222_rotated.glb
+        asset_name: Teos Yogurt Natural
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      YoghurppeJapaneseYogurt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/yoguruppe_rotated.glb
+        asset_name: Yoghurppe Japanese Yogurt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      LaiveYopiYogurt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/yogurth_fresa_rotated.glb
+        asset_name: Laive Yopi Yogurt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Seven&IDrinkYogurt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/yoghurt_rotated.glb
+        asset_name: Seven&i Drink Yogurt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BosettiActimel:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/official_bosetti__actimel_collab_rotated.glb
+        asset_name: Bosetti Actimel
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    HYGIENE:
+      HerbalsToothpaste:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/toothpaste_box_no_base_rotated.glb
+        asset_name: Herbals Toothpaste
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HebMouthRinse:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/mouthwash_bottle_rotated.glb
+        asset_name: HEB Mouth Rinse
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HeadAndShouldersShampooSensitive:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/head__shoulder_shampoo_tube.glb
+        asset_name: Head And Shoulders Shampoo Sensitive
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FreshrootsShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/shampoo_bottle_rotated.glb
+        asset_name: Freshroots Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HeadAndShouldersShampooPlusConditioner:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/head__shoulder_shampoo_rotated.glb
+        asset_name: Head And Shoulders Shampoo Plus Conditioner
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NativeHairCareMoisturizingShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/native_moisturizing_shampoo___coconut__vanilla_rotated.glb
+        asset_name: Native Hair Care Moisturizing Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CoconutShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coconut_shampoo_with_moisturizing_oils.glb
+        asset_name: Coconut Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      IlGeleShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/il_gele_shampoo_rotated.glb
+        asset_name: Il Gele Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MimaditosKidsShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/shampoo-dora-y-sus-amigos_rotated.glb
+        asset_name: Mimaditos Kids Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaMenShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nivea_man_shampoo.glb
+        asset_name: Nivea Men Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SavannahHandWash:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/savanah_shampoo_bottle_rotated.glb
+        asset_name: Savannah Hand Wash
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GrandesHeroesShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/shampoo_grandes_heroes_rotated.glb
+        asset_name: Grandes Heroes Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OldSpiceWhitewaterDeodorant:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/old_spice_deodorant_rotated.glb
+        asset_name: Old Spice Whitewater Deodorant
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OldSpiceVolcanoShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/shampoo_2_rotated.glb
+        asset_name: Old Spice Volcano Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Elmer'SShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/elmers_glue_shampoo_rotated.glb
+        asset_name: Elmer's Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PalmoliveNaturalsShampoo:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/shampoo1_rotated.glb
+        asset_name: Palmolive Naturals Shampoo
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MaimaraHairSpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/maimara_botella_producto_de_belleza_rotated.glb
+        asset_name: Maimara Hair Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OldSpiceLionprideDeodorantStick:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/old_spice_deodorant_1_rotated.glb
+        asset_name: Old Spice Lionpride Deodorant Stick
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AxeDeodorant:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/axe_rotated.glb
+        asset_name: Axe Deodorant
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OldSpiceClassicDeodorant:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/old_spice_rotated.glb
+        asset_name: Old Spice Classic Deodorant
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OldSpiceCaptainDeodorant:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/old_spice_deodorant_lowpoly_rotated.glb
+        asset_name: Old Spice Captain Deodorant
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OldspiceNightpantherDeodorant:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/oldspice_deodorant_stick_rotated.glb
+        asset_name: OldSpice Nightpanther Deodorant
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AxeApolloDeodorant:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/axe_deodorant_rotated.glb
+        asset_name: Axe Apollo Deodorant
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DeodorantKrakengard:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/deodrant_rotated.glb
+        asset_name: Deodorant Krakengard
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HandSanitiserSpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/hand_sanitiser_spray_rotated.glb
+        asset_name: Hand Sanitiser Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HeltyPropoleoMouthSpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/propoleo_spray_rotated.glb
+        asset_name: Helty Propoleo Mouth Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaSunProtegeFp50:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/spray_crema_nivea_50_rotated.glb
+        asset_name: Nivea Sun Protege FP50
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TododiaBodySpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/tododia_spray_datiles_y_canela_rotated.glb
+        asset_name: Tododia Body Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GoopHandCleaner:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/goop_tin_rotated.glb
+        asset_name: Goop Hand Cleaner
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HannaExtraMoistCream:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cosmetics__skin_care_product_-_free_rotated.glb
+        asset_name: Hanna Extra Moist Cream
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CompleteHempMoisturizerCream:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/face_eyes_moisturizer_cream_rotated.glb
+        asset_name: Complete Hemp Moisturizer Cream
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NeutrogenaCream:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/neutrogena_cream.glb
+        asset_name: Neutrogena Cream
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaDayCream:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nivea_-_refreshing_day_cream_-_by_smakologg_rotated.glb
+        asset_name: Nivea Day Cream
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KasivoideHandCream:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/hand_cream_rotated.glb
+        asset_name: Kasivoide Hand Cream
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BarbasolShavingCream:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/barbasol_shaving_cream_can_rotated.glb
+        asset_name: Barbasol Shaving Cream
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CompleteHempMoisturizerCreamFullExtract:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/face_eye_moisturizer_cream_rotated.glb
+        asset_name: Complete Hemp Moisturizer Cream Full Extract
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaCreme:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nivea_cream_bottle_model_rotated.glb
+        asset_name: Nivea Creme
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      EternityHandSoap:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bottle_of_soap.glb
+        asset_name: Eternity Hand Soap
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaBodyLotion:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nivea_body_lotion_rotated.glb
+        asset_name: Nivea Body Lotion
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaMenPostShaveBalm:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nivea_aftershave_rotated.glb
+        asset_name: Nivea Men Post Shave Balm
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaHandCream:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nivea_handcreme.glb
+        asset_name: Nivea Hand Cream
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaSunProtectAndMoisture:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nivea_zonnebrand_rotated.glb
+        asset_name: Nivea Sun Protect And Moisture
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NiveaBodyMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nivea_-_c_milk_oleo_de_amendoas_rotated.glb
+        asset_name: Nivea Body Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RawSheaButter:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/shea_butter_jar_rotated.glb
+        asset_name: Raw Shea Butter
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    CRACKERS_COOKIES:
+      EvergreenMultigrainBakedCrackers:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/crackers_box_rotated.glb
+        asset_name: Evergreen Multigrain Baked Crackers
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NautilusTunaSpreadWithCrackers:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/snack.glb
+        asset_name: nautilus tuna spread with crackers
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Barnum'SAnimalCrackers:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/barnums_animal_crackers_-_scanned_w_metashape_rotated.glb
+        asset_name: Barnum's Animal Crackers
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PockyCoconutAndBrownSugar:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coconut_flavour_pocky.glb
+        asset_name: Pocky Coconut And Brown Sugar
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PockyMatcha:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/macha_green_tea_pocky.glb
+        asset_name: Pocky Matcha
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BarryCallebautMilkChockolateChunks:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/snacksinabox.glb
+        asset_name: Barry Callebaut Milk Chockolate Chunks
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CookiesAndBiscuitsBox:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/boite_biscuits_en_metal_cookies_box_rotated.glb
+        asset_name: Cookies And Biscuits Box
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CoraCookies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cookies_cora_rotated.glb
+        asset_name: Cora Cookies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TohatoCookies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cookie_-_galleta__-_shin_chan_rotated.glb
+        asset_name: Tohato Cookies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Hershey'SCookies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/hershey_cookie_korean_vr_rotated.glb
+        asset_name: Hershey's Cookies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OreoLemonCremeSandwichCookies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/boite_biscuiits_oreo__oreo_cookies_box_rotated.glb
+        asset_name: Oreo Lemon Creme Sandwich Cookies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RichmondFudgeyRounds:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/fudgey_rounds_rotated.glb
+        asset_name: Richmond fudgey Rounds
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DeliciaBiscuits:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/box_of_sugar_biscuits_delicia_rotated.glb
+        asset_name: Delicia Biscuits
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AlmondCookies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/biscuit_sponge_cake_rotated.glb
+        asset_name: Almond Cookies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BananiaCookies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/banania_boite_en_tole.glb
+        asset_name: Banania Cookies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    FROZEN:
+      HealthyWayChickenFriedRice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/chicken_fried_rice_rotated.glb
+        asset_name: Healthy Way Chicken Fried Rice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Dr.OetkerRistoranteProsciuttoFunghiPizza:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pizza_box_ristorante_prosciutto_funghi_rotated.glb
+        asset_name: Dr.Oetker Ristorante Prosciutto Funghi Pizza
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    CEREALS:
+      Kellogg'SRiceKrispies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cereal_box_rice_krispies_label_low_poly_style.glb
+        asset_name: Kellogg's Rice Krispies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Kellogg'SCornFlakes:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/boite_metal_avec_fermeture_kelloggs_rotated.glb
+        asset_name: Kellogg's Corn Flakes
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DarkChocolateCerealBox:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/dark_chocolate_cereal_box_rotated.glb
+        asset_name: Dark Chocolate Cereal Box
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TrixCereals:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cereal_box_rotated.glb
+        asset_name: Trix Cereals
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CoraCornFlakes:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cerealescornflakescora_1_rotated.glb
+        asset_name: Cora Corn Flakes
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Kellogg'SCornFlakesRetroEdition:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/corn_flakes_retro_edition_1_rotated.glb
+        asset_name: Kellogg's Corn Flakes Retro Edition
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NestleFitnessChocolateCereals:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/nestle_fitness_chocolate_cereal_box_rotated.glb
+        asset_name: Nestle Fitness Chocolate Cereals
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Kellogg'SFrootLoops:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cereal_rotated.glb
+        asset_name: Kellogg's Froot Loops
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TrixRabbitCereals:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cereal_box_1.glb
+        asset_name: Trix Rabbit Cereals
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NesquikDuoCereals:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/caja_cereal_nesk.glb
+        asset_name: Nesquik Duo Cereals
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Rangston'SCocoaCritters:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cereal_cocoa_critters.glb
+        asset_name: Rangston's Cocoa Critters
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Kellogg'SCocoaKrispies:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cereal_box_test_rotated.glb
+        asset_name: Kellogg's Cocoa Krispies
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NestleHoneyStars:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cereal_-_honey_star.glb
+        asset_name: Nestle Honey Stars
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Kellogg'SGreatPower:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/spider-man_across_the_spiderverse_cereal_box_rotated.glb
+        asset_name: Kellogg's Great Power
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    MILK:
+      MilkBioNonVegan:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_carton.glb
+        asset_name: Milk Bio Non Vegan
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DailyFreshMilkNatural:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_1_rotated.glb
+        asset_name: Daily Fresh Milk Natural
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AuchanLeiteMagroMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_carton_1.glb
+        asset_name: Auchan Leite Magro Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ReducedFatMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/super_awesome_milk_carton.glb
+        asset_name: Reduced Fat Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FreshMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_packaging_rotated.glb
+        asset_name: Fresh Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BomBaMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bom_ba_milk_rotated.glb
+        asset_name: Bom Ba Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BetaniaMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/brazilian_milk_bottle.glb
+        asset_name: Betania Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OatlyMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/oat_milk_oatly_rotated.glb
+        asset_name: Oatly Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      IntegralMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_test_rotated.glb
+        asset_name: Integral Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RealMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_carton_2_rotated.glb
+        asset_name: Real Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MilkOfHumanKindness:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_of_human_kindness_rotated.glb
+        asset_name: Milk Of Human Kindness
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      VitaChocolateMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/vita_chocolate_milk_rotated.glb
+        asset_name: Vita Chocolate Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      LactelMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_box_french_rotated.glb
+        asset_name: Lactel Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DosPinosMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/dos_pinos_-_leche_descremada_0_rotated.glb
+        asset_name: Dos Pinos Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SavushkinMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/43b88b2c6fa6462aa4c9d2d3c5e062a0_rotated.glb
+        asset_name: Savushkin Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ItalacMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/milk_2_rotated.glb
+        asset_name: Italac Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MlekarnaKuninMilk:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/acidophilic_milk_rotated.glb
+        asset_name: Mlekarna Kunin Milk
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    HOUSEHOLD:
+      PerwollDetergent:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/perwoll_detergent_3d_model.glb
+        asset_name: Perwoll Detergent
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TideDetergent:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/tide_detergent_bottle_3d_model_fanmade.glb
+        asset_name: Tide Detergent
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      X-TraTotalDetergent:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bottle_of_detergent.glb
+        asset_name: X-tra total detergent
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AjaxDishSoap:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/dish_detergent.glb
+        asset_name: Ajax Dish Soap
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AviasParquetDetergent:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/parquet_detergent_with_almond_oil_1220ml.glb
+        asset_name: Avias Parquet Detergent
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AceDetergent:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/ace.glb
+        asset_name: Ace Detergent
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      VanishStainRemover:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/vanish_remover.glb
+        asset_name: Vanish Stain Remover
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AviasCarpetCleaner:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/carpet_cleaner_1200ml.glb
+        asset_name: Avias Carpet Cleaner
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      VanishStainRemoverSpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cleaning_spray_rotated.glb
+        asset_name: Vanish Stain Remover Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      StarwaxWindowCleanerSpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/hair_spray_rotated.glb
+        asset_name: Starwax Window Cleaner Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SiffieFloorCleanerSpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cc0_-_spray_cleaner_siffie.glb
+        asset_name: Siffie Floor Cleaner Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RoomSprayFlowerPassion:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/room_spray_rotated.glb
+        asset_name: Room Spray Flower Passion
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BlenderKitchenCleaningSpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/kitchen_spray_rotated.glb
+        asset_name: Blender Kitchen Cleaning Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ExpoWhiteBoardCleaningSpray:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/spray_bottle_raw_rotated.glb
+        asset_name: Expo White Board Cleaning Spray
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GiftToiletBowlCleaner:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/scan_3d_mau_chai_vim_rotated.glb
+        asset_name: Gift Toilet Bowl Cleaner
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    COOKING:
+      Allinson'SBreadFlour:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bag_of_bread_flour.glb
+        asset_name: Allinson's Bread Flour
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Salt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/salt_caster_-_cooking.glb
+        asset_name: Salt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JapaneseSalt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/salt_rotated.glb
+        asset_name: Japanese Salt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PureGustoSalt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cc0_-_salt_package_rotated.glb
+        asset_name: Pure Gusto Salt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AriddlSeaSalt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cooking_salt_aridll.glb
+        asset_name: Ariddl Sea Salt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AriddlIodisedTableSalt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/table_salt_aridll.glb
+        asset_name: Ariddl Iodised Table Salt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TescoTableSalt:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/tesco_table_salt_photogrammetry_rotated.glb
+        asset_name: Tesco Table Salt
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      VandemoorteleFryingOil:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/frying_oil_jug_rotated.glb
+        asset_name: Vandemoortele Frying Oil
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HavreGrynOats:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/package_of_oats_havre_gryn_rotated.glb
+        asset_name: Havre Gryn Oats
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SmokyStockPowderChicken:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/stock_powder_tin_rotated.glb
+        asset_name: Smoky Stock Powder Chicken
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ButterWithCanolaOil:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/butter_tub_aridll.glb
+        asset_name: Butter with canola oil
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    DRINKS_SODA:
+      Coca-ColaZeroSugarByte:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coca-_cola_zero_sugar_byte_no_base_rotated.glb
+        asset_name: Coca-Cola Zero Sugar Byte
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TopoChicoMineralWater:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/topo_chico_mineral_water_rotated.glb
+        asset_name: Topo Chico Mineral Water
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PrimeTropicalPunch:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/prime_-_tropical_punch_rotated.glb
+        asset_name: Prime Tropical Punch
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PrimeLemonLime:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/prime_-_lemon_lime_rotated.glb
+        asset_name: Prime Lemon Lime
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FreshOrangeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/orange_juice_1_rotated.glb
+        asset_name: Fresh Orange Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Coca-ColaOriginal0.33LTall:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coca-cola_can_rotated.glb
+        asset_name: Coca-Cola Original 0.33L Tall
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PepsiOriginal0.25LTall:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pepsi_coke_can__pepsi__kola_kutusu_2_rotated.glb
+        asset_name: Pepsi Original 0.25L Tall
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Fanta0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/fanta_can_1_rotated.glb
+        asset_name: Fanta 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MountainDew0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/soda_can_1.glb
+        asset_name: Mountain Dew 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ChaosCola2L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/chaos_cola_2_liter_rotated.glb
+        asset_name: Chaos Cola 2L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Coca-ColaNoSugar1.5L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coca-cola_no_sugar_1.5l_rotated.glb
+        asset_name: Coca-Cola No Sugar 1.5L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SpriteLemon-Lime2.25L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/sprite_2.25l_rotated.glb
+        asset_name: Sprite Lemon-Lime 2.25L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FantaSaborNaranja2L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/fanta_naranja_2l_rotated.glb
+        asset_name: Fanta Sabor Naranja 2L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Coca-ColaSinAzucar0.6L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coca_600_sin_azucar_rotated.glb
+        asset_name: Coca-Cola Sin Azucar 0.6L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Coca-ColaGlassBottle0.2L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coca_cola_bottle_rotated.glb
+        asset_name: Coca-Cola Glass Bottle 0.2L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Coca-ColaLight0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coke_light_rotated.glb
+        asset_name: Coca-Cola light 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DietCoke0.355L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/diet_coke_can_color_3d_scan_rotated.glb
+        asset_name: Diet Coke 0.355L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NukaCola:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/fallout_4_nuka_cola_bottle_rotated.glb
+        asset_name: Nuka Cola
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Coca-ColaZero0.2L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coke_zero_rotated.glb
+        asset_name: Coca-Cola Zero 0.2L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Coca-ColaZero0.33LTall:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/coca-coka_can_rotated.glb
+        asset_name: Coca-Cola Zero 0.33L Tall
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Coca-ColaOriginal0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/old_coca_cola_can_rotated.glb
+        asset_name: Coca-Cola Original 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PepsiMaxLime0.5L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pepsi_max_lime_bottle_0.5_l_rotated.glb
+        asset_name: Pepsi Max Lime 0.5L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Pepsi0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pepsi_can_rotated.glb
+        asset_name: Pepsi 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PepsiWhiteCan0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/soda_can_2_rotated.glb
+        asset_name: Pepsi White Can 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PepsiMaxNoSugar0.25LTall:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pepsi_max_coke_can__pepsi_max_kola_kutusu_rotated.glb
+        asset_name: Pepsi Max No Sugar 0.25L Tall
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PepsiMaxNoSugar0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pepsi_max_can_rotated.glb
+        asset_name: Pepsi Max No Sugar 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DrPepperSoda0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/soda_can_3_rotated.glb
+        asset_name: Dr Pepper Soda 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FantaGrape0.33L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/grape_fanta_can_rotated.glb
+        asset_name: Fanta Grape 0.33L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Sprite0.325L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/sprite_bottle_custom_rotated.glb
+        asset_name: Sprite 0.325L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    CHIPS:
+      PaprikaPotatoChips:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cc0_-_potato_chips_tube_2_rotated.glb
+        asset_name: Paprika Potato Chips
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PringlesCheddarCheese:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pringles_cheddar_cheese_rotated.glb
+        asset_name: Pringles Cheddar Cheese
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PringlesOriginalSmall:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cans_pringles_rotated.glb
+        asset_name: Pringles Original Small
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PringlesOriginal:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pringles.glb
+        asset_name: Pringles Original
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    ENERGY_DRINKS:
+      GFuelSpidermanEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/gfuel__spiderman_edition__gameready__energy_rotated.glb
+        asset_name: G Fuel Spiderman Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RedBullEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/redbull_1_rotated.glb
+        asset_name: Red Bull Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MonsterEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/monster_energy_drink_rotated.glb
+        asset_name: Monster Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BlazingEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/energy_drink_game_ready_model_rotated.glb
+        asset_name: Blazing Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      LitEnergyDrinkClassic:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/lit_energy_-_energy_drink_by_mikhail_litvin_rotated.glb
+        asset_name: Lit Energy Drink classic
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RedBullGreenEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/redbull__green_energy_drink_can_rotated.glb
+        asset_name: Red Bull Green Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      EnergiaPuraEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/energy_drink_can_free_model_rotated.glb
+        asset_name: Energia Pura Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MonsterZeroUltraEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/monster_zero_ultra_rotated.glb
+        asset_name: Monster Zero Ultra Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Art-SoulEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/canned_energy_drink_art-soul_rotated.glb
+        asset_name: Art-Soul Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MonsterUltraWhiteEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/monster_ultra_white_rotated.glb
+        asset_name: Monster Ultra White Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GenshinImpactSpicyEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/guoba_chili_energy_drink_rotated.glb
+        asset_name: Genshin Impact Spicy Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KenduEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/kendu_energy_drink_can_rotated.glb
+        asset_name: Kendu Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MonsterEnergyPipelinePunchEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/monster_energy_pipeline_punch_355ml_jpn_rotated.glb
+        asset_name: Monster Energy Pipeline Punch Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ShockEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/shock_energy_drink.glb
+        asset_name: Shock Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      NonStopEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/non_stop_energy_rotated.glb
+        asset_name: Non Stop Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    STRONG_ALCO:
+      RevoAlcoEnergyDrink:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/revo_original_rotated.glb
+        asset_name: Revo Alco Energy Drink
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BaileysTiramisu:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/baileys_tiramisu_rotated.glb
+        asset_name: Baileys Tiramisu
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AbsolutVodka:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/absolut_vodka_1l_bottle_rotated.glb
+        asset_name: Absolut Vodka
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RoseLiquor:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/rose_liquor_bottle_rotated.glb
+        asset_name: Rose Liquor
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TurronRum:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/turron_rotated.glb
+        asset_name: TurRon Rum
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BrownLiquorBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/liquor_bottle_rotated.glb
+        asset_name: Brown Liquor Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Jagermeister0.7LBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/jagermeister_0.7l_bottle_japan_rotated.glb
+        asset_name: Jagermeister 0.7L bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MalaespinaMezcal:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/malaespina_mezcal_bottle_rotated.glb
+        asset_name: Malaespina Mezcal
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      VolcanDeMiTierraTequila:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/volcan_de_mi_tierra_x.a_reposado_rotated.glb
+        asset_name: Volcan De Mi Tierra Tequila
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BotellaDeTequilaBlueAgave:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/botella_de_tequila_no_base_rotated.glb
+        asset_name: Botella De Tequila Blue Agave
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PierceRum:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bottlea_rotated.glb
+        asset_name: Pierce Rum
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PirateRumBottle:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/pirate_rum_bottle_rotated.glb
+        asset_name: Pirate Rum Bottle
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Stacey'SRum:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/staceys_rum_bottle_rotated.glb
+        asset_name: Stacey's Rum
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BrazilianRum:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bottle_of_brazilian_rum_-_j._haberfeld_factory_rotated.glb
+        asset_name: Brazilian Rum
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TwoPistolsRum:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/rum_bottle.glb
+        asset_name: Two Pistols Rum
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      LeCoqCognac:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/le_coq_-_cognac_extract.glb
+        asset_name: Le Coq Cognac
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TopvaluWhisky:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/topvalu_bestprice_whisky_rotated.glb
+        asset_name: Topvalu Whisky
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SwabianCraftingGingerGin:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/ginger_gin_rotated.glb
+        asset_name: Swabian Crafting GinGer Gin
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BombaySapphireDryGin:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bombay_sapphire_rotated.glb
+        asset_name: Bombay Sapphire Dry Gin
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JbWhiskey:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/whiskey_jb_rotated.glb
+        asset_name: JB Whiskey
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JamesonWhiskey:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/jameson_whiskey_bottle_rotated.glb
+        asset_name: Jameson Whiskey
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HennessyVerySpecialCognac:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/hennessy_very_special_cognac_rotated.glb
+        asset_name: Hennessy Very Special Cognac
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Ballantine'SWhisky:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/ballantines.glb
+        asset_name: Ballantine's Whisky
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      WhiteHorseWhisky:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/whisky_white_horse_rotated.glb
+        asset_name: White Horse Whisky
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SuntoryWhisky:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/low-poly_japanese_whisky_bottle_rotated.glb
+        asset_name: Suntory Whisky
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RedStarErguotou:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/gameready_wine_bottle.glb
+        asset_name: Red Star Erguotou
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BaileysLiquor:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Baileys_Atlas_0_rotated.glb
+        asset_name: Baileys Liquor
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KarlovarskaBecherovka:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Becherovka_Atlas_0_rotated.glb
+        asset_name: Karlovarska Becherovka
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ChivasRegalScotchWhisky:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Chivas_Atlas_0_rotated.glb
+        asset_name: Chivas Regal Scotch Whisky
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CointreauLiquor:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Cointreau_Atlas_0_rotated.glb
+        asset_name: Cointreau Liquor
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CremaDiLimoncino:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Crema_di_Limoncino_Atlas_0_rotated.glb
+        asset_name: Crema Di Limoncino
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CuracaoLiquor:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Curacao_Atlas_0_rotated.glb
+        asset_name: Curacao Liquor
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      HavanaClubRum:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Havana_Club_Atlas_0_rotated.glb
+        asset_name: Havana Club Rum
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JackDanielsWhiskey:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Jack_Daniel's_Atlas_0_rotated.glb
+        asset_name: Jack Daniels Whiskey
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KahluaLiquor:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Kahlua_Atlas_0_rotated.glb
+        asset_name: Kahlua Liquor
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MalibuCaribbeanRumWithCoconut:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Malibu_Atlas_0_rotated.glb
+        asset_name: Malibu Caribbean Rum With Coconut
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MartelCognac:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Martel_Atlas_0_rotated.glb
+        asset_name: Martel Cognac
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OlmecaTequila:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Olmeca_Atlas_0_rotated.glb
+        asset_name: Olmeca Tequila
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PernodParis:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Pernod_Atlas_0_rotated.glb
+        asset_name: Pernod Paris
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RamazzottiAmaroMilano:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Ramazzotti_Atlas_0_rotated.glb
+        asset_name: Ramazzotti Amaro Milano
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SortilegeCanadianWhisky:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/Sortilege_Atlas_0_rotated.glb
+        asset_name: Sortilege Canadian Whisky
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    WINE:
+      TalayBozcaadaKaralahnaDryRedWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_1.glb
+        asset_name: Talay Bozcaada Karalahna Dry Red Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ChateauBaronDeLievreRedWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/classic_wine_bottle_with_label_rotated.glb
+        asset_name: Chateau Baron De Lievre Red Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ButteroSolitarioVinoRossoDiToscanaWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_2.glb
+        asset_name: Buttero Solitario Vino Rosso Di Toscana Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      OnlineLabelWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/3d_wine_bottle_model_rotated.glb
+        asset_name: Online Label Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RedSpiritWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/red_spirit_wine.glb
+        asset_name: Red Spirit Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MonsieurSolielWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_3_rotated.glb
+        asset_name: Monsieur Soliel Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Cote-RotieBruneEtBlondeDeGuigalWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_4.glb
+        asset_name: Cote-Rotie Brune Et Blonde De Guigal Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TokajiHungarianWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bottle_of_wine_rotated.glb
+        asset_name: Tokaji Hungarian Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      LaGaliniereWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/low_poly_wine_bottle_rotated.glb
+        asset_name: La Galiniere Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      PavillonBlancChateauMargauxWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_5_rotated.glb
+        asset_name: Pavillon Blanc Chateau Margaux Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MartyrSirArthurWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_6_rotated.glb
+        asset_name: Martyr Sir Arthur Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SouvenirPinotNoirMontereyWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_7.glb
+        asset_name: Souvenir Pinot Noir Monterey Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BorcellePinoNoirDryRedWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_8_rotated.glb
+        asset_name: Borcelle Pino Noir Dry Red Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JoshCellarsCabernetSauvignonWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_9_rotated.glb
+        asset_name: Josh Cellars Cabernet Sauvignon Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ShirazRedWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/shiraz_wine_no_base_rotated.glb
+        asset_name: Shiraz Red Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      VegvisirWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_10_rotated.glb
+        asset_name: Vegvisir Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GrandVinChateauArtipsedDelLavedWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/bouteille_de_vinbottle_of_wine_rotated.glb
+        asset_name: Grand Vin Chateau Artipsed Del Laved Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      EtrangeDessinRougeWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/modern_wine_bottle.glb
+        asset_name: Etrange Dessin Rouge Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ScopiaVinoParaDesarrolladoresYGrafistasWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_203_rotated.glb
+        asset_name: Scopia Vino Para desarrolladores Y Grafistas Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SixtySevenSakeWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_3d_model_for_archviz__decoration_rotated.glb
+        asset_name: Sixty Seven Sake Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      ChateauInexistantMerlotWine:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/wine_bottle_11_rotated.glb
+        asset_name: Chateau Inexistant Merlot Wine
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+    JUICE:
+      KagomeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/thick_vegetable_charge_juice_rotated.glb
+        asset_name: Kagome Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KagomeSmoothie:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/the_vegetable_life_100_green_smoothie_rotated.glb
+        asset_name: Kagome Smoothie
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      FloridaMultifruitJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/juice_rotated.glb
+        asset_name: Florida Multifruit Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      TropicaOrangeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/juice_2_rotated.glb
+        asset_name: Tropica Orange Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      EnjoiCarrotOrangeMangoJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/orange_juice_bottle_rotated.glb
+        asset_name: Enjoi Carrot Orange Mango Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      CepitaPeachJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/cepita_peach_juice_bottle.glb
+        asset_name: Cepita Peach Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GreenOrangeJuice1L:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/orange_juice_rotated.glb
+        asset_name: Green Orange Juice 1L
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GamereadyOrangeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/gameready_lowpoly_juice_bottle_free_download_rotated.glb
+        asset_name: GameReady Orange Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JuiceCompanyOrangeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/orange_juice__02.12.21.glb
+        asset_name: Juice Company Orange Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      JuicemexMangoJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/juice_box_rotated.glb
+        asset_name: Juicemex Mango Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Seven&IGrapeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/grape_juice_rotated.glb
+        asset_name: Seven&i Grape Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Seven&IAppleJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/apple_juice_rotated.glb
+        asset_name: Seven&i Apple Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      SantalNectarClassicoPera:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/juice_pack_3d_scan.glb
+        asset_name: Santal Nectar Classico Pera
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      EdekaApfelDirektsaft:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/juicebox00.glb
+        asset_name: Edeka Apfel Direktsaft
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      DosPinosGreenJuiceDetox:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/dos_pinos_-_jugo_verde_detox_rotated.glb
+        asset_name: Dos Pinos Green Juice Detox
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      AmitaPeachJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/the_perfect_juice_rotated.glb
+        asset_name: Amita Peach Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      RoyalBioPinkGuavaNectar:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/royal_goyave_rose_bio_1l_rotated.glb
+        asset_name: Royal Bio Pink Guava Nectar
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GrapeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/grape_juice_1.glb
+        asset_name: Grape Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      Pick'N'PeelOrangeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/juice_box_1_rotated.glb
+        asset_name: Pick'n'Peel Orange juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      GreenOrangeJuice200Ml:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/orange_juice_200_ml_rotated.glb
+        asset_name: Green Orange juice 200 ml
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      KagomeBerrySaladJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/yasai_seikatsu_100_berry_salad_juice_rotated.glb
+        asset_name: Kagome Berry Salad juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      BravoAppleJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/3d_juice_box_rotated.glb
+        asset_name: Bravo Apple Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+      MinuteMaidOrangeJuice:
+        asset_file_path: ${assets.assets_dir_path}/preprocessed/orangejuicebox.glb
+        asset_name: Minute Maid Orange Juice
+        ss_params:
+          scale: 1
+          origin: [com, com, bottom]
+fixtures:
+  shelf:
+    asset_file_path: ${assets.assets_dir_path}/shelf_woodenglb.glb
+    ms_is_static: true
+    ms_is_nonconvex_collision: true
+  shelf_low_res:
+    asset_file_path: ${assets.assets_dir_path}/shelf_woodenglb_low_res.glb
+    ms_is_static: true
+    ms_is_nonconvex_collision: false
+  metal_double_shelf: 
+    asset_file_path: ${assets.assets_dir_path}/double_metal_shelf.glb
+    ms_is_static: true
+  shelf_metal:
+    asset_file_path: ${assets.assets_dir_path}/shelf_metal.glb
+    ms_is_static: true
+  lamp: 
+    asset_file_path: ${assets.assets_dir_path}/square_light_led_panel.glb
+    ms_is_static: true
+  door:
+    asset_file_path: ${assets.assets_dir_path}/door_yellow.glb
+    ms_is_static: true
+  freezer_large:
+    asset_file_path: ${assets.assets_dir_path}/food_showcase/urdf/food_showcase.urdf
+    ss_asset_type: URDFAsset
+  showcase_glb:
+    asset_file_path: ${assets.assets_dir_path}/showcase.glb
+    ms_is_static: true
+  freezer_large_filled:
+    asset_file_path: ${assets.assets_dir_path}/food_showcase/urdf/food_showcase_filled.urdf
+    ss_asset_type: URDFAsset
+  freezer_nestle:
+    asset_file_path: ${assets.assets_dir_path}/fridge_urdf/nestle.urdf
+    ss_asset_type: URDFAsset
+  small_shelf_two_sided:
+    asset_file_path: ${assets.assets_dir_path}/store_mini_shelf_two_sided.glb
+    ms_is_static: true
+    ms_is_nonconvex_collision: true
+  pile_of_pallets: 
+    asset_file_path: ${assets.assets_dir_path}/pile_of_pallets.glb
+    ms_is_static: true
+  pallets_and_boxes:
+    asset_file_path: ${assets.assets_dir_path}/pallets_and_boxes.glb
+    ms_is_static: true
+  shelf_fake_1:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_fake_1.glb
+    ms_is_static: true
+  shelf_fake_2:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_fake_2.glb
+    ms_is_static: true
+  shelf_fake_3:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_fake_3.glb
+    ms_is_static: true
+  shelf_metal_fake_1:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_metal_fake_1.glb
+    ms_is_static: true
+  shelf_metal_fake_2:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/shelf_metal_fake_2.glb
+    ms_is_static: true
+  small_shelf_two_sided_fake_1:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/small_shelf_two_sided_fake_1.glb
+    ms_is_static: true
+  small_shelf_two_sided_fake_2:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/small_shelf_two_sided_fake_2.glb
+    ms_is_static: true
+  large_showcase_fake:
+    asset_file_path: ${assets.assets_dir_path}/fake_shelves/large_fridge_fake.glb
+    ms_is_static: true
+
+scene_assets:
+  shoppingCart:
+    asset_file_path: ${assets.assets_dir_path}/smallShoppingCart2.glb
+    ms_is_static: true

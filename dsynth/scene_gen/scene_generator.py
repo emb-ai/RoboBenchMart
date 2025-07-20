@@ -3,6 +3,7 @@ log = logging.getLogger(__name__)
 import os
 import random
 from functools import partial
+import traceback
 from multiprocessing import Pool
 import json
 from pathlib import Path
@@ -101,6 +102,9 @@ class SceneGeneratorContinuous:
         seeds_arrangements = [random_seed] * num_scenes
         if cfg.ds_continuous.randomize_arrangements:
             seeds_arrangements = np.arange(num_scenes) + random_seed
+        
+        with open(output_dir / f"input_config.yaml", "w") as f:
+            f.write(OmegaConf.to_yaml(cfg))
 
         self.task_params = []
         for n, (seed_layout, seed_arr) in enumerate(zip(seeds_layout, seeds_arrangements)):
@@ -148,9 +152,11 @@ def _generate_continuous_routine(task_params):
             log.error(f"Failed to generate {scene_name}!")
             return False
         
+        fake_arrangements_mapping = OmegaConf.to_container(cfg.ds_continuous.fake_arrangements_mapping, resolve = True)
         results = dict(layout_data=layout_data, 
                     size_x=cfg.ds_continuous.size_x, 
-                    size_y=cfg.ds_continuous.size_y)
+                    size_y=cfg.ds_continuous.size_y,
+                    fake_arrangements_mapping=fake_arrangements_mapping)
         
         results['hash'] = config_hash
         results['scene_id'] = scene_id
@@ -161,57 +167,64 @@ def _generate_continuous_routine(task_params):
 
         product_assets_lib = flatten_dict(load_assets_lib(cfg.assets, disable_caching=True), sep='.')
 
-        for active_fixture_cfg in cfg.ds_continuous.active_shelvings_list:
-            filling, shelf_name, shelf_type = product_filling_from_shelf_config(active_fixture_cfg, 
-                                    list(product_assets_lib.keys()), rng=random.Random(seed_arrangement_gen)
-                                    )
-            
-            scene = synth.Scene()
-            shelf_name = f'{scene_name}_{active_fixture_cfg.name}'
-            shelf_asset_name = active_fixture_cfg.shelf_asset
+        for shelvings_list in [cfg.ds_continuous.active_shelvings_list, cfg.ds_continuous.active_wall_shelvings_list]:
+            for active_fixture_cfg in shelvings_list:
+                filling, shelf_name, shelf_type = product_filling_from_shelf_config(active_fixture_cfg, 
+                                        list(product_assets_lib.keys()), rng=random.Random(seed_arrangement_gen)
+                                        )
+                
+                scene = synth.Scene()
+                shelf_name = f'{scene_name}_{active_fixture_cfg.name}'
+                shelf_asset_name = active_fixture_cfg.shelf_asset
 
-            if shelf_asset_name is None:
-                shelf = DefaultShelf
-                shelf_asset_name = 'fixtures.shelf'
-            else:
-                shelf = product_assets_lib[shelf_asset_name].ss_asset
+                if shelf_asset_name is None:
+                    shelf = DefaultShelf
+                    shelf_asset_name = 'fixtures.shelf'
+                else:
+                    shelf = product_assets_lib[shelf_asset_name].ss_asset
 
-            support_data = set_shelf(
-                scene,
-                shelf,
-                0,
-                0,
-                0,
-                f'SHELF_{shelf_name}',
-                f'support_SHELF_{shelf_name}',
-            )
+                support_data = set_shelf(
+                    scene,
+                    shelf,
+                    0,
+                    0,
+                    0,
+                    f'SHELF_{shelf_name}',
+                    f'support_SHELF_{shelf_name}',
+                )
 
-            add_objects_to_shelf_v2(
-                        scene,
-                        0,
-                        filling,
-                        product_assets_lib,
-                        support_data,
-                        active_fixture_cfg.x_gap,
-                        active_fixture_cfg.y_gap,
-                        active_fixture_cfg.delta_x,
-                        active_fixture_cfg.delta_y,
-                        active_fixture_cfg.start_point_x,
-                        active_fixture_cfg.start_point_y,
-                        active_fixture_cfg.filling_type
-                    )
-            
-            json_str = synth.exchange.export.export_json(scene, include_metadata=False)
-            data = json.loads(json_str)
-            del data["geometry"]
-            output_name = f'{shelf_name}.json'
-            with open(Path(output_dir) / output_name, "w") as f:
-                json.dump(data, f, indent=4)
+                add_objects_to_shelf_v2(
+                            scene,
+                            0,
+                            filling,
+                            product_assets_lib,
+                            support_data,
+                            active_fixture_cfg.x_gap,
+                            active_fixture_cfg.y_gap,
+                            active_fixture_cfg.delta_x,
+                            active_fixture_cfg.delta_y,
+                            active_fixture_cfg.start_point_x,
+                            active_fixture_cfg.start_point_y,
+                            active_fixture_cfg.filling_type,
+                            seed_arrangement_gen,
+                            active_fixture_cfg.noise_std_x,
+                            active_fixture_cfg.noise_std_y,
+                            active_fixture_cfg.rotation_lower,
+                            active_fixture_cfg.rotation_upper,
+                        )
+                
+                json_str = synth.exchange.export.export_json(scene, include_metadata=False)
+                data = json.loads(json_str)
+                del data["geometry"]
+                output_name = f'{shelf_name}.json'
+                with open(Path(output_dir) / output_name, "w") as f:
+                    json.dump(data, f, indent=4)
 
         return True
     
     except Exception as e:
         log.error(f"Failed to generate {scene_name}! Unexpected error: {e}")
+        traceback.print_exc()
         return False
 
 
@@ -264,6 +277,8 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
     assert 0 <= shelf_config.start_filling_board <= shelf_config.end_filling_from_board <= shelf_config.num_boards
     shelf_name = shelf_config.name
     shelf_type = shelf_config.shelf_type.name
+
+    # all_product_names = ['products_hierarchy.' + name for name in all_product_names]
 
     filling = [[] for _ in range(shelf_config.start_filling_board)]
 
@@ -333,10 +348,12 @@ def product_filling_from_shelf_config(shelf_config: ShelfConfig, all_product_nam
         non_empty_boards_idxs = [i for i in range(len(filling)) if len(filling[i]) > 0]
         non_empty_boards_filling = [filling[i] for i in range(len(filling)) if len(filling[i]) > 0]
         rng.shuffle(non_empty_boards_filling)
-        for i in range(len(non_empty_boards_filling)):
-            rng.shuffle(non_empty_boards_filling[i])
         for i, board_filling in zip(non_empty_boards_idxs, non_empty_boards_filling):
             filling[i] = board_filling
+
+    if shelf_config.shuffle_items_on_board:
+        for i in range(len(filling)):
+            rng.shuffle(filling[i])
 
     return filling, shelf_name, shelf_type
 

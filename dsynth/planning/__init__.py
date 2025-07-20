@@ -8,5 +8,16 @@ MP_SOLUTIONS = {
     "PickToBasketStaticSpriteEnv": solve_fetch_pick_to_basket_one_prod,
     "PickToBasketSpriteEnv": solve_fetch_pick_to_basket_one_prod,
     "NavMoveToZoneEnv": solve_fetch_nav_go_to_zone,
-    "OpenDoorFridgeEnv": solve_fetch_open_door_showcase
+    "OpenDoorFridgeEnv": solve_fetch_open_door_showcase,
+
+    "PickToBasketContNiveaEnv": solve_fetch_pick_to_basket_cont_one_prod,
+    "PickToBasketContStarsEnv": solve_fetch_pick_to_basket_cont_one_prod,
+    "PickToBasketContFantaEnv": solve_fetch_pick_to_basket_cont_one_prod,
+
+    "MoveFromBoardToBoardVanishContEnv": solve_fetch_move_to_board_cont_one_prod,
+    "MoveFromBoardToBoardNestleContEnv": solve_fetch_move_to_board_cont_one_prod,
+    "MoveFromBoardToBoardDuffContEnv": solve_fetch_move_to_board_cont_one_prod,
+
+    "PickFromFloorSlamContEnv": solve_fetch_pick_from_floor_cont,
+    "PickFromFloorBeansContEnv": solve_fetch_pick_from_floor_cont,
 }

@@ -34,9 +34,6 @@ def main(cfg) -> None:
 
     log.info(f"Write results to: {output_dir}")
 
-    with open(output_dir / "input_config.yaml", "w") as f:
-        f.write(OmegaConf.to_yaml(cfg))
-
     generator = SceneGeneratorContinuous(cfg, output_dir)
     results = generator.generate()
 

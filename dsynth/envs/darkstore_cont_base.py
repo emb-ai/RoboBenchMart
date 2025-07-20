@@ -32,6 +32,9 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
     def _load_scene(self, options: dict):
         BaseEnv._load_scene(self, options)
         self.is_rebuild = True
+        
+        self.target_sizes = np.array([0.3, 0.3, 0.3])
+        self.build_markers()
 
         self.actors = {
             "fixtures": {
@@ -86,6 +89,44 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
         print("built")
         print(f"Total {len(self.actors['products'])} products in {self.num_envs} scene(s)")
 
+    def build_markers(self):
+        if self.markers_enabled:
+            self.target_volumes = {}
+            for n_env in range(self.num_envs):
+                self.target_volumes[n_env] = []
+                for i in range(self.NUM_MARKERS):
+                    self.target_volumes[n_env].append(
+                            actors.build_box(
+                            self.scene,
+                            half_sizes=list(self.target_sizes/2),
+                            color=[0, 1, 0, 0.5],
+                            name=f"target_box_{n_env}_{i}",
+                            body_type="kinematic",
+                            add_collision=False,
+                            scene_idxs=[n_env],
+                            initial_pose=sapien.Pose(p=[0, 0, 0]),
+                        )
+                    )
+                    self.hide_object(self.target_volumes[n_env])
+        
+            self.target_markers = {}
+            for n_env in range(self.num_envs):
+                self.target_markers[n_env] = []
+                for i in range(self.NUM_MARKERS):
+                    self.target_markers[n_env].append(
+                                    actors.build_sphere(
+                                        self.scene,
+                                        radius=0.05,
+                                        color=[0, 1, 0, 1],
+                                        name=f"target_product_{n_env}_{i}",
+                                        body_type="kinematic",
+                                        add_collision=False,
+                                        initial_pose=sapien.Pose(p=[0., 0., 0.]),
+                                        scene_idxs=[n_env]
+                                    )
+                                )
+                    self.hide_object(self.target_markers[n_env][-1])
+
     def _compute_robot_init_pose(self, env_idx = None):
         origins = []
         angles = []
@@ -105,7 +146,7 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
             # if np.dot(direction_to_scene_center, shelf_direction) < 0:
             #     shelf_direction = -shelf_direction
 
-            origin = shelf_pose.p - 1.7 * direction_to_shelf
+            origin = shelf_pose.p - 1.4 * direction_to_shelf
 
             base_x_axis = np.array([1, 0, 0])
             angle = np.arccos(np.dot(direction_to_shelf, base_x_axis))
@@ -118,6 +159,11 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
 
         return np.array(origins), np.array(angles), np.array(directions_to_shelf)
 
+    def setup_target_objects(self, *args, **kwargs):
+        pass
+
+    def setup_language_instructions(self, *args, **kwargs):
+        pass
 
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
@@ -130,6 +176,8 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
         for p, a in self.actors['products'].items():
             self.products_initial_poses[p] = copy.deepcopy(a.pose.raw_pose)
 
+        self.setup_target_objects(env_idx)
+        self.setup_language_instructions(env_idx)
 
         self.robot_origins, self.robot_angles, self.directions_to_shelf = self._compute_robot_init_pose(env_idx)
         quats = np.array([euler2quat(0, 0, robot_angle) for robot_angle in self.robot_angles])

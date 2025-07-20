@@ -147,7 +147,12 @@ def add_objects_to_shelf_v2(
     delta_y,
     start_point_x,
     start_point_y,
-    filling_type
+    filling_type,
+    seed,
+    noise_std_x=0.,
+    noise_std_y=0.,
+    rotation_lower=0.,
+    rotation_upper=0.,
 ):
     if filling_type == FillingType.BOARDWISE_COLUMNS:
         for board_idx, board_arrangement in enumerate(product_placement):
@@ -166,19 +171,22 @@ def add_objects_to_shelf_v2(
                                                                       delta_x=delta_x,
                                                                       delta_y=delta_y,
                                                                       current_point=start_point, 
-                                                                      num_cols = num_col)
+                                                                      num_cols = num_col,
+                                                                      seed=seed,
+                                                                      noise_std_x=noise_std_x,
+                                                                      noise_std_y=noise_std_y)
                 scene.place_objects(
                     obj_id_iterator=object_id_generator(f"{product}:" + f"{shelf_cnt}:{board_idx}:", obj_position_iterator),
                     obj_asset_iterator=(obj for _ in range(max_obj)), 
                     obj_support_id_iterator=utils.cycle_list(support_data, [board_idx]),
                     obj_position_iterator=obj_position_iterator,
-                    obj_orientation_iterator=utils.orientation_generator_uniform_around_z(0,0),
+                    obj_orientation_iterator=utils.orientation_generator_uniform_around_z(rotation_lower, rotation_upper, seed=seed),
                 )
     else:
         for num_board, board in enumerate(product_placement):
             pos_iter = utils.PositionIteratorGrid(
-                        step_x=0.02,
-                        step_y=0.02,
+                        step_x=delta_x,
+                        step_y=delta_y,
                         noise_std_x=0.001,
                         noise_std_y=0.001,
                         direction="y",

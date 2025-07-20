@@ -3,8 +3,8 @@ defaults:
   - _self_
 
 name: 'ds_continuous'
-size_x: 24
-size_y: 15
+size_x: 32
+size_y: 20
 num_scenes: 1
 num_workers: 1
 layout_gen_type: PROCEDURAL_TENSOR_FIELD
@@ -12,10 +12,9 @@ randomize_layout: true
 randomize_arrangements: true
 
 inactive_wall_shelvings_occupancy_width: 0.4
-inactive_shelvings_occupancy_width: 1.0
-fixtures_occupancy_width: 0.2
-passage_width: 2.0
-inactive_shelvings_skip_prob: 0.1
+inactive_shelvings_occupancy_width: 0.6
+inactive_shelvings_skip_prob: 0.0
+passage_width: 1.7
 
 
 random_seed: 42
@@ -38,15 +37,6 @@ inactive_shelvings_list:
   - fixtures.shelf_metal
   - fixtures.small_shelf_two_sided
 
-inactive_wall_shelvings_list:
-  - fixtures.freezer_large_filled
-
-scene_fixtures_list: 
-  - fixtures.pile_of_pallets
-  - fixtures.pallets_and_boxes
-  - fixtures.freezer_nestle
-
-
 fake_arrangements_mapping:
   fixtures.shelf:
     - fixtures.shelf_fake_1
@@ -59,3 +49,11 @@ fake_arrangements_mapping:
     - fixtures.small_shelf_two_sided_fake_1
     - fixtures.small_shelf_two_sided_fake_1
   
+
+inactive_wall_shelvings_list:
+  - fixtures.freezer_large
+
+scene_fixtures_list: 
+  - fixtures.pile_of_pallets
+  - fixtures.pallets_and_boxes
+  - fixtures.freezer_nestle

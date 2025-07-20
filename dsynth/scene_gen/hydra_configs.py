@@ -47,6 +47,7 @@ class ShelfConfig:
 
     num_boards: int = 5
     shuffle_boards: bool = False
+    shuffle_items_on_board: bool = True
     board_product_numcol: Dict[int, Dict[str, int]] = field(default_factory=lambda: {})
     x_gap: float = 0.002
     y_gap: float = 0.002
@@ -54,6 +55,10 @@ class ShelfConfig:
     delta_y: float = 0.
     start_point_x: float = -1.
     start_point_y: float = -1.
+    noise_std_x: float = 0.0
+    noise_std_y: float = 0.0
+    rotation_lower: float = 0.0
+    rotation_upper: float = 0.0
 
     shelf_asset: Optional[str] = None
     shelf_type: ShelfType = ShelfType.SHELF
@@ -94,6 +99,7 @@ class DsContinuousConfig:
     inactive_shelvings_list: List[str] = field(default_factory=lambda: [])
     inactive_wall_shelvings_list: List[str] = field(default_factory=lambda: [])
     scene_fixtures_list: List[str] = field(default_factory=lambda: [])
+    fake_arrangements_mapping: Dict = field(default_factory=lambda: {})
 
     num_scenes: int = 1
     num_workers: int = 1

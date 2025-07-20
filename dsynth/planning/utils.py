@@ -46,6 +46,7 @@ from mani_skill.examples.motionplanning.panda.utils import (
 from mani_skill.utils import common
 from mani_skill import Actor
 
+BAD_ENV_ERROR_CODE = -1234
 
 def attach_object(  # type: ignore
     planning_world: SapienPlanningWorld,

@@ -1,0 +1,41 @@
+defaults:
+  - config
+  - _self_
+
+name: 'pick_from_floor_2'
+output_dir: demo_envs/pick_from_floor
+rewrite: true
+num_scenes: 5
+num_workers: 2
+
+random_seed: 56
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.06
+    y_gap: 0.02
+    delta_x: 0.1
+    shelf_asset: fixtures.shelf
+    shuffle_boards: False
+    shuffle_items_on_board: True
+    board_product_numcol:
+      0:
+        food.HYGIENE.NiveaBodyMilk: 3 # inactive
+        food.HOUSEHOLD.VanishStainRemover: 4  # inactive
+
+        food.HOUSEHOLD.AceDetergent: 3 # inactive
+      1:
+        food.CRACKERS_COOKIES.BananiaCookies: 3 # inactive
+        food.DRINKS_SODA.FantaSaborNaranja2L: 3 # test OOD
+
+        food.BEER.DuffBeerCan: 4 # test OOD
+      2:
+        food.CANNED.HeinzBeansInARichTomatoSauce: 3  # train
+        food.CANNED.SlamLuncheonMeat: 4  # train
+        
+        food.drinks.coffeePackaging: 3 # inactive
+      3:
+        food.ENERGY_DRINKS.MonsterEnergyDrink: 2 # inactive
+        food.CRACKERS_COOKIES.OreoLemonCremeSandwichCookies: 3 # inactive
+        food.CRACKERS_COOKIES.BarryCallebautMilkChockolateChunks: 3 # inactive

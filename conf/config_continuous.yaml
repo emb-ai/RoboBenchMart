@@ -1,6 +1,6 @@
 defaults:
   - ds_continuous: config
-  - assets: assets
+  - assets: assets_preprocessed
   - _self_
 
 hydra:  

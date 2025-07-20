@@ -193,6 +193,7 @@ def place_shelves(tf: TensorField,
                     is_first_shelf = False
         
         x_step = 0.1 if is_first_shelf else shelf_l + 1e-2
+        y_step = 0.1 if is_first_shelf else shelf_w + passage_width
         
         if cur_position[0] + x_step < tf.N:
             cur_position[0] += x_step
@@ -233,7 +234,8 @@ def place_shelves(tf: TensorField,
                 if shelf.is_valid(tf.N - 1, tf.M - 1) and not check_collisions(shelf, shelves) and not check_collisions(shelf, scene_fixtures):
                     shelves.append(shelf)
                     is_first_shelf = False
-                    
+        
+        x_step = 0.1 if is_first_shelf else shelf_w + passage_width
         y_step = 0.1 if is_first_shelf else shelf_l + 1e-2 
         
         if cur_position[1] + y_step < tf.M:

@@ -1,0 +1,34 @@
+defaults:
+  - base_shelf_config
+  - _self_
+
+name: 'small_shelf_two_sided_fake_2'
+filling_type: BOARDWISE_COLUMNS
+shelf_asset: fixtures.small_shelf_two_sided
+board_product_numcol:
+  0:
+    food.COOKING.Allinson'SBreadFlour: 7
+    food.COOKING.PureGustoSalt: 5
+  1:
+    food.COOKING.AriddlSeaSalt: 5
+    food.RICE_SPAGHETTI.BanzaCavatappiPasta: 6
+  2:
+    food.RICE_SPAGHETTI.BanzaCavatappiPasta: 15
+  3:
+    food.CANNED.ArgonautAlaskaSalmon: 8
+    food.CANNED.DelMonteCrushedPineapple: 4
+  4:
+    food.CANNED.FallsColumbiaRiverSalmon: 5
+    food.CANNED.HeinzBeansInARichTomatoSauce: 5
+  5:
+    food.CANNED.SaborGreenOlives: 7
+    food.CANNED.SlamLuncheonMeat: 5
+
+
+x_gap: 0.001
+y_gap: 0.001
+
+rotation_lower: -0.01
+rotation_upper: 0.02
+noise_std_x: 0.001
+noise_std_y: 0.001
