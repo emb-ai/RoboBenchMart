@@ -764,13 +764,19 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
 
             if np.linalg.norm(moving_direction) < 1e-2:
                 res = self.idle_steps(t=1)
+                if res == -1:
+                    return res
                 self.planner.update_from_simulation()
 
             else:
-                self.rotate_base_z(moving_direction)
+                res = self.rotate_base_z(moving_direction)
+                if res == -1:
+                    return res
                 self.planner.update_from_simulation()
 
                 res = self.move_base_forward(target_pos, n_init_qpos=100)
+                if res == -1:
+                    return res
                 self.planner.update_from_simulation()
         
         # view_direction = target_view_pos.p - self.base_env.agent.base_link.pose.sp.p
