@@ -20,21 +20,21 @@ class DSFetch(Fetch):
     @property
     def _sensor_configs(self):
         return [
-            CameraConfig(
-                uid="fetch_head",
-                pose=Pose.create_from_pq([0, 0, 0], [1, 0, 0, 0]),
-                width=256,
-                height=256,
-                fov=2,
-                near=0.01,
-                far=100,
-                entity_uid="head_camera_link",
-            ),
+            # CameraConfig(
+            #     uid="fetch_head",
+            #     pose=Pose.create_from_pq([0, 0, 0], [1, 0, 0, 0]),
+            #     width=256,
+            #     height=256,
+            #     fov=2,
+            #     near=0.01,
+            #     far=100,
+            #     entity_uid="head_camera_link",
+            # ),
             CameraConfig(
                 uid="fetch_hand",
                 pose=Pose.create_from_pq([0.1, 0, -0.1], euler.euler2quat(np.pi, -np.pi / 2, 0)),
-                width=256,
-                height=256,
+                width=128,
+                height=128,
                 fov=2,
                 near=0.01,
                 far=100,

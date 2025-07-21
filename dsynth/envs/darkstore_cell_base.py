@@ -69,8 +69,9 @@ class DarkstoreCellBaseEnv(BaseEnv):
 
     @property
     def _default_sensor_configs(self):
-        pose = sapien_utils.look_at([0.7, 1.8, 1.15], [1.2, 2.2, 1.2])
-        return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
+        # pose = sapien_utils.look_at([0.7, 1.8, 1.15], [1.2, 2.2, 1.2])
+        # return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
+        return []
 
     @property
     def _default_human_render_camera_configs(self):
@@ -366,10 +367,6 @@ class DarkstoreCellBaseEnv(BaseEnv):
             "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
         )
     
-    @property
-    def _default_sensor_configs(self):
-        pose = sapien_utils.look_at([0.9, 1.4, 1.3], [0.8, 1.8, 1.05])
-        return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
     
     def _get_obs_extra(self, info: Dict):
         inst_encoded = [np.frombuffer(language_instruction.encode('utf8'), dtype=np.uint8) for language_instruction in self.language_instructions]
