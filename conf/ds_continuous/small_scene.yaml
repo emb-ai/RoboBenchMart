@@ -1,0 +1,35 @@
+defaults:
+  - config
+  - _self_
+
+name: 'ds_small_scene'
+
+size_x: 12
+size_y: 10
+num_scenes: 1
+num_workers: 1
+layout_gen_type: PROCEDURAL_TENSOR_FIELD
+randomize_layout: true
+randomize_arrangements: true
+output_dir: generated_envs/${ds_continuous.name}
+
+random_seed: 142
+
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.05
+    y_gap: 0.05
+    shelf_asset: fixtures.shelf_metal
+    shuffle_boards: True
+    board_product_numcol:
+      1:
+        food.BEER.DuffBeerCan: 15
+      2:
+        food.dairy_products.milkCarton: 8
+      4:
+        food.drinks.coffeePackaging: 8
+
+scene_fixtures_list: 
+  - fixtures.freezer_nestle
