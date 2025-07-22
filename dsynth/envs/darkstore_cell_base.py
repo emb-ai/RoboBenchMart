@@ -34,8 +34,8 @@ class DarkstoreCellBaseEnv(BaseEnv):
                  config_dir_path,
                  user_target_product_name=None,
                  robot_uids="panda_wristcam",
-                 markers_enabled=True,
-                 hidden_objects_enabled=False,
+                 markers_enabled=False,
+                 hidden_objects_enabled=True,
                  all_static=False,
                  **kwargs):
         self.config_dir_path = Path(config_dir_path)

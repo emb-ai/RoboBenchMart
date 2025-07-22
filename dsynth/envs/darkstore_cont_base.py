@@ -107,7 +107,7 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
                             initial_pose=sapien.Pose(p=[0, 0, 0]),
                         )
                     )
-                    self.hide_object(self.target_volumes[n_env])
+                    self.hide_object(self.target_volumes[n_env][-1])
         
             self.target_markers = {}
             for n_env in range(self.num_envs):
