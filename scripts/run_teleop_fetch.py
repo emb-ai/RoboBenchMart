@@ -71,7 +71,7 @@ class TransformWindowFetchStatic(TransformWindow):
 @dataclass
 class Args:
     scene_dir: str = None
-    env_id: Annotated[str, tyro.conf.arg(aliases=["-e"])] = "PickToCartOneProdEnv"
+    env_id: Annotated[str, tyro.conf.arg(aliases=["-e"])] = "DarkstoreContinuousBaseEnv"
     obs_mode: str = "none"
     robot_uid: Annotated[str, tyro.conf.arg(aliases=["-r"])] = "ds_fetch_basket"
     """The robot to use. Robot setups supported for teleop in this script are ds_fetch_static and ds_fetch_basket_static"""

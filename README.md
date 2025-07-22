@@ -44,6 +44,138 @@ All assets are stored in `/home/jovyan/shares/SR006.nfs2/data/dsynth/assets`.
 Copy or link this directory to `assets/` directory.
 Also assets available via GDrive https://drive.google.com/file/d/1RhBw9HfoHm6uvxrFC9hxYq0JB1FRI_d-
 
+## Sample Scene
+
+Generate Simple scene
+
+```bash
+python scripts/generate_scene_continuous.py ds_continuous=small_scene
+```
+
+The default saving directory is `genereted_envs/`, however you can change it using `ds_continuous.output_dir=<YOUR_PATH>`.
+
+Vizualize generated env in SAPIEN viewer:
+
+```bash
+python scripts/show_env_in_sim.py generated_envs/ds_small_scene/ --gui
+```
+
+## Teleoperation
+
+You can use teleoperation for recording demonstration trajectories.
+
+```bash
+python scripts/run_teleop_fetch.py --scene-dir generated_envs/ds_small_scene/
+```
+
+## Atomic PnP Tasks
+
+Item train distribution
+
+<table>
+<tr>
+<th>
+
+</th>
+<th>PickToBasket</th>
+<th>MoveFromBoardToBoard</th>
+<th>PickFromFloor</th>
+</tr>
+<tr>
+<td>Train items</td>
+<td>
+
+* NiveaBodyMilk
+* NestleHoneyStars
+* FantaSaborNaranja2L
+</td>
+<td>
+
+* NestleFitnessChocolateCereals
+* DuffBeerCan
+* VanishStainRemover
+</td>
+<td>
+
+* HeinzBeansInARichTomatoSauce
+* SlamLuncheonMeat
+</td>
+</tr>
+<tr>
+<td>OOD test items</td>
+<td>
+
+* NestleFitnessChocolateCereals
+* DuffBeerCan
+* VanishStainRemover
+* SlamLuncheonMeat
+</td>
+<td>
+
+* NiveaBodyMilk
+* NestleHoneyStars
+* FantaSaborNaranja2L
+* HeinzBeansInARichTomatoSauce
+</td>
+<td>
+
+* FantaSaborNaranja2L
+* DuffBeerCan
+</td>
+</tr>
+<tr>
+<td>#layouts</td>
+<td>20</td>
+<td>10x3</td>
+<td>10</td>
+</tr>
+<tr>
+<td>#trajs</td>
+<td>248x3</td>
+<td>248x3</td>
+<td>248x3</td>
+</tr>
+</table>
+
+### PickToBasket
+
+#### Train envs
+
+Envs: `PickToBasketContNiveaEnv`, `PickToBasketContStarsEnv`, `PickToBasketContFantaEnv`
+
+Scene generation
+
+```shellscript
+python scripts/generate_scene_continuous.py ds_continuous=pick_to_basket_1 
+
+python scripts/generate_scene_continuous.py ds_continuous=pick_to_basket_2 
+```
+
+Motion Planning
+
+```shellscript
+python scripts/run_mp.py -e PickToBasketContNiveaEnv --scene-dir demo_envs/pick_to_basket --only-count-success --num-procs 4 --num-traj 248 --traj-name pick_to_basket_nivea_248traj_4workers
+```
+
+```shellscript
+python scripts/run_mp.py -e PickToBasketContStarsEnv --scene-dir demo_envs/pick_to_basket --only-count-success --num-procs 4 --num-traj 248 --traj-name pick_to_basket_stars_248traj_4workers  
+```
+
+```shellscript
+python scripts/run_mp.py -e PickToBasketContFantaEnv --scene-dir demo_envs/pick_to_basket --only-count-success --num-procs 4 --num-traj 248 --traj-name pick_to_basket_fanta_248traj_4workers
+```
+
+
+
+### PickFromFloor
+
+WIP
+
+### MoveFromBoardToBoard
+
+WIP
+
+
 ## Scene generation and environment visualization
 
 ### Scene generation
