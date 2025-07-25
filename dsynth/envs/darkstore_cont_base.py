@@ -84,8 +84,10 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
             )
         )
 
-
         self.products_df.to_csv(self.config_dir_path / 'scene_items.csv')
+
+        self.update_human_camera()
+
         print("built")
         print(f"Total {len(self.actors['products'])} products in {self.num_envs} scene(s)")
 
@@ -165,6 +167,40 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
     def setup_language_instructions(self, *args, **kwargs):
         pass
 
+    def update_human_camera(self):
+        eye = []
+        target = []
+        for scene_idx in range(self.num_envs):
+            active_shelf_name = self.active_shelves[scene_idx][0]
+            shelf_pose = self.actors['fixtures']['shelves'][active_shelf_name].pose.sp
+            shelf_center = shelf_pose.p
+
+
+            direction_to_shelf = shelf_pose.to_transformation_matrix()[:3, 1]
+            perp_direction = np.cross([0, 0, 1], direction_to_shelf)
+
+            view_center = shelf_center - 0.3 * perp_direction
+            view_center = view_center + [0, 0, 0.2]
+
+            camera_center = shelf_center - 2 * direction_to_shelf + 1.5 * perp_direction
+            camera_center = camera_center + [0., 0., 2.]
+            target.append(view_center)
+            eye.append(camera_center)
+        eye = torch.tensor(eye).float()
+        target = torch.tensor(target).float()
+        pose = sapien_utils.look_at(eye, target)
+        self._custom_human_render_camera_configs = {
+            "render_camera": {
+                 "uid": "render_camera",
+                "pose": pose,
+                "width": 512,
+                "height": 512,
+                "fov": 1,
+                "near": 0.01,
+                "far":100,
+            }
+        }
+
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         if not self.is_rebuild:
@@ -206,9 +242,9 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
                     0,
                     0,
                     0.36,
+                    0, #unused
                     0,
-                    0,
-                    0,
+                    0, #unused
                     0.75,
                     0,
                     0.81,
