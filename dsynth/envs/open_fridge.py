@@ -289,6 +289,20 @@ class OpenDoorShowcaseContEnv(DarkstoreContinuousBaseEnv):
         }   
     
 
+@register_env('CloseDoorShowcaseContEnv', max_episode_steps=200000)
+class CloseDoorShowcaseContEnv(OpenDoorShowcaseContEnv):
+    def setup_target_objects(self, env_idxs):
+        super().setup_target_objects(env_idxs)
+
+        for scene_idx in env_idxs:
+            scene_idx = scene_idx.cpu().item()
+            showcase_actor = self.target_actor_name[scene_idx]
+            num_door = self.DOOR_NAMES_2_IDX[self.target_door_names[scene_idx]]
+            qpos_new = np.zeros((4,))
+            qpos_new[num_door - 1] = 1.4 + (self._batched_episode_rng[scene_idx].random() - 0.5) / 0.5 * 0.08
+            self.actors['fixtures']['shelves'][showcase_actor].set_qpos(qpos_new)
+
+
 @register_env('OpenDoorFridgeContEnv', max_episode_steps=200000)
 class OpenDoorFridgeContEnv(OpenDoorShowcaseContEnv):
     ROBOT_INIT_POSE_RANDOM_ENABLED = True

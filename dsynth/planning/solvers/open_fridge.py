@@ -409,8 +409,49 @@ def solve_fetch_open_door_showcase_cont(env: OpenDoorShowcaseContEnv, seed=None,
     planner.render_wait()
     return res
 
+def solve_fetch_close_door_showcase_cont(env: CloseDoorShowcaseContEnv, seed=None, debug=False, vis=False):
+    env.reset(seed=seed, options={'reconfigure': True})
+    planner = FetchMotionPlanningSapienSolver(
+        env,
+        debug=debug,
+        vis=vis,
+        base_pose=env.unwrapped.agent.robot.pose,
+        visualize_target_grasp_pose=vis,
+        print_env_info=False,
+        disable_actors_collision=False,
+        verbose=debug
+    )
+    def get_obb_center(obb):
+        T = np.array(obb.primitive.transform)
+        return T[:3, 3]
 
+    def get_base_pose():
+        return env.agent.base_link.pose
+    
+    def get_tcp_pose():
+        return env.agent.tcp.pose
 
+    def get_tcp_matrix():
+        tcp_pose = get_tcp_pose()
+        return tcp_pose.to_transformation_matrix()[0].cpu().numpy()
+    
+    def get_tcp_center():
+        return get_tcp_matrix()[:3, 3]
+    
+    if len(planner.planner.planning_world.check_collision()) > 0:
+        return BAD_ENV_ERROR_CODE
+    
+    env = env.unwrapped
+    
+    direction_to_shelf = env.directions_to_shelf[0]
+    direction_to_shelf /= np.linalg.norm(direction_to_shelf)
+
+    perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
+
+    # -------------------------------------------------------------------------- #
+    # Drive to the starting point
+    # -------------------------------------------------------------------------- #
+    
 
 
 def solve_fetch_open_door_showcase(env: OpenDoorFridgeEnv, seed=None, debug=False, vis=False):
