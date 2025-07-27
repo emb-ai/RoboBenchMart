@@ -382,3 +382,34 @@ class OpenDoorFridgeContEnv(OpenDoorShowcaseContEnv):
             scene_idx = scene_idx.cpu().item()
             door_name = self.target_door_names[scene_idx]
             self.language_instructions.append(f'open the fridge')
+
+
+@register_env('CloseDoorFridgeContEnv', max_episode_steps=200000)
+class CloseDoorFridgeContEnv(OpenDoorFridgeContEnv):
+    def setup_target_objects(self, env_idxs):
+        super().setup_target_objects(env_idxs)
+
+        for scene_idx in env_idxs:
+            scene_idx = scene_idx.cpu().item()
+            frdidge_actor = self.target_actor_name[scene_idx]
+            qpos_new = np.zeros((1,))
+            qpos_new[0] = 0.6 + (self._batched_episode_rng[scene_idx].random() - 0.5) / 0.5 * 0.02
+            self.actors['fixtures']['shelves'][frdidge_actor].set_qpos(qpos_new)
+
+    def evaluate(self):
+        is_door_closed = []
+        for scene_idx in range(self.num_envs):
+            target_showcase_name = self.target_actor_name[scene_idx]
+            showcase_actor = self.actors['fixtures']['shelves'][target_showcase_name]
+            is_door_closed.append(
+                torch.abs(showcase_actor.joints_map[f'right_cover_joint'].qpos - 0.0) < self.SUCCESS_THRESH_ANGLE
+            )
+        is_door_closed = torch.cat(is_door_closed)
+        
+        is_robot_static = self.agent.is_static(0.2)
+
+        return {
+            "is_door_closed" : is_door_closed,
+            "is_robot_static" : is_robot_static,
+            "success": is_door_closed & is_robot_static
+        }   
