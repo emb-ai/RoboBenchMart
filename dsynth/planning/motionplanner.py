@@ -707,7 +707,11 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
         base_link_pose = self.base_env.agent.base_link.pose.sp
         base_x_axis = base_link_pose.to_transformation_matrix()[:3, 0]
 
-        angle = np.arccos(np.dot(new_direction, base_x_axis) / np.linalg.norm(base_x_axis) / np.linalg.norm(new_direction))
+        angle = np.arccos(np.clip(np.dot(new_direction, base_x_axis) / \
+                                  np.linalg.norm(base_x_axis) / \
+                                    np.linalg.norm(new_direction),
+                                  -1, 1
+                        ))
         if np.cross(base_x_axis, new_direction)[2] < 0:
             angle = -angle
         
@@ -725,12 +729,14 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            # masked_joints=[True, True, True] + [False] * 12
         )
 
         if result["status"] != "Success":
             print(result["status"])
             self.render_wait()
             return -1
+        # result['velocity'][:, 2] /= 2.9 # velocities overshoot the target direction
         
         if not rotate_recalculation_enabled:
             if dry_run:
@@ -745,12 +751,14 @@ class FetchMotionPlanningSapienSolver(PandaArmMotionPlanningSapienSolver):
             mplib.Pose(p=target_tcp_pose.p, q=target_tcp_pose.q),
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
+            # masked_joints=[True, True, True] + [False] * 12
         )
         
         if result["status"] != "Success":
             print(result["status"])
             self.render_wait()
             return -1
+        # result['velocity'][:, 2] /= 2.9
 
         if dry_run:
             return result
