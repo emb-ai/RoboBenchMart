@@ -1,0 +1,8 @@
+defaults:
+  - open_fridge
+  - _self_
+
+name: 'close_fridge'
+output_dir: demo_envs/close_fridge
+
+    
