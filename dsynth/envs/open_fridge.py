@@ -319,7 +319,14 @@ class CloseDoorShowcaseContEnv(OpenDoorShowcaseContEnv):
             "is_door_closed" : is_door_closed,
             "is_robot_static" : is_robot_static,
             "success": is_door_closed & is_robot_static
-        }   
+        }
+    
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            door_name = self.target_door_names[scene_idx]
+            self.language_instructions.append(f'close the door of the showcase')
 
 
 @register_env('OpenDoorFridgeContEnv', max_episode_steps=200000)
@@ -412,4 +419,11 @@ class CloseDoorFridgeContEnv(OpenDoorFridgeContEnv):
             "is_door_closed" : is_door_closed,
             "is_robot_static" : is_robot_static,
             "success": is_door_closed & is_robot_static
-        }   
+        }  
+    
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            door_name = self.target_door_names[scene_idx]
+            self.language_instructions.append(f'close the fridge')
