@@ -1,0 +1,6 @@
+defaults:
+  - open_showcase
+  - _self_
+
+name: 'close_showcase'
+output_dir: demo_envs/close_showcase
