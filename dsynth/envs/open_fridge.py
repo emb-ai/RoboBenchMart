@@ -316,7 +316,7 @@ class CloseDoorShowcaseContEnv(OpenDoorShowcaseContEnv):
         is_robot_static = self.agent.is_static(0.2)
 
         return {
-            "is_door_opened" : is_door_closed,
+            "is_door_closed" : is_door_closed,
             "is_robot_static" : is_robot_static,
             "success": is_door_closed & is_robot_static
         }   
