@@ -302,6 +302,25 @@ class CloseDoorShowcaseContEnv(OpenDoorShowcaseContEnv):
             qpos_new[num_door - 1] = 1.4 + (self._batched_episode_rng[scene_idx].random() - 0.5) / 0.5 * 0.08
             self.actors['fixtures']['shelves'][showcase_actor].set_qpos(qpos_new)
 
+    def evaluate(self):
+        is_door_closed = []
+        for scene_idx in range(self.num_envs):
+            target_showcase_name = self.target_actor_name[scene_idx]
+            showcase_actor = self.actors['fixtures']['shelves'][target_showcase_name]
+            num_door = self.DOOR_NAMES_2_IDX[self.target_door_names[scene_idx]]
+            is_door_closed.append(
+                torch.abs(showcase_actor.joints_map[f'door{num_door}_link_joint'].qpos - 0.0) < self.SUCCESS_THRESH_ANGLE
+            )
+        is_door_closed = torch.cat(is_door_closed)
+        
+        is_robot_static = self.agent.is_static(0.2)
+
+        return {
+            "is_door_opened" : is_door_closed,
+            "is_robot_static" : is_robot_static,
+            "success": is_door_closed & is_robot_static
+        }   
+
 
 @register_env('OpenDoorFridgeContEnv', max_episode_steps=200000)
 class OpenDoorFridgeContEnv(OpenDoorShowcaseContEnv):
