@@ -1,0 +1,41 @@
+defaults:
+  - config
+  - _self_
+
+name: 'test_unseen_scenes_pick_to_basket_1'
+output_dir: demo_envs/test_unseen_scenes_pick_to_basket
+rewrite: true
+num_scenes: 4
+num_workers: 2
+
+random_seed: 10056
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.06
+    y_gap: 0.02
+    delta_x: 0.1
+    shelf_asset: fixtures.shelf_metal
+    shuffle_boards: True
+    shuffle_items_on_board: True
+    board_product_numcol:
+      0:
+        food.HOUSEHOLD.VanishStainRemover: 2 # test OOD
+        food.ENERGY_DRINKS.MonsterEnergyDrink: 4 # inactive
+
+        food.CEREALS.NestleHoneyStars: 2 # train
+      1:
+        food.CEREALS.NestleFitnessChocolateCereals: 4 # test OOD
+        food.HOUSEHOLD.AceDetergent: 1 # inactive
+        
+        food.CRACKERS_COOKIES.BananiaCookies: 1 # inactive
+      2:
+        food.DRINKS_SODA.FantaSaborNaranja2L: 2 # train
+        food.CANNED.SlamLuncheonMeat: 5 # test OOD
+        food.drinks.coffeePackaging: 2 # inactive
+
+      3:
+        food.HYGIENE.NiveaBodyMilk: 4 # train
+        food.CRACKERS_COOKIES.OreoLemonCremeSandwichCookies: 4 # inactive
+        food.CRACKERS_COOKIES.BarryCallebautMilkChockolateChunks: 3 # inactive

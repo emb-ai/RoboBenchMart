@@ -29,7 +29,7 @@ active_shelvings_list:
         food.BEER.DuffBeerCan: 2 # train [TARGET]
         food.ENERGY_DRINKS.MonsterEnergyDrink: 3 # inactive
         
-        food.CANNED.HeinzBeansInARichTomatoSauce: 5 # inactive
+        food.CANNED.HeinzBeansInARichTomatoSauce: 2 # inactive
         food.CANNED.SlamLuncheonMeat: 1 # inactive
       3:
         food.HOUSEHOLD.VanishStainRemover: 2 # train

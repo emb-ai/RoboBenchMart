@@ -33,6 +33,6 @@ active_shelvings_list:
         food.CANNED.HeinzBeansInARichTomatoSauce: 1 # inactive
       2:
         food.BEER.DuffBeerCan: 3 # train [TARGET]
-        food.CRACKERS_COOKIES.BananiaCookies: 6 # inactive
+        food.CRACKERS_COOKIES.BananiaCookies: 2 # inactive
 
-        food.HYGIENE.NiveaBodyMilk: 5 # test OOD
+        food.HYGIENE.NiveaBodyMilk: 3 # test OOD
