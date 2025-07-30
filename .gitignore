@@ -10,3 +10,5 @@ outputs
 *.json
 *.mp4
 *.h5
+*.jpg
+*.csv
