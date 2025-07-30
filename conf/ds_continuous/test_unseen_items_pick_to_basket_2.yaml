@@ -1,0 +1,11 @@
+defaults:
+  - test_unseen_scenes_pick_to_basket_2
+  - _self_
+
+name: 'test_unseen_items_pick_to_basket_2'
+output_dir: demo_envs/test_unseen_items_pick_to_basket
+num_scenes: 4
+num_workers: 2
+
+random_seed: 11142
+

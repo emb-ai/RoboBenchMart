@@ -197,7 +197,7 @@ class PickFromFloorContEnv(PickToBasketContEnv):
             self.language_instructions.append(f'pick {self.target_product_names[scene_idx]} from floor and place it on shelf')
 
 
-
+# train items
 @register_env('PickFromFloorBeansContEnv', max_episode_steps=200000)
 class PickFromFloorBeansContEnv(PickFromFloorContEnv):
     TARGET_PRODUCT_NAME = 'Heinz Beans in a rich tomato sauce'
@@ -206,7 +206,11 @@ class PickFromFloorBeansContEnv(PickFromFloorContEnv):
 class PickFromFloorSlamContEnv(PickFromFloorContEnv):
     TARGET_PRODUCT_NAME = 'SLAM luncheon meat'
 
-@register_env('PickFromFloorTestContEnv', max_episode_steps=200000)
-class PickFromFloorTestContEnv(PickFromFloorContEnv):
-    # TARGET_PRODUCT_NAME = 'Duff Beer Can'
+# unseen test items
+@register_env('PickFromFloorFantaContEnv', max_episode_steps=200000)
+class PickFromFloorFantaContEnv(PickFromFloorContEnv):
     TARGET_PRODUCT_NAME = 'Fanta Sabor Naranja 2L'
+
+@register_env('PickFromFloorDuffContEnv', max_episode_steps=200000)
+class PickFromFloorDuffContEnv(PickFromFloorContEnv):
+    TARGET_PRODUCT_NAME = 'Duff Beer Can'

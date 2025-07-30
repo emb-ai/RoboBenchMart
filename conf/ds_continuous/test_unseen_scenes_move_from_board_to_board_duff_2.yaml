@@ -1,0 +1,38 @@
+defaults:
+  - config
+  - _self_
+
+name: 'test_unseen_scenes_move_from_board_to_board_duff_2'
+output_dir: demo_envs/test_unseen_scenes_move_from_board_to_board_duff
+rewrite: true
+num_scenes: 4
+num_workers: 2
+
+random_seed: 10005
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.06
+    y_gap: 0.02
+    delta_x: 0.1
+    shelf_asset: fixtures.shelf
+    shuffle_boards: False
+    shuffle_items_on_board: True
+    board_product_numcol:
+      0:
+        food.HOUSEHOLD.VanishStainRemover: 2 # train
+
+        food.ENERGY_DRINKS.MonsterEnergyDrink: 3 # inactive
+        food.CANNED.SlamLuncheonMeat: 4 # inactive
+      1:
+        food.CEREALS.NestleFitnessChocolateCereals: 2 # train
+        food.CEREALS.NestleHoneyStars: 5 # test OOD
+        
+        food.DRINKS_SODA.FantaSaborNaranja2L: 6 # test OOD
+        food.CANNED.HeinzBeansInARichTomatoSauce: 1 # inactive
+      2:
+        food.BEER.DuffBeerCan: 3 # train [TARGET]
+        food.CRACKERS_COOKIES.BananiaCookies: 2 # inactive
+
+        food.HYGIENE.NiveaBodyMilk: 3 # test OOD

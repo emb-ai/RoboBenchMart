@@ -402,15 +402,18 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
         for idx in env_idx:
             if self.ROBOT_INIT_POSE_RANDOM_ENABLED:
                 # base movement enabled, add initial pose randomization
+                batched_rng = self._batched_episode_rng
+                if self.extra_robot_pose_randomization:
+                    batched_rng = self._batched_init_pose_rng
                 idx = idx.cpu().item()
                 direction_to_shelf = directions_to_shelf[idx]
                 perp_direction = np.cross(direction_to_shelf, [0, 0, 1])
 
-                delta_par = self._batched_episode_rng[idx].rand() * 0.2
-                delta_perp = (self._batched_episode_rng[idx].rand() - 0.5) * 0.5
+                delta_par = batched_rng[idx].rand() * 0.2
+                delta_perp = (batched_rng[idx].rand() - 0.5) * 0.5
 
                 robot_origins[idx] += -direction_to_shelf * delta_par + perp_direction * delta_perp
-                robot_angles[idx] += (self._batched_episode_rng[idx].rand() - 0.5) * np.pi / 4
+                robot_angles[idx] += (batched_rng[idx].rand() - 0.5) * np.pi / 4
 
         return robot_origins, robot_angles, directions_to_shelf
     
@@ -518,6 +521,7 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
                 )
             # self.target_volume.set_pose(target_pose)
 
+# train items
 @register_env('PickToBasketContNiveaEnv', max_episode_steps=200000)
 class PickToBasketContNiveaEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Nivea Body Milk'
@@ -530,3 +534,13 @@ class PickToBasketContStarsEnv(PickToBasketContEnv):
 @register_env('PickToBasketContFantaEnv', max_episode_steps=200000)
 class PickToBasketContFantaEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Fanta Sabor Naranja 2L'
+
+# unseen test items
+@register_env('PickToBasketContNestleEnv', max_episode_steps=200000)
+class PickToBasketContNestleEnv(PickToBasketContEnv):
+    TARGET_PRODUCT_NAME = 'Nestle Fitness Chocolate Cereals'
+
+
+@register_env('PickToBasketContSlamEnv', max_episode_steps=200000)
+class PickToBasketContSlamEnv(PickToBasketContEnv):
+    TARGET_PRODUCT_NAME = 'SLAM luncheon meat'

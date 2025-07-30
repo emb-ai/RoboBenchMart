@@ -1,0 +1,38 @@
+defaults:
+  - config
+  - _self_
+
+name: 'test_unseen_items_move_from_board_to_board_nivea_1'
+output_dir: demo_envs/test_unseen_items_move_from_board_to_board_nivea
+rewrite: true
+num_scenes: 4
+num_workers: 2
+
+random_seed: 11044
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.06
+    y_gap: 0.02
+    delta_x: 0.1
+    shelf_asset: fixtures.shelf
+    shuffle_boards: False
+    shuffle_items_on_board: True
+    board_product_numcol:
+      0:
+        food.ENERGY_DRINKS.MonsterEnergyDrink: 5 # inactive
+        food.CEREALS.NestleHoneyStars: 4 # test OOD
+        food.CANNED.SlamLuncheonMeat: 2 # inactive
+
+      1:
+        food.HYGIENE.NiveaBodyMilk: 3 # test OOD [TARGET]
+        food.HOUSEHOLD.VanishStainRemover: 2 # train
+        
+        food.DRINKS_SODA.FantaSaborNaranja2L: 2 # test OOD
+        food.CRACKERS_COOKIES.BananiaCookies: 2 # inactive
+      3:
+        food.CEREALS.NestleFitnessChocolateCereals: 3 # train
+        food.BEER.DuffBeerCan: 6 # train
+
+        food.CANNED.HeinzBeansInARichTomatoSauce: 2 # inactive

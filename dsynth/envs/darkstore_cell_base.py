@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 import itertools
 import os
 import json
@@ -13,7 +13,7 @@ from pathlib import Path
 import hydra
 import pandas as pd
 from mani_skill.utils.registration import register_env
-from mani_skill.utils import sapien_utils
+from mani_skill.utils import sapien_utils, common
 from mani_skill.sensors.camera import CameraConfig
 from mani_skill.envs.sapien_env import BaseEnv
 from dsynth.envs.fixtures.robocasaroom import DarkstoreScene
@@ -23,6 +23,7 @@ from dsynth.scene_gen.utils import flatten_dict
 from mani_skill.utils.structs.pose import Pose
 from mani_skill.utils.building import actors
 from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
+from mani_skill.envs.utils.randomization.batched_rng import BatchedRNG
 
 
 @register_env('DarkstoreCellBaseEnv', max_episode_steps=200000)
@@ -42,7 +43,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.is_rebuild = False
 
         self.markers_enabled = markers_enabled
-
+        self.extra_robot_pose_randomization = False
         # hidden objects are broken in GPU simulation (https://github.com/haosulab/ManiSkill/issues/1134)
         self.hidden_objects_enabled = hidden_objects_enabled
 
@@ -66,6 +67,100 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.target_product_str = ''
         self.language_instructions = []
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
+
+    def set_init_pose_rand_seed(self, seed: Union[int, list[int]] = 0):
+        if self.extra_robot_pose_randomization:
+            if not np.iterable(seed):
+                seed = [seed]
+            self._init_pose_rand_seed = common.to_numpy(seed, dtype=np.int64)
+            if len(self._init_pose_rand_seed) == 1 and self.num_envs > 1:
+                self._init_pose_rand_seed = np.concatenate((self._init_pose_rand_seed, np.random.RandomState(self._init_pose_rand_seed[0]).randint(2**31, size=(self.num_envs - 1,))))
+            self._batched_init_pose_rng = BatchedRNG.from_seeds(self._init_pose_rand_seed, backend=self._batched_rng_backend)
+
+    def reset(self, seed: Union[None, int, list[int]] = None, options: Union[None, dict] = None):
+        if options is None:
+            options = dict()
+        reconfigure = options.get("reconfigure", False)
+        robot_init_pose_seed = options.get("robot_init_pose_seed", None)
+        if robot_init_pose_seed is not None:
+            self.extra_robot_pose_randomization = True
+
+        reconfigure = reconfigure or (
+            self._reconfig_counter == 0 and self.reconfiguration_freq != 0
+        )
+        if "env_idx" in options:
+            env_idx = options["env_idx"]
+            if len(env_idx) != self.num_envs and reconfigure:
+                raise RuntimeError("Cannot do a partial reset and reconfigure the environment. You must do one or the other.")
+        else:
+            env_idx = torch.arange(0, self.num_envs, device=self.device)
+
+        self._set_main_rng(seed)
+
+        if reconfigure:
+            self._set_episode_rng(seed if seed is not None else self._batched_main_rng.randint(2**31), env_idx)
+            if self.extra_robot_pose_randomization:
+                self.set_init_pose_rand_seed(robot_init_pose_seed)
+            
+            with torch.random.fork_rng():
+                torch.manual_seed(seed=self._episode_seed[0])
+                self._reconfigure(options)
+                self._after_reconfigure(options)
+            # Set the episode rng again after reconfiguration to guarantee seed reproducibility
+            self._set_episode_rng(self._episode_seed, env_idx)
+        else:
+            self._set_episode_rng(seed, env_idx)
+            if self.extra_robot_pose_randomization:
+                self.set_init_pose_rand_seed(robot_init_pose_seed)
+            
+
+        # TODO (stao): Reconfiguration when there is partial reset might not make sense and certainly broken here now.
+        # Solution to resolve that would be to ensure tasks that do reconfigure more than once are single-env only / cpu sim only
+        # or disable partial reset features explicitly for tasks that have a reconfiguration frequency
+        self.scene._reset_mask = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+        self.scene._reset_mask[env_idx] = True
+        self._elapsed_steps[env_idx] = 0
+
+        self._clear_sim_state()
+        if self.reconfiguration_freq != 0:
+            self._reconfig_counter -= 1
+
+        if self.agent is not None:
+            self.agent.reset()
+
+        if seed is not None or self._enhanced_determinism:
+            with torch.random.fork_rng():
+                torch.manual_seed(self._episode_seed[0])
+                self._initialize_episode(env_idx, options)
+        else:
+            self._initialize_episode(env_idx, options)
+        # reset the reset mask back to all ones so any internal code in maniskill can continue to manipulate all scenes at once as usual
+        self.scene._reset_mask = torch.ones(
+            self.num_envs, dtype=bool, device=self.device
+        )
+        if self.gpu_sim_enabled:
+            # ensure all updates to object poses and configurations are applied on GPU after task initialization
+            self.scene._gpu_apply_all()
+            self.scene.px.gpu_update_articulation_kinematics()
+            self.scene._gpu_fetch_all()
+
+        # we reset controllers here because some controllers depend on the agent/articulation qpos/poses
+        if self.agent is not None:
+            if isinstance(self.agent.controller, dict):
+                for controller in self.agent.controller.values():
+                    controller.reset()
+            else:
+                self.agent.controller.reset()
+
+        info = self.get_info()
+        obs = self.get_obs(info)
+
+        info["reconfigure"] = reconfigure
+        return obs, info
+
+
 
     @property
     def _default_sensor_configs(self):

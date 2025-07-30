@@ -1,0 +1,38 @@
+defaults:
+  - test_unseen_scenes_pick_to_basket_1
+  - _self_
+
+name: 'test_unseen_scenes_pick_to_basket_2'
+
+random_seed: 10142
+
+active_shelvings_list:
+  - name: 'mixed_shelf'
+    filling_type: BOARDWISE_COLUMNS
+    x_gap: 0.06
+    y_gap: 0.02
+    delta_x: 0.1
+    shelf_asset: fixtures.shelf
+    shuffle_boards: True
+    shuffle_items_on_board: True
+    board_product_numcol:
+      0:
+        food.HOUSEHOLD.VanishStainRemover: 4 # test OOD
+        food.CEREALS.NestleFitnessChocolateCereals: 3 # test OOD
+
+        food.CEREALS.NestleHoneyStars: 2 # train
+      1:
+        food.HYGIENE.NiveaBodyMilk: 3 # train
+        food.HOUSEHOLD.AjaxDishSoap: 2 # inactive
+        
+        food.CRACKERS_COOKIES.PockyMatcha: 3 # inactive
+      2:
+        food.DRINKS_SODA.FantaSaborNaranja2L: 3 # train
+        food.CANNED.SlamLuncheonMeat: 4 # test OOD
+
+        food.MILK.AuchanLeiteMagroMilk: 3 # inactive
+      3:
+        food.ENERGY_DRINKS.LitEnergyDrinkClassic: 4 # inactive
+        food.MILK.OatlyMilk: 3 # inactive
+        food.MILK.RealMilk: 3 # inactive
+
