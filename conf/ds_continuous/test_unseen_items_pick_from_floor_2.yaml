@@ -30,11 +30,11 @@ active_shelvings_list:
         food.CANNED.SlamLuncheonMeat: 3  # train
 
       2:
-        food.CANNED.HeinzBeansInARichTomatoSauce: 3  # train
+        food.CANNED.HeinzBeansInARichTomatoSauce: 2  # train
         food.DRINKS_SODA.FantaSaborNaranja2L: 2 # test OOD
-        food.BEER.DuffBeerCan: 3 # test OOD
+        food.BEER.DuffBeerCan: 1 # test OOD
         
-        food.drinks.coffeePackaging: 3 # inactive
+        food.drinks.coffeePackaging: 1 # inactive
       3:
         food.ENERGY_DRINKS.MonsterEnergyDrink: 2 # inactive
         food.HOUSEHOLD.VanishStainRemover: 4  # inactive
