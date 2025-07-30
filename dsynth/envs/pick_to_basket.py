@@ -521,6 +521,7 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
                 )
             # self.target_volume.set_pose(target_pose)
 
+# train items
 @register_env('PickToBasketContNiveaEnv', max_episode_steps=200000)
 class PickToBasketContNiveaEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Nivea Body Milk'
@@ -533,3 +534,13 @@ class PickToBasketContStarsEnv(PickToBasketContEnv):
 @register_env('PickToBasketContFantaEnv', max_episode_steps=200000)
 class PickToBasketContFantaEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Fanta Sabor Naranja 2L'
+
+# unseen test items
+@register_env('PickToBasketContNestleEnv', max_episode_steps=200000)
+class PickToBasketContNestleEnv(PickToBasketContEnv):
+    TARGET_PRODUCT_NAME = 'Nestle Fitness Chocolate Cereals'
+
+
+@register_env('PickToBasketContSlamEnv', max_episode_steps=200000)
+class PickToBasketContSlamEnv(PickToBasketContEnv):
+    TARGET_PRODUCT_NAME = 'SLAM luncheon meat'

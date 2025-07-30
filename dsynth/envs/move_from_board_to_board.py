@@ -425,7 +425,7 @@ class MoveFromBoardToBoardContEnv(PickToBasketContEnv):
             scene_idx = scene_idx.cpu().item()
             self.language_instructions.append(f'pick {self.TARGET_PRODUCT_NAME} and place on empty board')
 
-
+# train items
 @register_env('MoveFromBoardToBoardVanishContEnv', max_episode_steps=200000)
 class MoveFromBoardToBoardVanishContEnv(MoveFromBoardToBoardContEnv):
     TARGET_PRODUCT_NAME = 'Vanish Stain Remover'
@@ -437,3 +437,14 @@ class MoveFromBoardToBoardNestleContEnv(MoveFromBoardToBoardContEnv):
 @register_env('MoveFromBoardToBoardDuffContEnv', max_episode_steps=200000)
 class MoveFromBoardToBoardDuffContEnv(MoveFromBoardToBoardContEnv):
     TARGET_PRODUCT_NAME = 'Duff Beer Can'
+
+
+# unseen test items
+@register_env('MoveFromBoardToBoardFantaContEnv', max_episode_steps=200000)
+class MoveFromBoardToBoardFantaContEnv(MoveFromBoardToBoardContEnv):
+    TARGET_PRODUCT_NAME = 'Fanta Sabor Naranja 2L'
+
+@register_env('MoveFromBoardToBoardNiveaContEnv', max_episode_steps=200000)
+class MoveFromBoardToBoardNiveaContEnv(MoveFromBoardToBoardContEnv):
+    TARGET_PRODUCT_NAME = 'Nivea Body Milk'
+
