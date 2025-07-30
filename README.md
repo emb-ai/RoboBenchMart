@@ -106,16 +106,13 @@ Item train distribution
 <td>
 
 * NestleFitnessChocolateCereals
-* DuffBeerCan
-* VanishStainRemover
 * SlamLuncheonMeat
 </td>
 <td>
 
 * NiveaBodyMilk
-* NestleHoneyStars
 * FantaSaborNaranja2L
-* HeinzBeansInARichTomatoSauce
+
 </td>
 <td>
 
