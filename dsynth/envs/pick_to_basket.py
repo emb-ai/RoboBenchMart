@@ -546,3 +546,7 @@ class PickToBasketContNestleEnv(PickToBasketContEnv):
 @register_env('PickToBasketContSlamEnv', max_episode_steps=200000)
 class PickToBasketContSlamEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'SLAM luncheon meat'
+
+@register_env('PickToBasketContDuffEnv', max_episode_steps=200000)
+class PickToBasketContDuffEnv(PickToBasketContEnv):
+    TARGET_PRODUCT_NAME = 'Duff Beer Can'

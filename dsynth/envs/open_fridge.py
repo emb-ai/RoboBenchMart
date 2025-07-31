@@ -224,9 +224,8 @@ class OpenDoorShowcaseContEnv(DarkstoreContinuousBaseEnv):
     SUCCESS_THRESH_ANGLE = 0.2
     DOOR_NAMES = ['first', 'second', 'third', 'fourth']
     DOOR_NAMES_2_IDX = {name: i + 1 for i, name in enumerate(DOOR_NAMES)}
-    
-    def _load_scene(self, options: dict):
-        super()._load_scene(options)
+
+    TARGET_DOOR_NAME = None
         
     def setup_target_objects(self, env_idxs):
         # no guarantees that target shelving is exactly a showcase - TODO
@@ -239,7 +238,11 @@ class OpenDoorShowcaseContEnv(DarkstoreContinuousBaseEnv):
             assert len(self.active_shelves[scene_idx]) == 1
             self.target_actor_name[scene_idx] = self.active_shelves[scene_idx][0]
             
-            self.target_door_names[scene_idx] = self._batched_episode_rng[scene_idx].choice(self.DOOR_NAMES)
+            if self.TARGET_DOOR_NAME is not None:
+                assert self.TARGET_DOOR_NAME in self.DOOR_NAMES
+                self.target_door_names[scene_idx] = self.TARGET_DOOR_NAME
+            else:
+                self.target_door_names[scene_idx] = self._batched_episode_rng[scene_idx].choice(self.DOOR_NAMES)
 
     def _compute_robot_init_pose(self, env_idx = None):
         robot_origins, robot_angles, directions_to_shelf = super()._compute_robot_init_pose(env_idx)
@@ -331,6 +334,13 @@ class CloseDoorShowcaseContEnv(OpenDoorShowcaseContEnv):
             door_name = self.target_door_names[scene_idx]
             self.language_instructions.append(f'close the door of the showcase')
 
+@register_env('OpenFirstDoorShowcaseContEnv', max_episode_steps=200000)
+class OpenFirstDoorShowcaseContEnv(OpenDoorShowcaseContEnv):
+    TARGET_DOOR_NAME = 'first'
+
+@register_env('CloseFirstDoorShowcaseContEnv', max_episode_steps=200000)
+class CloseFirstDoorShowcaseContEnv(CloseDoorShowcaseContEnv):
+    TARGET_DOOR_NAME = 'first'
 
 @register_env('OpenDoorFridgeContEnv', max_episode_steps=200000)
 class OpenDoorFridgeContEnv(OpenDoorShowcaseContEnv):

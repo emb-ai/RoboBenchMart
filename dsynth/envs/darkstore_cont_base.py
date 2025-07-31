@@ -29,6 +29,8 @@ from dsynth.envs.darkstore_cell_base import DarkstoreCellBaseEnv
 
 @register_env('DarkstoreContinuousBaseEnv', max_episode_steps=200000)
 class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
+    TARGET_PRODUCT_NAME = None
+    
     def _load_scene(self, options: dict):
         BaseEnv._load_scene(self, options)
         self.is_rebuild = True
