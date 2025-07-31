@@ -317,53 +317,19 @@ class DarkstoreCellBaseEnv(BaseEnv):
         """Overrides default _load_lighting to avoid loading defauls. The actual lighting is set in dsynth/envs/fixtures/robocasaroom.py"""
         pass
 
-    # def _get_lamps_coords(self):
-    #     lamps_coords = []
-
-    #     # TODO: max number of light sources can be reached
-    #     for i, j in itertools.product(range(self.x_cells), range(self.y_cells // 2)):
-    #         x = CELL_SIZE / 2 + 2 * CELL_SIZE * i
-    #         y = CELL_SIZE / 2 + 2 * CELL_SIZE * j
-    #         lamps_coords.append((x, y))
-        
-    #     return lamps_coords
-
-    # def _load_lighting(self, options: dict):
-    #     """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
-
-    #     shadow = self.enable_shadow
-    #     self.scene.set_ambient_light([0.4, 0.4, 0.4])
-    #     lamp_height = self.assets_lib['fixtures.lamp'].extents[2]
-    #     for x, y in self.lamps_coords:
-    #         # I have no idea what inner_fov and outer_fov mean :/
-    #         self.scene.add_spot_light([x, y, self.height - lamp_height], [0, 0, -1], inner_fov=10, outer_fov=20, color=[20, 20, 20], shadow=shadow)
-
-    # def _load_lighting(self, options: dict):
-    #     """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
-    #     # pass
-    #     shadow = self.enable_shadow
-    #     self.scene.set_ambient_light([0.3, 0.3, 0.3])
-    #     self.scene.add_directional_light(
-    #         [1, 1, -1], [1, 1, 1], shadow=shadow, shadow_scale=5, shadow_map_size=2048
-    #     )
-    #     self.scene.add_directional_light([0, 0, -1], [1, 1, 1])
-
-    # def _load_lamps(self, options: dict):
-    #     self.actors["fixtures"]["lamps"] = {}
-    #     for n, (x, y) in enumerate(self.lamps_coords):
-    #         pose = sapien.Pose(p=[x, y, self.height], q=[1, 0, 0, 0])
-    #         lamp = self.assets_lib['fixtures.lamp'].ms_build_actor(f'lamp_{n}', self.scene, pose=pose)
-    #         self.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
+    def store_products_init_poses(self):
+        self.product_displaced = False
+        self.products_initial_poses = {}
+        for p, a in self.actors['products'].items():
+            self.products_initial_poses[p] = copy.deepcopy(a.pose.raw_pose)
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         if not self.is_rebuild:
             raise RuntimeError("To reset arrangement use 'reconfigure' flag: env.reset(options={'reconfigure': True})")
         self.is_rebuild = False
         
-        self.product_displaced = False
-        self.products_initial_poses = {}
-        for p, a in self.actors['products'].items():
-            self.products_initial_poses[p] = copy.deepcopy(a.pose.raw_pose)
+        self.store_products_init_poses()
+
         if self.robot_uids == "fetch":
             qpos = np.array(
                 [

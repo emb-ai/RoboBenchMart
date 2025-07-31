@@ -290,17 +290,18 @@ class PickToBasketEnv(DarkstoreCellBaseEnv):
             
             for actor_name in non_target_actors:
                 actor = self.actors['products'][actor_name]
-                if not torch.all(torch.isclose(actor.pose.raw_pose, self.products_initial_poses[actor_name], rtol=0.1, atol=0.1)):
-                    is_non_target_produncts_replaced[scene_idx] = True
+                if actor_name in self.products_initial_poses:
+                    if not torch.all(torch.isclose(actor.pose.raw_pose, self.products_initial_poses[actor_name], rtol=0.1, atol=0.1)):
+                        is_non_target_produncts_replaced[scene_idx] = True
 
-                    if self.markers_enabled:
-                        # make marker red if non-target product moved
-                        render_component = self.target_volumes[scene_idx]._objs[0].find_component_by_type(
-                            sapien.pysapien.render.RenderBodyComponent
-                        )
-                        render_component.render_shapes[0].material.base_color = [1.0, 0.0, 0.0, 0.5]
+                        if self.markers_enabled:
+                            # make marker red if non-target product moved
+                            render_component = self.target_volumes[scene_idx]._objs[0].find_component_by_type(
+                                sapien.pysapien.render.RenderBodyComponent
+                            )
+                            render_component.render_shapes[0].material.base_color = [1.0, 0.0, 0.0, 0.5]
 
-                    break
+                        break
 
 
         return {
@@ -477,17 +478,18 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
             
             for actor_name in non_target_actors:
                 actor = self.actors['products'][actor_name]
-                if not torch.all(torch.isclose(actor.pose.raw_pose, self.products_initial_poses[actor_name], rtol=0.1, atol=0.1)):
-                    is_non_target_produncts_replaced[scene_idx] = True
+                if actor_name in self.products_initial_poses:
+                    if not torch.all(torch.isclose(actor.pose.raw_pose, self.products_initial_poses[actor_name], rtol=0.1, atol=0.1)):
+                        is_non_target_produncts_replaced[scene_idx] = True
 
-                    if self.markers_enabled:
-                        # make marker red if non-target product moved
-                        render_component = self.target_volumes[scene_idx][0]._objs[0].find_component_by_type(
-                            sapien.pysapien.render.RenderBodyComponent
-                        )
-                        render_component.render_shapes[0].material.base_color = [1.0, 0.0, 0.0, 0.5]
+                        if self.markers_enabled:
+                            # make marker red if non-target product moved
+                            render_component = self.target_volumes[scene_idx][0]._objs[0].find_component_by_type(
+                                sapien.pysapien.render.RenderBodyComponent
+                            )
+                            render_component.render_shapes[0].material.base_color = [1.0, 0.0, 0.0, 0.5]
 
-                    break
+                        break
 
 
         return {
