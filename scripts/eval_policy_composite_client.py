@@ -1,24 +1,13 @@
 import multiprocessing as mp
-from functools import partial
 
-import os
-
-from copy import deepcopy
 import time
 import argparse
 import gymnasium as gym
 import numpy as np
 from tqdm import tqdm
 import os.path as osp
-from typing import Optional
-from pathlib import Path
+
 import json
-import jax
-
-from mani_skill.utils.structs.pose import to_sapien_pose
-from mani_skill.utils.wrappers.record import RecordEpisode
-from mani_skill.trajectory.merge_trajectory import merge_trajectories
-
 
 import sys
 sys.path.append('.')
@@ -170,8 +159,8 @@ def main(args) -> str:
             for action in actions:
                 language_instruction = env.language_instructions[0]
                 obs, reward, done, trunc, info = env.step(action)
-                print(info)
-                print(language_instruction)
+                # print(info)
+                # print(language_instruction)
 
                 i += 1
 
