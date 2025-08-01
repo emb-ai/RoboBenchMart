@@ -29,6 +29,8 @@ from dsynth.envs.darkstore_cell_base import DarkstoreCellBaseEnv
 
 @register_env('DarkstoreContinuousBaseEnv', max_episode_steps=200000)
 class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
+    TARGET_PRODUCT_NAME = None
+    
     def _load_scene(self, options: dict):
         BaseEnv._load_scene(self, options)
         self.is_rebuild = True
@@ -201,16 +203,23 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
             }
         }
 
+    def store_products_init_poses(self, exclude_items_names=None):
+        self.product_displaced = False
+        self.products_initial_poses = {}
+        for p, a in self.actors['products'].items():
+            item_id = 'products_hierarchy.' + re.sub(r"\[ENV#\d\]_", "", p).split(':')[0]
+            asset_name = self.assets_lib[item_id].asset_name
+            if exclude_items_names is not None:
+                if asset_name in exclude_items_names:
+                    continue
+            self.products_initial_poses[p] = copy.deepcopy(a.pose.raw_pose)
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         if not self.is_rebuild:
             raise RuntimeError("To reset arrangement use 'reconfigure' flag: env.reset(options={'reconfigure': True})")
         self.is_rebuild = False
         
-        self.product_displaced = False
-        self.products_initial_poses = {}
-        for p, a in self.actors['products'].items():
-            self.products_initial_poses[p] = copy.deepcopy(a.pose.raw_pose)
+        self.store_products_init_poses()
 
         self.setup_target_objects(env_idx)
         self.setup_language_instructions(env_idx)

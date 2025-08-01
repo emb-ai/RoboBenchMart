@@ -1,0 +1,11 @@
+defaults:
+  - pick_to_basket_1
+  - _self_
+
+name: 'composite_pick_to_basket'
+output_dir: demo_envs/composite_pick_to_basket
+rewrite: true
+num_scenes: 4
+num_workers: 2
+
+random_seed: 88
