@@ -166,8 +166,11 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
     def setup_target_objects(self, *args, **kwargs):
         pass
 
-    def setup_language_instructions(self, *args, **kwargs):
-        pass
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            self.language_instructions.append(f'do nothing')
 
     def update_human_camera(self):
         eye = []
