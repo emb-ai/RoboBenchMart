@@ -349,6 +349,22 @@ class PickToBasketStaticSpriteEnv(PickToBasketEnv):
 
 @register_env('PickToBasketContEnv', max_episode_steps=200000)
 class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
+    """
+    **Task Description:**
+    Approach the shelf and pick up the item specified by `TARGET_PRODUCT_NAME`, placing it into the basket attached to the Fetch robot.
+    If `TARGET_PRODUCT_NAME` is None, it is randomly selected from the set of item names present in the scene.
+    The robot is spawned in close proximity to the shelf.
+
+    **Randomizations:**
+    - scene layout, object arrangement, wall and floor textures
+    - initial robot position, if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+
+    **Success Conditions:**
+    - any product item with the name `TARGET_PRODUCT_NAME` is within `TARGET_POS_THRESH` Euclidean distance of the goal position (the Fetch robot's basket).
+    - other items remain untouched (their positions change by no more than 0.1 m)
+    - the robot is static (q velocity < 0.2)
+    """
+
     TARGET_PRODUCT_NAME = None
     ROBOT_INIT_POSE_RANDOM_ENABLED = True
 
@@ -523,30 +539,57 @@ class PickToBasketContEnv(DarkstoreContinuousBaseEnv):
                 )
             # self.target_volume.set_pose(target_pose)
 
+PICK_TO_BASKET_DOC_STRING="""
+**Task Description:**
+Approach the shelf and pick up any item with the name '{product_name}', placing it into the basket attached to the Fetch robot.
+The robot is spawned in close proximity to the shelf.
+
+**Randomizations:**
+- scene layout, object arrangement, wall and floor textures
+- initial robot position, if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+
+**Success Conditions:**
+- any product item with the name '{product_name}' is within `TARGET_POS_THRESH` Euclidean distance of the goal position (the Fetch robot's basket).
+- other items remain untouched (their positions change by no more than 0.1 m)
+- the robot is static (q velocity < 0.2)
+"""
+
+
 # train items
 @register_env('PickToBasketContNiveaEnv', max_episode_steps=200000)
 class PickToBasketContNiveaEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Nivea Body Milk'
+
+PickToBasketContNiveaEnv.__doc__ = PICK_TO_BASKET_DOC_STRING.format(product_name='Nivea Body Milk')
 
 @register_env('PickToBasketContStarsEnv', max_episode_steps=200000)
 class PickToBasketContStarsEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Nestle Honey Stars'
     TARGET_POS_THRESH = 0.25
 
+PickToBasketContStarsEnv.__doc__ = PICK_TO_BASKET_DOC_STRING.format(product_name='Nestle Honey Stars')
+
 @register_env('PickToBasketContFantaEnv', max_episode_steps=200000)
 class PickToBasketContFantaEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Fanta Sabor Naranja 2L'
+
+PickToBasketContFantaEnv.__doc__ = PICK_TO_BASKET_DOC_STRING.format(product_name='Fanta Sabor Naranja 2L')
 
 # unseen test items
 @register_env('PickToBasketContNestleEnv', max_episode_steps=200000)
 class PickToBasketContNestleEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Nestle Fitness Chocolate Cereals'
 
+PickToBasketContNestleEnv.__doc__ = PICK_TO_BASKET_DOC_STRING.format(product_name='Nestle Fitness Chocolate Cereals')
 
 @register_env('PickToBasketContSlamEnv', max_episode_steps=200000)
 class PickToBasketContSlamEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'SLAM luncheon meat'
 
+PickToBasketContSlamEnv.__doc__ = PICK_TO_BASKET_DOC_STRING.format(product_name='SLAM luncheon meat')
+
 @register_env('PickToBasketContDuffEnv', max_episode_steps=200000)
 class PickToBasketContDuffEnv(PickToBasketContEnv):
     TARGET_PRODUCT_NAME = 'Duff Beer Can'
+
+PickToBasketContDuffEnv.__doc__ = PICK_TO_BASKET_DOC_STRING.format(product_name='Duff Beer Can')

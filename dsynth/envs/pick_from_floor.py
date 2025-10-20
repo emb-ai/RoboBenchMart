@@ -67,6 +67,26 @@ class PickFromFloorEnv(DarkstoreCellBaseEnv):
 
 @register_env('PickFromFloorContEnv', max_episode_steps=200000)
 class PickFromFloorContEnv(PickToBasketContEnv):
+    """
+    **Task Description:**
+    Approach to the shelf, pick the fallen item and place it on the shelf.
+
+    During initialization, a random item located at the border of the shelf with the name `TARGET_PRODUCT_NAME` is selected
+    and is placed on the floor (the target item). If `TARGET_PRODUCT_NAME` is None, then it is selected randomly from the set of item names 
+    present in the scene. The robot is spawned in close proximity to the shelf. The goal position for the fallen item is 
+    its original location on the shelf. 
+
+    **Randomizations:**
+    - scene's layout, objects' arrangement, wall and floor textures
+    - robot initial position if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+    - target (the fallen one) item
+    - target item position on the floor
+
+    **Success Conditions:**
+    - fallen item is placed in the correct location
+    - other items are untouched (positions are changed no more than 0.1m)
+    - the robot is static (q velocity < 0.2)
+    """
     ROBOT_INIT_POSE_RANDOM_ENABLED = True
 
     def setup_target_objects(self, env_idxs):
@@ -197,20 +217,48 @@ class PickFromFloorContEnv(PickToBasketContEnv):
             self.language_instructions.append(f'pick {self.target_product_names[scene_idx]} from floor and place it on shelf')
 
 
+PICK_FROM_FLOOR_DOC_STRING="""**Task Description:**
+Approach to the shelf, pick the fallen item and place it on the shelf.
+
+During initialization, a random item located at the border of the shelf with the name '{product_name}' is selected
+and is placed on the floor (the target item). The robot is spawned in close proximity to the shelf. The goal position for the fallen item is 
+its original location on the shelf. 
+
+**Randomizations:**
+- scene's layout, objects' arrangement, wall and floor textures
+- robot initial position if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+- target (the fallen one) item
+- target item position on the floor
+
+**Success Conditions:**
+- fallen item is placed in the correct location
+- other items are untouched (positions are changed no more than 0.1m)
+- the robot is static (q velocity < 0.2)
+"""
+
 # train items
 @register_env('PickFromFloorBeansContEnv', max_episode_steps=200000)
 class PickFromFloorBeansContEnv(PickFromFloorContEnv):
     TARGET_PRODUCT_NAME = 'Heinz Beans in a rich tomato sauce'
 
+PickFromFloorBeansContEnv.__doc__ = PICK_FROM_FLOOR_DOC_STRING.format(product_name='Heinz Beans in a rich tomato sauce')
+
 @register_env('PickFromFloorSlamContEnv', max_episode_steps=200000)
 class PickFromFloorSlamContEnv(PickFromFloorContEnv):
     TARGET_PRODUCT_NAME = 'SLAM luncheon meat'
+
+PickFromFloorSlamContEnv.__doc__ = PICK_FROM_FLOOR_DOC_STRING.format(product_name='SLAM luncheon meat')
+
 
 # unseen test items
 @register_env('PickFromFloorFantaContEnv', max_episode_steps=200000)
 class PickFromFloorFantaContEnv(PickFromFloorContEnv):
     TARGET_PRODUCT_NAME = 'Fanta Sabor Naranja 2L'
 
+PickFromFloorFantaContEnv.__doc__ = PICK_FROM_FLOOR_DOC_STRING.format(product_name='Fanta Sabor Naranja 2L')
+
 @register_env('PickFromFloorDuffContEnv', max_episode_steps=200000)
 class PickFromFloorDuffContEnv(PickFromFloorContEnv):
     TARGET_PRODUCT_NAME = 'Duff Beer Can'
+
+PickFromFloorDuffContEnv.__doc__ = PICK_FROM_FLOOR_DOC_STRING.format(product_name='Duff Beer Can')

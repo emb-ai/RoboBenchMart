@@ -220,6 +220,21 @@ class OpenDoorFridgeEnv(DarkstoreCellBaseEnv):
 
 @register_env('OpenDoorShowcaseContEnv', max_episode_steps=200000)
 class OpenDoorShowcaseContEnv(DarkstoreContinuousBaseEnv):
+    """
+    **Task Description:**
+    Approach the showcase and open the door specified by `TARGET_DOOR_NAME` (the target door).
+    If `TARGET_DOOR_NAME` is None, it is randomly selected from `DOOR_NAMES`.
+    The robot is spawned in close proximity to the showcase.
+
+    **Randomizations:**
+    - scene's layout, objects' arrangement, wall and floor textures
+    - robot initial position if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+    - the target door
+
+    **Success Conditions:**
+    - angle between the target door and the showcase is 90 degrees (within the `SUCCESS_THRESH_ANGLE` tolerance) 
+    - the robot is static (q velocity < 0.2)
+    """
     ROBOT_INIT_POSE_RANDOM_ENABLED = True
     SUCCESS_THRESH_ANGLE = 0.2
     DOOR_NAMES = ['first', 'second', 'third', 'fourth']
@@ -297,6 +312,21 @@ class OpenDoorShowcaseContEnv(DarkstoreContinuousBaseEnv):
 
 @register_env('CloseDoorShowcaseContEnv', max_episode_steps=200000)
 class CloseDoorShowcaseContEnv(OpenDoorShowcaseContEnv):
+    """
+    **Task Description:**
+    Approach the showcase and close the opened door specified by `TARGET_DOOR_NAME` (the target door).
+    If `TARGET_DOOR_NAME` is None, it is randomly selected from `DOOR_NAMES`.
+    The robot is spawned in close proximity to the showcase.
+
+    **Randomizations:**
+    - scene's layout, wall and floor textures
+    - robot initial position if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+    - the target door
+
+    **Success Conditions:**
+    - angle between the target door and the showcase is 0 degrees (within the `SUCCESS_THRESH_ANGLE` tolerance) 
+    - the robot is static (q velocity < 0.2)
+    """
     def setup_target_objects(self, env_idxs):
         super().setup_target_objects(env_idxs)
 
@@ -344,6 +374,19 @@ class CloseFirstDoorShowcaseContEnv(CloseDoorShowcaseContEnv):
 
 @register_env('OpenDoorFridgeContEnv', max_episode_steps=200000)
 class OpenDoorFridgeContEnv(OpenDoorShowcaseContEnv):
+    """
+    **Task Description:**
+    Approach the fridge and open the door.
+    The robot is spawned in close proximity to the fridge.
+
+    **Randomizations:**
+    - scene's layout, objects' arrangement, wall and floor textures
+    - robot initial position if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+
+    **Success Conditions:**
+    - the door is opened within `SUCCESS_THRESH_ANGLE` Euclidean distance of the goal position 
+    - the robot is static (q velocity < 0.2)
+    """
     ROBOT_INIT_POSE_RANDOM_ENABLED = True
     SUCCESS_THRESH_ANGLE = 0.1
 
@@ -410,6 +453,19 @@ class OpenDoorFridgeContEnv(OpenDoorShowcaseContEnv):
 
 @register_env('CloseDoorFridgeContEnv', max_episode_steps=200000)
 class CloseDoorFridgeContEnv(OpenDoorFridgeContEnv):
+    """
+    **Task Description:**
+    Approach the fridge and close the door.
+    The robot is spawned in close proximity to the fridge.
+
+    **Randomizations:**
+    - scene's layout, objects' arrangement, wall and floor textures
+    - robot initial position if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+
+    **Success Conditions:**
+    - the door is closed within `SUCCESS_THRESH_ANGLE` Euclidean distance of the goal position 
+    - the robot is static (q velocity < 0.2)
+    """
     def setup_target_objects(self, env_idxs):
         super().setup_target_objects(env_idxs)
 
