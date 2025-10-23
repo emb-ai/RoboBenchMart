@@ -194,17 +194,15 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
         eye = torch.tensor(eye).float()
         target = torch.tensor(target).float()
         pose = sapien_utils.look_at(eye, target)
-        self._custom_human_render_camera_configs = {
-            "render_camera": {
-                 "uid": "render_camera",
-                "pose": pose,
-                "width": 512,
-                "height": 512,
-                "fov": 1,
-                "near": 0.01,
-                "far":100,
+        self._custom_human_render_camera_configs["render_camera"] = {
+            "uid": "render_camera",
+            "pose": pose,
+            "width": 512,
+            "height": 512,
+            "fov": 1,
+            "near": 0.01,
+            "far":100,
             }
-        }
 
     def store_products_init_poses(self, exclude_items_names=None):
         self.product_displaced = False
