@@ -1,8 +1,8 @@
 # Darkstore Synthesizer
 
-## Quickstart
+<!-- ## Quickstart
 
-You can open [example notebook](notebooks/dsynth_scengen.ipynb) in [Google Colab](https://colab.research.google.com/) to test basic usage.
+You can open [example notebook](notebooks/dsynth_scengen.ipynb) in [Google Colab](https://colab.research.google.com/) to test basic usage. -->
 
 ## Installation
 
@@ -52,7 +52,7 @@ Generate Simple scene
 python scripts/generate_scene_continuous.py ds_continuous=small_scene
 ```
 
-The default saving directory is `genereted_envs/`, however you can change it using `ds_continuous.output_dir=<YOUR_PATH>`.
+The default saving directory is `generated_envs/`, however you can change it using `ds_continuous.output_dir=<YOUR_PATH>`.
 
 Vizualize generated env using SAPIEN viewer:
 
@@ -70,23 +70,36 @@ python scripts/run_teleop_fetch.py --scene-dir generated_envs/ds_small_scene/
 
 ## Training dataset generation
 
+### Training scenes generation
+
 First, generate training scenes:
 
 ```bash
 bash bash/generate_scenes.sh
 ```
 
-Then run Motion Planning to collect trajectories in training environments:
+### Collecting Demo Trajectories
+
+Then run Motion Planning to collect raw .h5 trajectories without visual observations in training environments:
 
 ```bash
 bash bash/run_mp_all.sh
 ```
 
-To convert data ro RLDS format please reffer to this [repo](https://github.com/emb-ai/DsynthAtomicTasks_rlds_builder).
+Motion Planning generation is very time-consuming process.
+We recommend to launch per-environment scripts `bash/run_mp_CloseDoorFridgeContEnv.sh`, `bash/run_mp_MoveFromBoardToBoardVanishContEnv.sh`, etc. in parallel to speed up the trajectory generation.
+
+Next we have to replay all trajectories to write visual observations.
+
+```bash
+bash bash/replay.sh
+```
+
+To convert data to RLDS format please refer to this [repo](https://github.com/emb-ai/DsynthAtomicTasks_rlds_builder).
 
 ## Evaluation
 
-Gnereate test scenes:
+Gnereate test scenes: 
 
 ```bash
 bash bash/generate_test_scenes.sh
@@ -94,11 +107,27 @@ bash bash/generate_test_scenes.sh
 
 ### Octo evaluation
 
+Follow [original installation](https://github.com/octo-models/octo) instructions to set up environment with Octo.
+
+Launch Octo server (in Octo environment):
+
+```bash
+python scripts/octo_server.py --finetuned-path <PATH_TO_OCTO_WEIGHTS>
+```
+
+Run evaluation script (in `dsynth` environment):
+
+```bash
+bash bash/eval_octo.py
+```
+
 ### Pi0 evaluation
+
+WIP
 
 ## Atomic PnP Tasks
 
-Item train distribution
+Train/test item distribution
 
 <table>
 <tr>
@@ -168,6 +197,9 @@ Item train distribution
 Approach the shelf and pick up any item with specified name, placing it into the basket attached to the Fetch robot.
 The robot is spawned in close proximity to the shelf.
 
+<details>
+  <summary>Click to reveal</summary>
+
 #### Train environments
 
 Environments: `PickToBasketContNiveaEnv`, `PickToBasketContStarsEnv`, `PickToBasketContFantaEnv`.
@@ -181,12 +213,16 @@ Environments: `PickToBasketContNestleEnv`, `PickToBasketContSlamEnv`, `PickToBas
 Scene configs: `conf/test_unseen_scenes_pick_to_basket_1`, `conf/test_unseen_scenes_pick_to_basket_2`,
 `conf/test_unseen_items_pick_to_basket_1`, `conf/test_unseen_items_pick_to_basket_2`.
 
+</details>
 
 ### PickFromFloor
 
 **Task Description:**
 Approach to the shelf, pick the fallen item and place it on the shelf.
 The robot is spawned in close proximity to the shelf. The goal position for the fallen item is its original location on the shelf.
+
+<details>
+  <summary>Click to reveal</summary>
 
 #### Train environments
 
@@ -201,12 +237,16 @@ Environments: `PickFromFloorFantaContEnv`, `PickFromFloorDuffContEnv`.
 Scene configs: `conf/test_unseen_scenes_pick_from_floor_1`, `conf/test_unseen_scenes_pick_from_floor_2`,
 `conf/test_unseen_items_pick_from_floor_1`, `conf/test_unseen_items_pick_from_floor_2`.
 
+</details>
 
 ### MoveFromBoardToBoard
 
 **Task Description:**
 Approach the shelf and pick up any item with the specified name, placing it one board higher (target board).
 It is assumed that there is a free space on a target board.
+
+<details>
+  <summary>Click to reveal</summary>
 
 #### Train environments
 
@@ -220,6 +260,8 @@ Environments: `MoveFromBoardToBoardFantaContEnv`, `MoveFromBoardToBoardNiveaCont
 
 Scene configs: `conf/test_unseen_scenes_move_from_board_to_board_duff_1`, `conf/test_unseen_scenes_move_from_board_to_board_duff_2`, `conf/test_unseen_scenes_move_from_board_to_board_nestle_1`, `conf/test_unseen_scenes_move_from_board_to_board_nestle_2`, `conf/test_unseen_scenes_move_from_board_to_board_vanish_1`, `conf/test_unseen_scenes_move_from_board_to_board_vanish_2`, `conf/test_unseen_items_move_from_board_to_board_nivea_1`, `conf/test_unseen_items_move_from_board_to_board_nivea_2`, `conf/test_unseen_items_move_from_board_to_board_fanta_1`, `conf/test_unseen_items_move_from_board_to_board_fanta_2`.
 
+</details>
+
 ## Opening and Closing tasks
 
 ### OpenDoorShowcase
@@ -228,11 +270,16 @@ Scene configs: `conf/test_unseen_scenes_move_from_board_to_board_duff_1`, `conf/
 Approach the showcase and open the specified (`first`, `second`, `third`, `fourth`) door of the showcase.
 The robot is spawned in close proximity to the showcase.
 
+<details>
+  <summary>Click to reveal</summary>
+
 #### Train/Test environments
 
 Environments: `OpenDoorShowcaseContEnv`.
 
 Scene configs:. `conf/open_showcase`.
+
+</details>
 
 ### CloseDoorShowcase
 
@@ -240,11 +287,17 @@ Scene configs:. `conf/open_showcase`.
 Approach the showcase and close the opened door of the showcase.
 The robot is spawned in close proximity to the showcase.
 
+<details>
+  <summary>Click to reveal</summary>
+
 #### Train/Test environments
 
 Environments: `CloseDoorShowcaseContEnv`.
 
 Scene configs:. `conf/close_showcase`.
+
+</details>
+
 
 ### OpenDoorFridge
 
@@ -252,11 +305,16 @@ Scene configs:. `conf/close_showcase`.
 Approach the fridge and open the door.
 The robot is spawned in close proximity to the fridge.
 
+<details>
+  <summary>Click to reveal</summary>
+
 #### Train/Test environments
 
 Environments: `OpenDoorFridgeContEnv`.
 
 Scene configs:. `conf/open_fridge`.
+
+</details>
 
 ### CloseDoorFridge
 
@@ -264,14 +322,18 @@ Scene configs:. `conf/open_fridge`.
 Approach the fridge and close the door.
 The robot is spawned in close proximity to the fridge.
 
+<details>
+  <summary>Click to reveal</summary>
+
 #### Train/Test environments
 
 Environments: `CloseDoorFridgeContEnv`.
 
 Scene configs:. `conf/close_fridge`.
 
+</details>
 
-## Tutorials
+<!-- ## Tutorials
 
 * Custom layouts and scenes
-* Motion Planning for Fetch robot for custom tasks
+* Motion Planning for Fetch robot for custom tasks -->
