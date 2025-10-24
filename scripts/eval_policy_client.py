@@ -13,7 +13,6 @@ import os.path as osp
 from typing import Optional
 from pathlib import Path
 import json
-import jax
 
 from mani_skill.utils.structs.pose import to_sapien_pose
 from mani_skill.utils.wrappers.record import RecordEpisode

@@ -1,8 +1,8 @@
 # Darkstore Synthesizer
 
-## Quickstart
+<!-- ## Quickstart
 
-You can open [example notebook](notebooks/dsynth_scengen.ipynb) in [Google Colab](https://colab.research.google.com/) to test basic usage.
+You can open [example notebook](notebooks/dsynth_scengen.ipynb) in [Google Colab](https://colab.research.google.com/) to test basic usage. -->
 
 ## Installation
 
@@ -52,9 +52,9 @@ Generate Simple scene
 python scripts/generate_scene_continuous.py ds_continuous=small_scene
 ```
 
-The default saving directory is `genereted_envs/`, however you can change it using `ds_continuous.output_dir=<YOUR_PATH>`.
+The default saving directory is `generated_envs/`, however you can change it using `ds_continuous.output_dir=<YOUR_PATH>`.
 
-Vizualize generated env in SAPIEN viewer:
+Vizualize generated env using SAPIEN viewer:
 
 ```bash
 python scripts/show_env_in_sim.py generated_envs/ds_small_scene/ --gui
@@ -68,9 +68,66 @@ You can use teleoperation for recording demonstration trajectories.
 python scripts/run_teleop_fetch.py --scene-dir generated_envs/ds_small_scene/
 ```
 
+## Training dataset generation
+
+### Training scenes generation
+
+First, generate training scenes:
+
+```bash
+bash bash/generate_scenes.sh
+```
+
+### Collecting Demo Trajectories
+
+Then run Motion Planning to collect raw .h5 trajectories without visual observations in training environments:
+
+```bash
+bash bash/run_mp_all.sh
+```
+
+Motion Planning generation is very time-consuming process.
+We recommend to launch per-environment scripts `bash/run_mp_CloseDoorFridgeContEnv.sh`, `bash/run_mp_MoveFromBoardToBoardVanishContEnv.sh`, etc. in parallel to speed up the trajectory generation.
+
+Next we have to replay all trajectories to write visual observations.
+
+```bash
+bash bash/replay.sh
+```
+
+To convert data to RLDS format please refer to this [repo](https://github.com/emb-ai/DsynthAtomicTasks_rlds_builder).
+
+## Evaluation
+
+Gnereate test scenes: 
+
+```bash
+bash bash/generate_test_scenes.sh
+```
+
+### Octo evaluation
+
+Follow [original installation](https://github.com/octo-models/octo) instructions to set up environment with Octo.
+
+Launch Octo server (in Octo environment):
+
+```bash
+python scripts/octo_server.py --finetuned-path <PATH_TO_OCTO_WEIGHTS>
+```
+
+Run evaluation script (in `dsynth` environment):
+
+```bash
+bash bash/eval_octo.py
+```
+
+### Pi0 evaluation
+
+WIP
+
 ## Atomic PnP Tasks
 
-Item train distribution
+Train/test item distribution
 
 <table>
 <tr>
@@ -136,182 +193,147 @@ Item train distribution
 
 ### PickToBasket
 
-#### Train envs
+**Task Description:**
+Approach the shelf and pick up any item with specified name, placing it into the basket attached to the Fetch robot.
+The robot is spawned in close proximity to the shelf.
 
-Envs: `PickToBasketContNiveaEnv`, `PickToBasketContStarsEnv`, `PickToBasketContFantaEnv`
+<details>
+  <summary>Click to reveal</summary>
 
-Scene generation
+#### Train environments
 
-```shellscript
-python scripts/generate_scene_continuous.py ds_continuous=pick_to_basket_1 
+Environments: `PickToBasketContNiveaEnv`, `PickToBasketContStarsEnv`, `PickToBasketContFantaEnv`.
 
-python scripts/generate_scene_continuous.py ds_continuous=pick_to_basket_2 
-```
+Scene configs: `conf/pick_to_basket_1`, `conf/pick_to_basket_2`.
 
-Motion Planning
+#### Test environments
 
-```shellscript
-python scripts/run_mp.py -e PickToBasketContNiveaEnv --scene-dir demo_envs/pick_to_basket --only-count-success --num-procs 4 --num-traj 248 --traj-name pick_to_basket_nivea_248traj_4workers
-```
+Environments: `PickToBasketContNestleEnv`, `PickToBasketContSlamEnv`, `PickToBasketContDuffEnv`.
 
-```shellscript
-python scripts/run_mp.py -e PickToBasketContStarsEnv --scene-dir demo_envs/pick_to_basket --only-count-success --num-procs 4 --num-traj 248 --traj-name pick_to_basket_stars_248traj_4workers  
-```
+Scene configs: `conf/test_unseen_scenes_pick_to_basket_1`, `conf/test_unseen_scenes_pick_to_basket_2`,
+`conf/test_unseen_items_pick_to_basket_1`, `conf/test_unseen_items_pick_to_basket_2`.
 
-```shellscript
-python scripts/run_mp.py -e PickToBasketContFantaEnv --scene-dir demo_envs/pick_to_basket --only-count-success --num-procs 4 --num-traj 248 --traj-name pick_to_basket_fanta_248traj_4workers
-```
-
-
+</details>
 
 ### PickFromFloor
 
-WIP
+**Task Description:**
+Approach to the shelf, pick the fallen item and place it on the shelf.
+The robot is spawned in close proximity to the shelf. The goal position for the fallen item is its original location on the shelf.
+
+<details>
+  <summary>Click to reveal</summary>
+
+#### Train environments
+
+Environments: `PickFromFloorBeansContEnv`, `PickFromFloorSlamContEnv`.
+
+Scene configs: `conf/pick_from_floor_1`, `conf/pick_from_floor_2`.
+
+#### Test environments
+
+Environments: `PickFromFloorFantaContEnv`, `PickFromFloorDuffContEnv`.
+
+Scene configs: `conf/test_unseen_scenes_pick_from_floor_1`, `conf/test_unseen_scenes_pick_from_floor_2`,
+`conf/test_unseen_items_pick_from_floor_1`, `conf/test_unseen_items_pick_from_floor_2`.
+
+</details>
 
 ### MoveFromBoardToBoard
 
-WIP
+**Task Description:**
+Approach the shelf and pick up any item with the specified name, placing it one board higher (target board).
+It is assumed that there is a free space on a target board.
+
+<details>
+  <summary>Click to reveal</summary>
+
+#### Train environments
+
+Environments: `MoveFromBoardToBoardVanishContEnv`, `MoveFromBoardToBoardNestleContEnv`, `MoveFromBoardToBoardDuffContEnv`.
+
+Scene configs: `conf/move_from_board_to_board_nestle_1`, `conf/move_from_board_to_board_nestle_2`, `conf/move_from_board_to_board_vanish_1`, `conf/move_from_board_to_board_vanish_2`, `conf/move_from_board_to_board_duff_1`, `conf/move_from_board_to_board_duff_2`.
+
+#### Test environments
+
+Environments: `MoveFromBoardToBoardFantaContEnv`, `MoveFromBoardToBoardNiveaContEnv`.
+
+Scene configs: `conf/test_unseen_scenes_move_from_board_to_board_duff_1`, `conf/test_unseen_scenes_move_from_board_to_board_duff_2`, `conf/test_unseen_scenes_move_from_board_to_board_nestle_1`, `conf/test_unseen_scenes_move_from_board_to_board_nestle_2`, `conf/test_unseen_scenes_move_from_board_to_board_vanish_1`, `conf/test_unseen_scenes_move_from_board_to_board_vanish_2`, `conf/test_unseen_items_move_from_board_to_board_nivea_1`, `conf/test_unseen_items_move_from_board_to_board_nivea_2`, `conf/test_unseen_items_move_from_board_to_board_fanta_1`, `conf/test_unseen_items_move_from_board_to_board_fanta_2`.
+
+</details>
+
+## Opening and Closing tasks
+
+### OpenDoorShowcase
+
+**Task Description:**
+Approach the showcase and open the specified (`first`, `second`, `third`, `fourth`) door of the showcase.
+The robot is spawned in close proximity to the showcase.
+
+<details>
+  <summary>Click to reveal</summary>
+
+#### Train/Test environments
+
+Environments: `OpenDoorShowcaseContEnv`.
+
+Scene configs:. `conf/open_showcase`.
+
+</details>
+
+### CloseDoorShowcase
+
+**Task Description:**
+Approach the showcase and close the opened door of the showcase.
+The robot is spawned in close proximity to the showcase.
+
+<details>
+  <summary>Click to reveal</summary>
+
+#### Train/Test environments
+
+Environments: `CloseDoorShowcaseContEnv`.
+
+Scene configs:. `conf/close_showcase`.
+
+</details>
 
 
-## Scene generation and environment visualization
+### OpenDoorFridge
 
-### Scene generation
+**Task Description:**
+Approach the fridge and open the door.
+The robot is spawned in close proximity to the fridge.
 
-To generate layout and object arrangement use input configurations from `conf/` or make your own:
+<details>
+  <summary>Click to reveal</summary>
 
-```bash
-python scripts/generate_scene.py ds=config
-```
+#### Train/Test environments
 
-Add `ds.show=true` flag to visualize generated arrangement.
+Environments: `OpenDoorFridgeContEnv`.
 
+Scene configs:. `conf/open_fridge`.
 
-## Visualize generated scene in ManiSkill
+</details>
 
-To show generated scene in ManiSkill:
-```bash
-python scripts/show_env_in_sim.py my_save_path
-```
+### CloseDoorFridge
 
-Rendered video and trajectory are stored in the same directory `my_save_path`.
-To open SAPIEN GUI window use `--gui` flag.
+**Task Description:**
+Approach the fridge and close the door.
+The robot is spawned in close proximity to the fridge.
 
+<details>
+  <summary>Click to reveal</summary>
 
-## Assets
+#### Train/Test environments
 
-All existing assets and their paths are specified in `conf/assets/assets.yaml` configuration.
-Fill free to modify it or make your own configuration.
+Environments: `CloseDoorFridgeContEnv`.
 
-```yaml
-assets_dir_path: assets
-products_hierarchy:
-  food:
-    grocery:
-      baby:
-        ss_asset_type: MeshAsset
-        asset_file_path: ${assets.assets_dir_path}/...
-        ss_params:
-          scale : 1
-          origin : ['com', 'com', 'bottom']
-      cerealescornflakescora:
-        asset_file_path: ${assets.assets_dir_path}/...
-        ss_params:
-          height: 0.25 
-          up: [0, 1, 0] 
-    dairy_products:
-      milk:
-        asset_file_path: ${assets.assets_dir_path}/...
-...
-```
+Scene configs:. `conf/close_fridge`.
 
-We can observe, that structure of this file also dictates strict hierarchy between products.
-All products are combined in categories such as `grocery`, `dairy_products`, etc.
-Categories are combined in super-category `food`.
+</details>
 
-## More about configs
+<!-- ## Tutorials
 
-### Shelves
-
-Basic configs are shelves' configs stored in `conf/shelves`.
-They all are inherited from `base_shelf_config` configuration desctibed in `dsynth/scene_gen/hydra_configs.py` in the class `ShelfConfig`.
-Most of the fields are self-explanatory, but pay attention to the two main variables: `queries` and `filling_type`.
-The first one dictates **what** to put on the shelf's boards, namely list of regular expressions describing the set of desired products:
-
-```yaml
-defaults:
-  - base_shelf_config
-  - _self_
-  
-name: shelf_1
-queries:
-- food.dairy_products #Place all objects from category 'dairy_products' ('food.dairy_products.milk, 'food.dairy_products.milkCarton', etc.)
-
-- food.grocery.baby #One particular product
-
-- food #All available food
-```
-
-All fitting product names are put in one list and wrapped into iterator.
-
-The second variable `filling_type` tells **how** queried product should be arranged on the shelf.
-They are possible variants:
-
-* `BOARDWISE_AUTO` Sequentially put every queried object on its shelf. If iterator raises `StopIteration`, procedure stops.
-* `BOARDWISE_AUTO_INFINITE` The same as above, but iterator is cyclic. Procedure stops when all allowed boards are filled. 
-* `BLOCKWISE_AUTO` Sequentially put every queried object in a groups (blocks). The size of each group is bounded with parameter `num_products_per_block`. You can place different groups of objects on the one board if `num_products_per_block` < `num_products_per_board`.
-* `BLOCKWISE_AUTO_INFINITE` The same as above, but iterator is cyclic.
-* `FULL_AUTO` Fill all boards on the shelf with one (first) queried object. 
-
-### Zones
-
-**Zone** is a group of shelves placed next to each other during procedural generation.
-Zone configurations are just lists of included shelves. 
-
-```yaml
-defaults:
-  - /shelves@shelf1: grocery #Shelf in conf/shelves/grocery.yaml
-  - /shelves@shelf2: drinks  #Shelf in conf/shelves/drinks.yaml
-```
-
-Stored in `conf/zones`.
-
-### Zone Lists
-
-Accordingly, all zones presented on the scene are stored zone lists configs:
-
-```yaml
-defaults:
-  - /zones@zone1: milk_zone #Zone in conf/zones/milk_zone.yaml
-  - /zones@zone2: grocery   #Zone in conf/zones/grocery.yaml
-```
-
-Stored in `conf/ds` next to darkstore configurations.
-
-### Darkstore Configuration
-
-Includes its zone list and other important meta information, like scene name, and its size:
-
-```yaml
-defaults:
-  - main_darkstore_config_base
-  - /ds@zones: zones_list
-  - _self_
-
-
-name: ds
-size_n: 3
-size_m: 2
-```
-
-Stored in `conf/ds`.
-
-### Default config
-
-Default configuration `conf/config.yaml` includes darkstore and assets configurations.
-
-```yaml
-defaults:
-  - ds: config
-  - assets: assets
-  - _self_
-```
+* Custom layouts and scenes
+* Motion Planning for Fetch robot for custom tasks -->

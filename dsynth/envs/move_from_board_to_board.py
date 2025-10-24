@@ -330,6 +330,21 @@ class MoveFromBoardToBoardStaticOneProdEnv(MoveFromBoardToBoardEnv):
 
 @register_env('MoveFromBoardToBoardContEnv', max_episode_steps=200000)
 class MoveFromBoardToBoardContEnv(PickToBasketContEnv):
+    """
+    **Task Description:**
+    Approach the shelf and pick up the item specified by `TARGET_PRODUCT_NAME`, placing it one board higher (target board).
+    Note: `TARGET_PRODUCT_NAME` must be specified. The robot is spawned in close proximity to the shelf.
+    It is assumed that there is a free space on a target board.
+
+    **Randomizations:**
+    - scene layout, object arrangement, wall and floor textures
+    - initial robot position, if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+
+    **Success Conditions:**
+    - any product item with the name `TARGET_PRODUCT_NAME` is within `TARGET_POS_THRESH` Euclidean distance of the goal position
+    - other items remain untouched (their positions change by no more than 0.1 m)
+    - the robot is static (q velocity < 0.2)
+    """
     def setup_target_objects(self, env_idxs):
         if self.TARGET_PRODUCT_NAME is None:
             raise NotImplementedError # target object must be specified manually
@@ -425,18 +440,39 @@ class MoveFromBoardToBoardContEnv(PickToBasketContEnv):
             scene_idx = scene_idx.cpu().item()
             self.language_instructions.append(f'pick {self.TARGET_PRODUCT_NAME} and place on empty board')
 
+MFBTB_DOC_STRING="""**Task Description:**
+**Task Description:**
+Approach the shelf and pick up any item with the name `{product_name}`, placing it one board higher (target board).
+It is assumed that there is a free space on a target board.
+
+**Randomizations:**
+- scene layout, object arrangement, wall and floor textures
+- initial robot position, if `ROBOT_INIT_POSE_RANDOM_ENABLED` is enabled (True by default)
+
+**Success Conditions:**
+- any product item with the name `{product_name}` is within `TARGET_POS_THRESH` Euclidean distance of the goal position
+- other items remain untouched (their positions change by no more than 0.1 m)
+- the robot is static (q velocity < 0.2)
+"""
+
 # train items
 @register_env('MoveFromBoardToBoardVanishContEnv', max_episode_steps=200000)
 class MoveFromBoardToBoardVanishContEnv(MoveFromBoardToBoardContEnv):
     TARGET_PRODUCT_NAME = 'Vanish Stain Remover'
 
+MoveFromBoardToBoardVanishContEnv.__doc__ = MFBTB_DOC_STRING.format(product_name='Vanish Stain Remover')
+
 @register_env('MoveFromBoardToBoardNestleContEnv', max_episode_steps=200000)
 class MoveFromBoardToBoardNestleContEnv(MoveFromBoardToBoardContEnv):
     TARGET_PRODUCT_NAME = 'Nestle Fitness Chocolate Cereals'
 
+MoveFromBoardToBoardNestleContEnv.__doc__ = MFBTB_DOC_STRING.format(product_name='Nestle Fitness Chocolate Cereals')
+
 @register_env('MoveFromBoardToBoardDuffContEnv', max_episode_steps=200000)
 class MoveFromBoardToBoardDuffContEnv(MoveFromBoardToBoardContEnv):
     TARGET_PRODUCT_NAME = 'Duff Beer Can'
+
+MoveFromBoardToBoardDuffContEnv.__doc__ = MFBTB_DOC_STRING.format(product_name='Duff Beer Can')
 
 
 # unseen test items
@@ -444,7 +480,11 @@ class MoveFromBoardToBoardDuffContEnv(MoveFromBoardToBoardContEnv):
 class MoveFromBoardToBoardFantaContEnv(MoveFromBoardToBoardContEnv):
     TARGET_PRODUCT_NAME = 'Fanta Sabor Naranja 2L'
 
+MoveFromBoardToBoardFantaContEnv.__doc__ = MFBTB_DOC_STRING.format(product_name='Fanta Sabor Naranja 2L')
+
 @register_env('MoveFromBoardToBoardNiveaContEnv', max_episode_steps=200000)
 class MoveFromBoardToBoardNiveaContEnv(MoveFromBoardToBoardContEnv):
     TARGET_PRODUCT_NAME = 'Nivea Body Milk'
+
+MoveFromBoardToBoardNiveaContEnv.__doc__ = MFBTB_DOC_STRING.format(product_name='Nivea Body Milk')
 

@@ -329,6 +329,7 @@ class DarkstoreCellBaseEnv(BaseEnv):
         self.is_rebuild = False
         
         self.store_products_init_poses()
+        self.setup_language_instructions(env_idx)
 
         if self.robot_uids == "fetch":
             qpos = np.array(
@@ -428,6 +429,11 @@ class DarkstoreCellBaseEnv(BaseEnv):
             "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
         )
     
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            self.language_instructions.append(f'do nothing')
     
     def _get_obs_extra(self, info: Dict):
         inst_encoded = [np.frombuffer(language_instruction.encode('utf8'), dtype=np.uint8) for language_instruction in self.language_instructions]

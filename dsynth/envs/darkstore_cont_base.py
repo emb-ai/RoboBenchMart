@@ -166,8 +166,11 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
     def setup_target_objects(self, *args, **kwargs):
         pass
 
-    def setup_language_instructions(self, *args, **kwargs):
-        pass
+    def setup_language_instructions(self, env_idx):
+        self.language_instructions = []
+        for scene_idx in env_idx:
+            scene_idx = scene_idx.cpu().item()
+            self.language_instructions.append(f'do nothing')
 
     def update_human_camera(self):
         eye = []
@@ -191,17 +194,15 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
         eye = torch.tensor(eye).float()
         target = torch.tensor(target).float()
         pose = sapien_utils.look_at(eye, target)
-        self._custom_human_render_camera_configs = {
-            "render_camera": {
-                 "uid": "render_camera",
-                "pose": pose,
-                "width": 512,
-                "height": 512,
-                "fov": 1,
-                "near": 0.01,
-                "far":100,
+        self._custom_human_render_camera_configs["render_camera"] = {
+            "uid": "render_camera",
+            "pose": pose,
+            "width": 512,
+            "height": 512,
+            "fov": 1,
+            "near": 0.01,
+            "far":100,
             }
-        }
 
     def store_products_init_poses(self, exclude_items_names=None):
         self.product_displaced = False

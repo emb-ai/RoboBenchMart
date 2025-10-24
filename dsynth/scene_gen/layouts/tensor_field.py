@@ -7,14 +7,13 @@ import random
 from dsynth.scene_gen.utils import RectFixture, check_collisions
 
 class TensorField:
-    def __init__(self, N, M):
-        self.N = N
-        self.M = M
+    def __init__(self, max_x, max_y, decay=2.0):
+        self.max_x = max_x
+        self.max_y = max_y
+        self.decay = decay
         self.base_fields = []
 
-        self.field = None
-        self.eigen_vectors = None
-
+    
     def add_grid_basis(self, direction = np.array([1., 1.]), origin=np.array([0, 0])):
         l = np.linalg.norm(direction)
         angle = np.arctan(direction[1] / (direction[0] + 1e-4))
@@ -26,7 +25,7 @@ class TensorField:
             {
                 "type": "grid",
                 "origin": origin,
-                "tensor": lambda p: tensor
+                "tensors": lambda points: np.array([tensor for point in points])
             }
         )
 
@@ -36,14 +35,15 @@ class TensorField:
             {
                 "type": "radial",
                 "origin": origin.astype(np.float32),
-                "tensor": lambda p: np.array([
+                "tensors": lambda points: np.array([[
                     [(p[1] - origin[1]) ** 2 - (p[0] - origin[0]) ** 2, 
                      -2 * (p[0] - origin[0]) * (p[1] - origin[1])],
                     [-2 * (p[0] - origin[0]) * (p[1] - origin[1]), 
-                     (origin[0] - p[0]) ** 2 - (origin[1] - p[1]) ** 2]
-                ], dtype=np.float32)
+                     (origin[0] - p[0]) ** 2 - (origin[1] - p[1]) ** 2]]
+                 for p in points], dtype=np.float32)
             }
         )
+
     def add_line(self, line, closed = False, sample_step=None):
         n_points = len(line)
         line = np.array(line)
@@ -72,53 +72,45 @@ class TensorField:
             self.add_line(polygon, closed=True, sample_step=0.5)
     
     def add_boundary(self):
-        boundary = np.array([[0, 0], [0, self.M], [self.N, self.M], [self.N, 0],])
+        boundary = np.array([[0, 0], [0, self.max_y], [self.max_x, self.max_y], [self.max_x, 0],])
         self.add_line(boundary, closed=True, sample_step=1.)
         
 
-    def calculate_field(self, recalculate = False, decay=0.1):
-        if recalculate or self.field is None or self.eigen_vectors is None:
-            assert len(self.base_fields) > 0, "No basis fields"
-            zero_tensor = np.array([[0., 0.], [0., 0.]], dtype=np.float32)
-            # TODO: redo
-            M = int(self.M)
-            N = int(self.N)
-            self.field = [[zero_tensor for _ in range(M)] for _ in range(N)]
-            self.eigen_vectors = [[zero_tensor for _ in range(M)] for _ in range(N)]
-            
-            for i in range(N):
-                for j in range(M):
-                    cur_point = np.array([i, j], dtype=np.float32)
-                    for basis_field_meta in self.base_fields:
-                        weight = np.exp(-decay * np.linalg.norm(
-                               cur_point - basis_field_meta["origin"]
-                            ))
-                        # weight = 1.
-                        self.field[i][j] = self.field[i][j] + weight * basis_field_meta["tensor"](cur_point)
+    def calculate_field(self, points):
+        points = np.array(points)
+        if points.ndim != 2 or points.shape[1] != 2:
+            raise RuntimeError("input points must have size (N, 2)")
+        field = np.zeros((len(points), 2, 2))
+        for basis_field_meta in self.base_fields:
+            weights = np.exp(-self.decay * np.linalg.norm(points - basis_field_meta["origin"], axis=1))
+            field = field + basis_field_meta["tensors"](points) * weights[None, None].T
+        eigen_vectors = []
 
-            self.field = np.array(self.field)
+        for field_value in field:
+            eigenvalues, eigenvectors = np.linalg.eig(field_value)
+            idxs = np.argsort(eigenvalues)[::-1]
+            eigen_vectors.append(eigenvectors.T[idxs])
 
-            for i in range(N):
-                for j in range(M):
-                    eigenvalues, eigenvectors = np.linalg.eig(self.field[i, j])
-                    idxs = np.argsort(eigenvalues)[::-1]
-                    self.eigen_vectors[i][j] = eigenvectors.T[idxs]
-
-            self.eigen_vectors = np.array(self.eigen_vectors)
+        return field, np.array(eigen_vectors)
 
     def vis_field(self):
-        M = int(self.M)
-        N = int(self.N)
-        X, Y = np.meshgrid(np.arange(N), np.arange(M))
+        delta_x = min(self.max_x / 10, 1.)
+        delta_y = min(self.max_y / 10, 1.)
+        
+        X, Y = np.meshgrid(np.arange(0, self.max_x + 1e-3, delta_x), np.arange(0, self.max_y + 1e-3, delta_y))
+        N, M = X.shape
         fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-        U = self.eigen_vectors[:, :, 0, 0]
-        V = self.eigen_vectors[:, :, 0, 1]
-        U_minor = self.eigen_vectors[:, :, 1, 0]
-        V_minor = self.eigen_vectors[:, :, 1, 1]
+        _, eigen_vectors = self.calculate_field(np.array([X, Y]).reshape((2, -1)).T)
+        eigen_vectors = eigen_vectors.reshape((N, M, 2, 2))
+        U = eigen_vectors[:, :, 0, 0]
+        V = eigen_vectors[:, :, 0, 1]
+        U_minor = eigen_vectors[:, :, 1, 0]
+        V_minor = eigen_vectors[:, :, 1, 1]
         # ax[0].axis('equal')
         ax[0].set_aspect('equal', adjustable='box')
-        ax[0].set_xlim(0, N-1)
-        ax[0].set_ylim(0, M-1)
+        ax[0].set_xlim(0, self.max_x)
+        ax[0].set_ylim(0, self.max_y)
+        ax[0].scatter([6], [2])
         ax[0].quiver(X.T, Y.T, U, V, color='r')
         ax[0].quiver(X.T, Y.T, U_minor, V_minor, color='g')
         ax[0].quiver(X.T, Y.T, -U, -V, color='r')
@@ -126,14 +118,11 @@ class TensorField:
 
         # ax[1].axis('equal')
         ax[1].set_aspect('equal', adjustable='box')
-        ax[1].set_xlim(0, N-1)
-        ax[1].set_ylim(0, M-1)
-        # ax[1].axis('equal')
-        ax[1].streamplot(X, Y, U.T, V.T, density=2, color='r')#, start_points=seed_points.T)
-        # ax[1].streamplot(X, Y, U_minor.T, V_minor.T, density=2, color='g')#, start_points=seed_points.T)
+        ax[1].set_xlim(0, self.max_x)
+        ax[1].set_ylim(0, self.max_y)
+        ax[1].streamplot(X, Y, U, V, density=2, color='r')
+       
         return fig, ax 
-        # plt.show()
-
 
 def is_horizontal(vec, thresh=0.2):
     unit_vec = vec / np.linalg.norm(vec)
@@ -164,15 +153,15 @@ def place_shelves(tf: TensorField,
     shelf_l, shelf_w = rect_example.l, rect_example.w
     occupancy_width = rect_example.occupancy_width
 
-    X, Y = np.meshgrid(np.arange(tf.N), np.arange(tf.M))
-    points = np.vstack((X.T.reshape((-1)), Y.T.reshape((-1)))).T
-    U = tf.eigen_vectors[:, :, 0, 0]
-    V = tf.eigen_vectors[:, :, 0, 1]
+    # X, Y = np.meshgrid(np.arange(tf.N), np.arange(tf.M))
+    # points = np.vstack((X.T.reshape((-1)), Y.T.reshape((-1)))).T
+    # U = tf.eigen_vectors[:, :, 0, 0]
+    # V = tf.eigen_vectors[:, :, 0, 1]
     
-    def _get_major_eigen(p):
-        u_interp = interpolate.griddata(points, U.reshape((-1)), ([p[0]], [p[1]]), method='cubic')
-        v_interp = interpolate.griddata(points, V.reshape((-1)), ([p[0]], [p[1]]), method='cubic')
-        return np.array([u_interp[0], v_interp[0]])
+    # def _get_major_eigen(p):
+    #     u_interp = interpolate.griddata(points, U.reshape((-1)), ([p[0]], [p[1]]), method='cubic')
+    #     v_interp = interpolate.griddata(points, V.reshape((-1)), ([p[0]], [p[1]]), method='cubic')
+    #     return np.array([u_interp[0], v_interp[0]])
     
 
     x_step = shelf_l + 1e-2
@@ -180,25 +169,26 @@ def place_shelves(tf: TensorField,
 
     is_first_shelf = True
     while True:
-        eigen_major = _get_major_eigen(cur_position)
-
+        # eigen_major = _get_major_eigen(cur_position)
+        _, eigen_vectors = tf.calculate_field([cur_position])
+        eigen_major = eigen_vectors[0, 0]
         
         if is_horizontal(eigen_major, thresh):
             if rng.random() > skip_shelf_prob:
                 shelf = RectFixture(x=cur_position[0], y=cur_position[1], w=shelf_w, l=shelf_l, 
                                     occupancy_width=occupancy_width,
                                     name=rect_example.name, asset_name=rect_example.asset_name)
-                if shelf.is_valid(tf.N - 1, tf.M - 1) and not check_collisions(shelf, shelves) and not check_collisions(shelf, scene_fixtures):
+                if shelf.is_valid(tf.max_x, tf.max_y) and not check_collisions(shelf, shelves) and not check_collisions(shelf, scene_fixtures):
                     shelves.append(shelf)
                     is_first_shelf = False
         
         x_step = 0.1 if is_first_shelf else shelf_l + 1e-2
         y_step = 0.1 if is_first_shelf else shelf_w + passage_width
         
-        if cur_position[0] + x_step < tf.N:
+        if cur_position[0] + x_step < tf.max_x:
             cur_position[0] += x_step
         else:
-            if cur_position[1] + y_step < tf.M:
+            if cur_position[1] + y_step < tf.max_y:
                 cur_position[0] = start_point[0]
                 cur_position[1] += y_step
 
@@ -224,24 +214,26 @@ def place_shelves(tf: TensorField,
 
     is_first_shelf = True
     while True:
-        eigen_major = _get_major_eigen(cur_position)
+        # eigen_major = _get_major_eigen(cur_position)
+        _, eigen_vectors = tf.calculate_field([cur_position])
+        eigen_major = eigen_vectors[0, 0]
         
         if is_vertical(eigen_major, thresh):
             if rng.random() > skip_shelf_prob:
                 shelf = RectFixture(x=cur_position[0], y=cur_position[1], w=shelf_w, l=shelf_l, 
                                     orientation = 'vertical', occupancy_width=occupancy_width,
                                     name=rect_example.name, asset_name=rect_example.asset_name)
-                if shelf.is_valid(tf.N - 1, tf.M - 1) and not check_collisions(shelf, shelves) and not check_collisions(shelf, scene_fixtures):
+                if shelf.is_valid(tf.max_x, tf.max_y) and not check_collisions(shelf, shelves) and not check_collisions(shelf, scene_fixtures):
                     shelves.append(shelf)
                     is_first_shelf = False
         
         x_step = 0.1 if is_first_shelf else shelf_w + passage_width
         y_step = 0.1 if is_first_shelf else shelf_l + 1e-2 
         
-        if cur_position[1] + y_step < tf.M:
+        if cur_position[1] + y_step < tf.max_x:
             cur_position[1] += y_step
         else:
-            if cur_position[0] + x_step < tf.N:
+            if cur_position[0] + x_step < tf.max_y:
                 cur_position[1] = start_point[1]
                 cur_position[0] += x_step
 

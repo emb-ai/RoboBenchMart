@@ -238,10 +238,9 @@ class TensorFieldLayout(LayoutGeneratorBase):
         return []
     
     def compose_tensor_field(self, decay):
-        tf = tfield.TensorField(self.size_x + 1, self.size_y + 1) # TODO: redo
+        tf = tfield.TensorField(self.size_x, self.size_y, decay=decay)
         tf.add_boundary()
         tf.add_fixture_list(self._all_fixtures_list())
-        tf.calculate_field(decay=decay)
         return tf
     
     def place_shelvings(self):
@@ -299,34 +298,12 @@ class TensorFieldLayout(LayoutGeneratorBase):
                 asset_name=active_fixture.shelf_asset
             ))
         return True
-    
-    # def place_active_shelvings(self):
-    #     res = []
-    #     active_shelvings_list = self.cfg.ds_continuous.active_shelvings_list
-    #     assert len(active_shelvings_list) <= 1
-    #     active_fixture = active_shelvings_list[0]
-
-    #     asset_name = active_fixture['shelf_asset']
-    #     to_be_replaced_idxs = []
-    #     for i, fixture in enumerate(self.all_fixtures['inactive_shelvings']):
-    #         if fixture.asset_name == asset_name:
-    #             to_be_replaced_idxs.append(i)
-    #     if len(to_be_replaced_idxs) < 1:
-    #         return False
-
-    #     to_be_replaced_shelf_idx = self.rng.choice(to_be_replaced_idxs)
-    #     active_shelf = self.all_fixtures['inactive_shelvings'].pop(to_be_replaced_shelf_idx)
-    #     active_shelf.name = f'{self.name}_{active_fixture.name}'
-        
-    #     self.all_fixtures['active_shelvings'].append(active_shelf)
-    #     return True
 
 class TensorFieldHorisontalLayout(TensorFieldLayout):
     def compose_tensor_field(self, decay):
-        tf = tfield.TensorField(self.size_x + 1, self.size_y + 1) # TODO: redo
+        tf = tfield.TensorField(self.size_x, self.size_y, decay=decay)
         tf.add_line([[0, 0], [self.size_x, 0]], sample_step=0.5)
         tf.add_line([[0, self.size_y], [self.size_x, self.size_y]], sample_step=0.5)
-        tf.calculate_field(decay=decay)
         return tf
 
     def __call__(self, *args, **kwargs):
@@ -368,10 +345,9 @@ class TensorFieldHorisontalLayout(TensorFieldLayout):
     
 class TensorFieldVerticallLayout(TensorFieldLayout):
     def compose_tensor_field(self, decay):
-        tf = tfield.TensorField(self.size_x + 1, self.size_y + 1) # TODO: redo
+        tf = tfield.TensorField(self.size_x, self.size_y, decay=decay) # TODO: redo
         tf.add_line([[0, 0], [0, self.size_y]], sample_step=0.5)
         tf.add_line([[self.size_x, 0], [self.size_x, self.size_y]], sample_step=0.5)
-        tf.calculate_field(decay=decay)
         return tf
 
 
