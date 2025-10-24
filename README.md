@@ -42,7 +42,7 @@ python -m mani_skill.examples.demo_random_action
 
 All assets are stored in `/home/jovyan/shares/SR006.nfs2/data/dsynth/assets`.
 Copy or link this directory to `assets/` directory.
-Also assets available via GDrive https://drive.google.com/file/d/1RhBw9HfoHm6uvxrFC9hxYq0JB1FRI_d-
+Also assets available via GDrive https://drive.google.com/file/d/1u3z320yyQ_Ad6BzcNSvLVJ7mneeLCZdx.
 
 ## Sample Scene
 
