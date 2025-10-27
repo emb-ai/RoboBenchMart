@@ -10,6 +10,6 @@ python scripts/replay_trajectory.py --traj_path demo_envs/pick_to_basket/demos/m
 python scripts/replay_trajectory.py --traj_path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_stars_248traj_4workers.h5 --obs-mode rgbd --save-traj
 
 python scripts/replay_trajectory.py --traj_path demo_envs/open_fridge/demos/motionplanning/open_fridge_248traj_4workers.h5 --obs-mode rgbd --save-traj
-python scripts/replay_trajectory.py --traj_path demo_envs/open_fridge/demos/motionplanning/close_fridge_248traj_4workers.h5 --obs-mode rgbd --save-traj
-python scripts/replay_trajectory.py --traj_path demo_envs/open_fridge/demos/motionplanning/open_showcase_248traj_4workers.h5 --obs-mode rgbd --save-traj
-python scripts/replay_trajectory.py --traj_path demo_envs/open_fridge/demos/motionplanning/close_showcase_248traj_4workers.h5 --obs-mode rgbd --save-traj
+python scripts/replay_trajectory.py --traj_path demo_envs/close_fridge/demos/motionplanning/close_fridge_248traj_4workers.h5 --obs-mode rgbd --save-traj
+python scripts/replay_trajectory.py --traj_path demo_envs/open_showcase/demos/motionplanning/open_showcase_248traj_4workers.h5 --obs-mode rgbd --save-traj
+python scripts/replay_trajectory.py --traj_path demo_envs/close_showcase/demos/motionplanning/close_showcase_248traj_4workers.h5 --obs-mode rgbd --save-traj

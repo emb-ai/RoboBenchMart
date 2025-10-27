@@ -23,7 +23,7 @@ import sys
 sys.path.append('.')
 from dsynth.envs import *
 from dsynth.robots import *
-from client_server.dsynth_client import WebsocketClient
+from dsynth.web_utils import WebsocketClient
 
 
 OPEN = 1

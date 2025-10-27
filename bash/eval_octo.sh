@@ -13,13 +13,13 @@ ENV_PARAMS=""
 ### train seeds
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_duff \
---json-path demo_envs/move_from_board_to_board_duff/demos/motionplanning/move_from_board_to_board_duff_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_duff/demos/motionplanning/move_from_board_to_board_duff_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --eval-subdir octo_jax_1000K_train $EVAL_PARAMS
 
 ### train seeds, but randomize robot init pose
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_duff \
---json-path demo_envs/move_from_board_to_board_duff/demos/motionplanning/move_from_board_to_board_duff_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_duff/demos/motionplanning/move_from_board_to_board_duff_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 1000 --eval-subdir octo_jax_1000K_rand_init_pose $EVAL_PARAMS
 
 ### unseen scenes
@@ -34,13 +34,13 @@ $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 ### train seeds
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_nestle \
---json-path demo_envs/move_from_board_to_board_nestle/demos/motionplanning/move_from_board_to_board_nestle_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_nestle/demos/motionplanning/move_from_board_to_board_nestle_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --eval-subdir octo_jax_1000K_train $EVAL_PARAMS
 
 ### train seeds, but randomize robot init pose
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_nestle \
---json-path demo_envs/move_from_board_to_board_nestle/demos/motionplanning/move_from_board_to_board_nestle_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_nestle/demos/motionplanning/move_from_board_to_board_nestle_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 1000 --eval-subdir octo_jax_1000K_rand_init_pose $EVAL_PARAMS
 
 ### unseen scenes
@@ -54,13 +54,13 @@ $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 ### train seeds
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_vanish \
---json-path demo_envs/move_from_board_to_board_vanish/demos/motionplanning/move_from_board_to_board_vanish_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_vanish/demos/motionplanning/move_from_board_to_board_vanish_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --eval-subdir octo_jax_1000K_train $EVAL_PARAMS
 
 ### train seeds, but randomize robot init pose
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_vanish \
---json-path demo_envs/move_from_board_to_board_vanish/demos/motionplanning/move_from_board_to_board_vanish_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_vanish/demos/motionplanning/move_from_board_to_board_vanish_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 1000 --eval-subdir octo_jax_1000K_rand_init_pose $EVAL_PARAMS
 
 ### unseen scenes
@@ -94,13 +94,13 @@ python scripts/eval_policy_client.py $NET_PARAMS \
 ### train seeds
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_nivea_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_nivea_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir octo_jax_1000K_train_nivea $EVAL_PARAMS
 
 ### train seeds, but randomize robot init pose
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_nivea_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_nivea_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 1000 --eval-subdir octo_jax_1000K_rand_init_pose_nivea $EVAL_PARAMS
 
 ### unseen scenes
@@ -114,13 +114,13 @@ $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_fanta_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_fanta_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir octo_jax_1000K_train_fanta $EVAL_PARAMS
 
 ### train seeds, but randomize robot init pose
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_fanta_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_fanta_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 1000 --eval-subdir octo_jax_1000K_rand_init_pose_fanta $EVAL_PARAMS
 
 ### unseen scenes
@@ -135,13 +135,13 @@ $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_stars_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_stars_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir octo_jax_1000K_train_stars $EVAL_PARAMS
 
 ### train seeds, but randomize robot init pose
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_stars_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_stars_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 1000 --eval-subdir octo_jax_1000K_rand_init_pose_stars $EVAL_PARAMS
 
 ### unseen scenes
@@ -174,13 +174,13 @@ python scripts/eval_policy_client.py $NET_PARAMS \
 
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_from_floor/ \
---json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_beans_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_beans_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir octo_jax_1000K_train_beans $EVAL_PARAMS
 
 ### train seeds, but randomize robot init pose
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_from_floor/ \
---json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_beans_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_beans_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 1000 --eval-subdir octo_jax_1000K_rand_init_pose_beans $EVAL_PARAMS
 
 ### unseen scenes
@@ -193,13 +193,13 @@ $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_from_floor/ \
---json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_slam_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_slam_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir octo_jax_1000K_train_slam $EVAL_PARAMS
 
 ### train seeds, but randomize robot init pose
 $ENV_PARAMS python scripts/eval_policy_client.py $NET_PARAMS \
 --scene-dir demo_envs/pick_from_floor/ \
---json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_slam_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_slam_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 1000 --eval-subdir octo_jax_1000K_rand_init_pose_slam $EVAL_PARAMS
 
 ### unseen scenes

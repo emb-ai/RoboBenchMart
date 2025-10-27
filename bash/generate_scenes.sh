@@ -68,5 +68,6 @@ assets.assets_dir_path=$DATA_PATH/assets \
 ds_continuous.output_dir=$DATA_PATH/demo_envs/close_showcase
 
 python scripts/generate_scene_continuous.py ds_continuous=close_fridge ds_continuous.num_workers=$WORKERS \
+assets=assets_downscaled \
 assets.assets_dir_path=$DATA_PATH/assets \
 ds_continuous.output_dir=$DATA_PATH/demo_envs/close_fridge
