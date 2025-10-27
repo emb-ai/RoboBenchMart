@@ -44,7 +44,7 @@ Also assets available via GDrive https://drive.google.com/file/d/1u3z320yyQ_Ad6B
 
 ## Sample Scene
 
-Generate Simple scene
+Generate a simple scene
 
 ```bash
 python scripts/generate_scene_continuous.py ds_continuous=small_scene
@@ -52,7 +52,7 @@ python scripts/generate_scene_continuous.py ds_continuous=small_scene
 
 The default saving directory is `generated_envs/`, however you can change it using `ds_continuous.output_dir=<YOUR_PATH>`.
 
-Vizualize generated env using SAPIEN viewer:
+Visualize generated env using SAPIEN viewer:
 
 ```bash
 python scripts/show_env_in_sim.py generated_envs/ds_small_scene/ --gui
@@ -88,7 +88,7 @@ Then run Motion Planning to collect raw .h5 trajectories without visual observat
 bash bash/run_mp_all.sh
 ```
 
-Motion Planning generation is very time-consuming process.
+Motion Planning generation is a very time-consuming process.
 We recommend to launch per-environment scripts `bash/run_mp_CloseDoorFridgeContEnv.sh`, `bash/run_mp_MoveFromBoardToBoardVanishContEnv.sh`, etc. in parallel to speed up the trajectory generation.
 
 Next we have to replay all trajectories to write visual observations.
@@ -264,7 +264,7 @@ Scene configs: `conf/test_unseen_scenes_move_from_board_to_board_duff_1`, `conf/
 
 </details>
 
-## Opening and Closing tasks
+## Opening and Closing Tasks
 
 ### OpenDoorShowcase
 
@@ -279,7 +279,7 @@ The robot is spawned in close proximity to the showcase.
 
 Environments: `OpenDoorShowcaseContEnv`.
 
-Scene configs:. `conf/open_showcase`.
+Scene configs: `conf/open_showcase`.
 
 </details>
 
@@ -296,7 +296,7 @@ The robot is spawned in close proximity to the showcase.
 
 Environments: `CloseDoorShowcaseContEnv`.
 
-Scene configs:. `conf/close_showcase`.
+Scene configs: `conf/close_showcase`.
 
 </details>
 
@@ -314,7 +314,7 @@ The robot is spawned in close proximity to the fridge.
 
 Environments: `OpenDoorFridgeContEnv`.
 
-Scene configs:. `conf/open_fridge`.
+Scene configs: `conf/open_fridge`.
 
 </details>
 
@@ -331,6 +331,6 @@ The robot is spawned in close proximity to the fridge.
 
 Environments: `CloseDoorFridgeContEnv`.
 
-Scene configs:. `conf/close_fridge`.
+Scene configs: `conf/close_fridge`.
 
 </details>
