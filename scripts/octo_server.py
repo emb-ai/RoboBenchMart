@@ -6,6 +6,7 @@ from functools import partial
 from collections import deque
 import argparse
 import jax
+import numpy as np
 
 import sys
 sys.path.append('.')
