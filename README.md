@@ -4,6 +4,8 @@
 
 You can open [example notebook](notebooks/dsynth_scengen.ipynb) in [Google Colab](https://colab.research.google.com/) to test basic usage. -->
 
+![RoboBenchMart](docs/assets/teaser3.jpg)
+
 ## Installation
 
 ### Prerequisites 
