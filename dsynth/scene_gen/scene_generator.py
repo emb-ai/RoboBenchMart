@@ -88,7 +88,10 @@ class SceneGenerator:
 class SceneGeneratorContinuous:
     def __init__(self, cfg, output_dir):
         self.cfg = cfg
-        self.output_dir = output_dir
+        self.output_dir = Path(output_dir)
+
+        if not self.output_dir.exists():
+            self.output_dir.mkdir(parents=True)
 
         random_seed = cfg.ds_continuous.random_seed
         num_scenes = cfg.ds_continuous.num_scenes
@@ -103,7 +106,7 @@ class SceneGeneratorContinuous:
         if cfg.ds_continuous.randomize_arrangements:
             seeds_arrangements = np.arange(num_scenes) + random_seed
         
-        with open(output_dir / f"input_config.yaml", "w") as f:
+        with open(self.output_dir / f"input_config.yaml", "w") as f:
             f.write(OmegaConf.to_yaml(cfg))
 
         self.task_params = []
