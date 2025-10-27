@@ -110,7 +110,6 @@ class TensorField:
         ax[0].set_aspect('equal', adjustable='box')
         ax[0].set_xlim(0, self.max_x)
         ax[0].set_ylim(0, self.max_y)
-        ax[0].scatter([6], [2])
         ax[0].quiver(X.T, Y.T, U, V, color='r')
         ax[0].quiver(X.T, Y.T, U_minor, V_minor, color='g')
         ax[0].quiver(X.T, Y.T, -U, -V, color='r')
