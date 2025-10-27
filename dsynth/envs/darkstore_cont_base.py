@@ -196,7 +196,7 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
         pose = sapien_utils.look_at(eye, target)
         self._custom_human_render_camera_configs["render_camera"] = {
             "uid": "render_camera",
-            "pose": pose,
+            "pose": list(pose.raw_pose[0].cpu().numpy()), # https://github.com/haosulab/ManiSkill/issues/1317
             "width": 512,
             "height": 512,
             "fov": 1,
