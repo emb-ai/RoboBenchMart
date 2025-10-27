@@ -107,11 +107,17 @@ Generate test scenes:
 bash bash/generate_test_scenes.sh
 ```
 
+Generate scenes for composite tasks:
+
+```bash
+bash bash/generate_scenes_composite.sh
+```
+
 ### Octo evaluation
 
 Follow [original installation](https://github.com/octo-models/octo) instructions to set up environment with Octo.
 
-Launch Octo server (in Octo environment):
+Launch Octo server (in environment with Octo):
 
 ```bash
 python scripts/octo_server.py --finetuned-path <PATH_TO_OCTO_WEIGHTS>
@@ -121,6 +127,12 @@ Run evaluation script (in `dsynth` environment):
 
 ```bash
 bash bash/eval_octo.py
+```
+
+Run evaluation on composite tasks:
+
+```bash
+bash bash/eval_octo_composite_tasks.py
 ```
 
 ### Pi0 evaluation
