@@ -1,10 +1,6 @@
 # Darkstore Synthesizer
 
-<!-- ## Quickstart
-
-You can open [example notebook](notebooks/dsynth_scengen.ipynb) in [Google Colab](https://colab.research.google.com/) to test basic usage. -->
-
-![RoboBenchMart](docs/assets/teaser3.jpg)
+![teaser](docs/assets/teaser3.jpg)
 
 ## Installation
 
@@ -70,6 +66,10 @@ You can use teleoperation for recording demonstration trajectories.
 python scripts/run_teleop_fetch.py --scene-dir generated_envs/ds_small_scene/
 ```
 
+## Tutorials
+
+You can open [example notebook](notebooks/tutorial.ipynb) to find out more about scene generation, importing scenes to ManiSkill and motion planning. 
+
 ## Training dataset generation
 
 ### Training scenes generation
@@ -101,7 +101,7 @@ To convert data to RLDS format please refer to this [repo](https://github.com/em
 
 ## Evaluation
 
-Gnereate test scenes: 
+Generate test scenes: 
 
 ```bash
 bash bash/generate_test_scenes.sh
@@ -334,8 +334,3 @@ Environments: `CloseDoorFridgeContEnv`.
 Scene configs:. `conf/close_fridge`.
 
 </details>
-
-<!-- ## Tutorials
-
-* Custom layouts and scenes
-* Motion Planning for Fetch robot for custom tasks -->
