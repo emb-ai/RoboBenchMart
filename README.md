@@ -1,26 +1,29 @@
-# Darkstore Synthesizer
+# RoboBenchMart
+
+This repository contains code for data generation and robotic policy evaluation in the **RoboBenchMart** benchmark.
+We present the `dsynth` (Darkstore Synthesizer) package, which includes specialized [ManiSkill](https://github.com/haosulab/ManiSkill) environments for retail setups, a scene generation algorithm, motion planning solvers for data collection, and scripts for policy evaluation.
 
 ![teaser](docs/assets/teaser3.jpg)
 
 ## Installation
 
-### Prerequisites 
+### Prerequisites
 
-ManiSkill simulator requires Vulkan API to be installed.
+The ManiSkill simulator requires the Vulkan API.
 
 ```bash
 sudo apt-get install libvulkan1
 ```
 
-To test your vulkan installation:
+To test your Vulkan installation:
 ```bash
 sudo apt install vulkan-tools
 vulkaninfo
 ```
 
-See more for [troubleshooting](https://maniskill.readthedocs.io/en/latest/user_guide/getting_started/installation.html#troubleshooting).
+For troubleshooting, see the [ManiSkill installation guide](https://maniskill.readthedocs.io/en/latest/user_guide/getting_started/installation.html#troubleshooting).
 
-### Installation from github
+### Installation from GitHub
 
 ```bash
 git clone https://gitlab.2a2i.org/cv/robo/darkstore-synthesizer
@@ -31,36 +34,49 @@ pip install -r requirements.txt
 pip install mplib==0.2.1
 ```
 
-Test your ManiSkill installation:
+To test your ManiSkill installation:
 ```bash
 python -m mani_skill.examples.demo_random_action
 ```
 
-### Copy assets to directory
+### Downloading Assets
 
-All assets are stored in `/home/jovyan/shares/SR006.nfs2/data/dsynth/assets`.
-Copy or link this directory to `assets/` directory.
-Also assets available via GDrive https://drive.google.com/file/d/1u3z320yyQ_Ad6BzcNSvLVJ7mneeLCZdx.
+Download assets from [HuggingFace](https://huggingface.co/datasets/emb-ai/RoboBenchMart_assets):
+
+```bash
+hf download emb-ai/RoboBenchMart_assets --repo-type dataset --local-dir assets
+```
+
+### Downloading Demo Data (Optional)
+
+If you do not plan to fine-tune your policy on RoboBenchMart training data (you can still generate it yourself from scratch) **or** evaluate it in training environments, you can skip this step.
+Otherwise, download **demo data** from [HuggingFace](https://huggingface.co/datasets/emb-ai/RoboBenchMart_demo_envs):
+
+```bash
+hf download emb-ai/RoboBenchMart_demo_envs --repo-type dataset --local-dir demo_envs
+```
 
 ## Sample Scene
 
-Generate a simple scene
+Generate a simple scene:
 
 ```bash
 python scripts/generate_scene_continuous.py ds_continuous=small_scene
 ```
 
-The default saving directory is `generated_envs/`, however you can change it using `ds_continuous.output_dir=<YOUR_PATH>`.
+The default save directory is `generated_envs/`, but you can change it using `ds_continuous.output_dir=<YOUR_PATH>`.
 
-Visualize generated env using SAPIEN viewer:
+To visualize the generated environment in the SAPIEN viewer:
 
 ```bash
-python scripts/show_env_in_sim.py generated_envs/ds_small_scene/ --gui
+python scripts/show_env_in_sim.py generated_envs/ds_small_scene/ -s 42 --gui
 ```
+
+The seed `-s` controls randomization of the scene layout, item arrangement, textures, and robot initial position.
 
 ## Teleoperation
 
-You can use teleoperation for recording demonstration trajectories.
+You can use teleoperation to record demonstration trajectories:
 
 ```bash
 python scripts/run_teleop_fetch.py --scene-dir generated_envs/ds_small_scene/
@@ -68,44 +84,108 @@ python scripts/run_teleop_fetch.py --scene-dir generated_envs/ds_small_scene/
 
 ## Tutorials
 
-You can open [example notebook](notebooks/tutorial.ipynb) to find out more about scene generation, importing scenes to ManiSkill and motion planning. 
+See the [example notebook](notebooks/tutorial.ipynb) for tutorials on scene generation, importing scenes into ManiSkill, and motion planning using the `dsynth` package.
 
-## Training dataset generation
+## RoboBenchMart Tasks
 
-### Training scenes generation
+We present seven atomic and three composite tasks for evaluating mobile manipulation policies in retail environments.
+These tasks can be grouped into two categories: **pick-and-place (PnP)** and **opening/closing**.
 
-First, generate training scenes:
+### Pick-and-Place Tasks
+
+* **PickToBasket**: pick a specified item and place it in the attached basket  
+* **MoveFromBoardToBoard**: move a specified item to the next board  
+* **PickFromFloor**: pick an item from the floor and place it on a shelf
+
+### Opening and Closing Tasks
+
+* **Open Showcase** / **Close Showcase**: open or close a specified door of the vertical showcase  
+* **Open Fridge** / **Close Fridge**: open or close the ice cream fridge door
+
+Each task consists of two components:
+
+* **ManiSkill environment** – defines the target object (for PnP), success criteria, robot initial position, and wall/ceiling textures  
+* **Scene data** – defines layouts, objects present in the scenes, and their arrangement on shelves, which are imported into the ManiSkill environment during episode initialization
+
+Thus, different target objects require different ManiSkill environments, and different item sets require distinct scene data.
+
+Each atomic task is evaluated under the following setups:
+
+* **Train scenes** – same scenes and target objects as used in training  
+* **Train scenes with initial pose randomization** – same as training but with a different initial robot pose  
+* **Test scenes** – unseen layouts and object arrangements, but seen target objects  
+* **Out-of-distribution items** – unseen scenes and unseen target items (for PnP tasks only)
+
+For more details, see the [task documentation](docs/tasks/README.md).
+
+## Model Inference
+
+### Start Model Server
+
+#### Octo
+
+Follow the [official installation instructions](https://github.com/octo-models/octo) to set up the Octo environment.
+
+Launch the Octo server (within the Octo environment):
 
 ```bash
-bash bash/generate_scenes.sh
+python scripts/octo_server.py --finetuned-path <PATH_TO_OCTO_WEIGHTS>
 ```
 
-### Collecting Demo Trajectories
+#### Pi0
 
-Then run Motion Planning to collect raw .h5 trajectories without visual observations in training environments:
+WIP
 
-```bash
-bash bash/run_mp_all.sh
-```
+### Evaluation on Test Scenes (Unseen Layouts and Item Arrangements)
 
-Motion Planning generation is a very time-consuming process.
-We recommend to launch per-environment scripts `bash/run_mp_CloseDoorFridgeContEnv.sh`, `bash/run_mp_MoveFromBoardToBoardVanishContEnv.sh`, etc. in parallel to speed up the trajectory generation.
-
-Next we have to replay all trajectories to write visual observations.
-
-```bash
-bash bash/replay.sh
-```
-
-To convert data to RLDS format please refer to this [repo](https://github.com/emb-ai/DsynthAtomicTasks_rlds_builder).
-
-## Evaluation
-
-Generate test scenes: 
+Generate test scenes (not needed if you have already downloaded **demo data**, as they are included):
 
 ```bash
 bash bash/generate_test_scenes.sh
+``` 
+
+Run the evaluation client script `scripts/eval_policy_client.py`.
+Example for evaluating in the `PickToBasketContNiveaEnv` environment with 30 rollouts:
+
+```bash
+python scripts/eval_policy_client.py -e PickToBasketContNiveaEnv --scene-dir demo_envs/test_unseen_items_pick_to_basket --eval-subdir policy_evaluation --max-horizon 500 --num-traj 30
 ```
+
+To save videos for each rollout, add the `--save-video` flag.
+Evaluation results will be saved in `demo_envs/test_unseen_items_pick_to_basket/evaluation/policy_evaluation`.
+We recommend using different subdirectories (via `--eval-subdir`) for different policies to avoid mixing results.
+
+Evaluation on tasks with **out-of-distribution target items** is done similarly, with the appropriate environment ID (`-e`) and scene directory (`--scene-dir`).
+See the item distribution [here](docs/tasks/README.md).
+
+### Evaluation on Training Scenes (Seen Layouts and Arrangements)
+
+To reproduce training environments for evaluation, you must specify the exact seeds used during trajectory collection (motion planning).
+These seeds are stored in JSON files included in the **demo data** from [HuggingFace](https://huggingface.co/datasets/emb-ai/RoboBenchMart_demo_envs).  
+Specify the path to these JSON files using `--json-path`:
+
+```bash
+python scripts/eval_policy_client.py --scene-dir demo_envs/pick_to_basket --json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_stars_250traj_4workers.json --eval-subdir policy_evaluation --max-horizon 500 --num-traj 30
+```
+
+Note that `demo_envs/pick_to_basket` is a directory containing training scenes.
+
+To evaluate a policy with additional randomization in the robot's initial position, specify a separate seed using `--robot-init-pose-start-seed 10000`.
+Choose a large seed (>1000) to ensure the robot's starting position differs from the training setup.
+
+### Run Full Evaluation
+
+To run evaluations on seen, unseen, and out-of-distribution items (for Octo):
+
+```bash
+bash bash/eval_octo.sh
+```
+
+For Pi0:
+
+WIP
+
+### Evaluation on Composite Tasks
 
 Generate scenes for composite tasks:
 
@@ -113,236 +193,53 @@ Generate scenes for composite tasks:
 bash bash/generate_scenes_composite.sh
 ```
 
-### Octo evaluation
-
-Follow [original installation](https://github.com/octo-models/octo) instructions to set up environment with Octo.
-
-Launch Octo server (in environment with Octo):
+Evaluation for composite tasks uses the `scripts/eval_policy_composite_client.py` script, which has a similar interface:
 
 ```bash
-python scripts/octo_server.py --finetuned-path <PATH_TO_OCTO_WEIGHTS>
+python scripts/eval_policy_composite_client.py --env-id PickNiveaFantaEnv --scene-dir demo_envs/composite_pick_to_basket --eval-subdir policy_evaluation_composite --max-horizon 1000 --num-traj 30 --save-video
 ```
 
-Run evaluation script (in `dsynth` environment):
-
-```bash
-bash bash/eval_octo.py
-```
-
-Run evaluation on composite tasks:
+To run full evaluation on composite tasks (for Octo):
 
 ```bash
 bash bash/eval_octo_composite_tasks.py
 ```
 
-### Pi0 evaluation
+For Pi0:
 
 WIP
 
-## Atomic PnP Tasks
+## Training Dataset Generation
 
-Train/test item distribution
+### From Demo Data
 
-<table>
-<tr>
-<th>
+If you have already downloaded **demo data** from [HuggingFace](https://huggingface.co/datasets/emb-ai/RoboBenchMart_demo_envs), you need to collect demonstration trajectories.
 
-</th>
-<th>PickToBasket</th>
-<th>MoveFromBoardToBoard</th>
-<th>PickFromFloor</th>
-</tr>
-<tr>
-<td>Train items</td>
-<td>
+First, run motion planning to collect raw `.h5` trajectories without visual observations in training environments:
 
-* NiveaBodyMilk
-* NestleHoneyStars
-* FantaSaborNaranja2L
-</td>
-<td>
+```bash
+bash bash/run_mp_all.sh
+```
 
-* NestleFitnessChocolateCereals
-* DuffBeerCan
-* VanishStainRemover
-</td>
-<td>
+The resulting trajectories are stored in `../demos/motionplanning` within the scene directories.
 
-* HeinzBeansInARichTomatoSauce
-* SlamLuncheonMeat
-</td>
-</tr>
-<tr>
-<td>OOD test items</td>
-<td>
+Motion planning is time-consuming.
+We recommend running per-environment scripts such as `bash/run_mp_CloseDoorFridgeContEnv.sh`, `bash/run_mp_MoveFromBoardToBoardVanishContEnv.sh`, etc., in parallel to accelerate trajectory generation.
 
-* NestleFitnessChocolateCereals
-* SlamLuncheonMeat
-</td>
-<td>
+Next, replay all trajectories to obtain visual observations:
 
-* NiveaBodyMilk
-* FantaSaborNaranja2L
+```bash
+bash bash/replay.sh
+```
 
-</td>
-<td>
+To convert data to RLDS format, refer to the [RLDS builder repository](https://github.com/emb-ai/DsynthAtomicTasks_rlds_builder).
 
-* FantaSaborNaranja2L
-* DuffBeerCan
-</td>
-</tr>
-<tr>
-<td>#layouts</td>
-<td>20</td>
-<td>10x3</td>
-<td>10</td>
-</tr>
-<tr>
-<td>#trajs</td>
-<td>248x3</td>
-<td>248x3</td>
-<td>248x3</td>
-</tr>
-</table>
+### From Scratch
 
-### PickToBasket
+To generate demo data from scratch, first generate training scenes:
 
-**Task Description:**
-Approach the shelf and pick up any item with specified name, placing it into the basket attached to the Fetch robot.
-The robot is spawned in close proximity to the shelf.
+```bash
+bash bash/generate_scenes.sh
+```
 
-<details>
-  <summary>Click to reveal</summary>
-
-#### Train environments
-
-Environments: `PickToBasketContNiveaEnv`, `PickToBasketContStarsEnv`, `PickToBasketContFantaEnv`.
-
-Scene configs: `conf/pick_to_basket_1`, `conf/pick_to_basket_2`.
-
-#### Test environments
-
-Environments: `PickToBasketContNestleEnv`, `PickToBasketContSlamEnv`, `PickToBasketContDuffEnv`.
-
-Scene configs: `conf/test_unseen_scenes_pick_to_basket_1`, `conf/test_unseen_scenes_pick_to_basket_2`,
-`conf/test_unseen_items_pick_to_basket_1`, `conf/test_unseen_items_pick_to_basket_2`.
-
-</details>
-
-### PickFromFloor
-
-**Task Description:**
-Approach to the shelf, pick the fallen item and place it on the shelf.
-The robot is spawned in close proximity to the shelf. The goal position for the fallen item is its original location on the shelf.
-
-<details>
-  <summary>Click to reveal</summary>
-
-#### Train environments
-
-Environments: `PickFromFloorBeansContEnv`, `PickFromFloorSlamContEnv`.
-
-Scene configs: `conf/pick_from_floor_1`, `conf/pick_from_floor_2`.
-
-#### Test environments
-
-Environments: `PickFromFloorFantaContEnv`, `PickFromFloorDuffContEnv`.
-
-Scene configs: `conf/test_unseen_scenes_pick_from_floor_1`, `conf/test_unseen_scenes_pick_from_floor_2`,
-`conf/test_unseen_items_pick_from_floor_1`, `conf/test_unseen_items_pick_from_floor_2`.
-
-</details>
-
-### MoveFromBoardToBoard
-
-**Task Description:**
-Approach the shelf and pick up any item with the specified name, placing it one board higher (target board).
-It is assumed that there is a free space on a target board.
-
-<details>
-  <summary>Click to reveal</summary>
-
-#### Train environments
-
-Environments: `MoveFromBoardToBoardVanishContEnv`, `MoveFromBoardToBoardNestleContEnv`, `MoveFromBoardToBoardDuffContEnv`.
-
-Scene configs: `conf/move_from_board_to_board_nestle_1`, `conf/move_from_board_to_board_nestle_2`, `conf/move_from_board_to_board_vanish_1`, `conf/move_from_board_to_board_vanish_2`, `conf/move_from_board_to_board_duff_1`, `conf/move_from_board_to_board_duff_2`.
-
-#### Test environments
-
-Environments: `MoveFromBoardToBoardFantaContEnv`, `MoveFromBoardToBoardNiveaContEnv`.
-
-Scene configs: `conf/test_unseen_scenes_move_from_board_to_board_duff_1`, `conf/test_unseen_scenes_move_from_board_to_board_duff_2`, `conf/test_unseen_scenes_move_from_board_to_board_nestle_1`, `conf/test_unseen_scenes_move_from_board_to_board_nestle_2`, `conf/test_unseen_scenes_move_from_board_to_board_vanish_1`, `conf/test_unseen_scenes_move_from_board_to_board_vanish_2`, `conf/test_unseen_items_move_from_board_to_board_nivea_1`, `conf/test_unseen_items_move_from_board_to_board_nivea_2`, `conf/test_unseen_items_move_from_board_to_board_fanta_1`, `conf/test_unseen_items_move_from_board_to_board_fanta_2`.
-
-</details>
-
-## Opening and Closing Tasks
-
-### OpenDoorShowcase
-
-**Task Description:**
-Approach the showcase and open the specified (`first`, `second`, `third`, `fourth`) door of the showcase.
-The robot is spawned in close proximity to the showcase.
-
-<details>
-  <summary>Click to reveal</summary>
-
-#### Train/Test environments
-
-Environments: `OpenDoorShowcaseContEnv`.
-
-Scene configs: `conf/open_showcase`.
-
-</details>
-
-### CloseDoorShowcase
-
-**Task Description:**
-Approach the showcase and close the opened door of the showcase.
-The robot is spawned in close proximity to the showcase.
-
-<details>
-  <summary>Click to reveal</summary>
-
-#### Train/Test environments
-
-Environments: `CloseDoorShowcaseContEnv`.
-
-Scene configs: `conf/close_showcase`.
-
-</details>
-
-
-### OpenDoorFridge
-
-**Task Description:**
-Approach the fridge and open the door.
-The robot is spawned in close proximity to the fridge.
-
-<details>
-  <summary>Click to reveal</summary>
-
-#### Train/Test environments
-
-Environments: `OpenDoorFridgeContEnv`.
-
-Scene configs: `conf/open_fridge`.
-
-</details>
-
-### CloseDoorFridge
-
-**Task Description:**
-Approach the fridge and close the door.
-The robot is spawned in close proximity to the fridge.
-
-<details>
-  <summary>Click to reveal</summary>
-
-#### Train/Test environments
-
-Environments: `CloseDoorFridgeContEnv`.
-
-Scene configs: `conf/close_fridge`.
-
-</details>
+The remaining steps are the same as above.
