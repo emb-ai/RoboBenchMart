@@ -10,3 +10,4 @@ typeguard==4.4.2
 pandas
 websockets
 msgpack
+huggingface_hub[cli]
