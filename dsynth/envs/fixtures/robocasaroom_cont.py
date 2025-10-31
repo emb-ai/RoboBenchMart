@@ -372,9 +372,109 @@ class DarkstoreSceneContinuous(DarkstoreScene):
                     fixture_config = default_config
 
                 if fixture_config["type"] == "wall":
-                    fixture_config['texture'] = str(list(Path('assets/textures/walls').iterdir())[wall_texture_id].resolve())
+                    #fixture_config['texture'] = str(list(Path('assets/textures/walls').iterdir())[wall_texture_id].resolve())
+                    walls_v100 = [Path('assets/textures/walls/white_bricks_2.png'), 
+                                  Path('assets/textures/walls/red_texture.PNG'), 
+                                  Path('assets/textures/walls/red_bricks.png'), 
+                                  Path('assets/textures/walls/green_texture.PNG'), 
+                                  Path('assets/textures/walls/brown_texture.PNG'), 
+                                  Path('assets/textures/walls/yellow_texture.png'), 
+                                  Path('assets/textures/walls/Bricks067_1K-JPG_Color.jpg'), 
+                                  Path('assets/textures/walls/white_bricks.png'), 
+                                  Path('assets/textures/walls/grey_texture.PNG'), 
+                                  Path('assets/textures/walls/option1.png'), 
+                                  Path('assets/textures/walls/yellow-plaster.png'), 
+                                  Path('assets/textures/walls/white-wall-textures.jpg'), 
+                                  Path('assets/textures/walls/apricot_texture.PNG'), 
+                                  Path('assets/textures/walls/white_bricks_old.png'), 
+                                  Path('assets/textures/walls/front-view-horizontal-white-copy-space-wall.jpg'), 
+                                  Path('assets/textures/walls/surface-yellow-solid-rough-stained.jpg'), 
+                                  Path('assets/textures/walls/Bricks058_1K-JPG_Color.jpg')]
+                    
+                    walls_3060 = [Path('assets/textures/walls/apricot_texture.PNG'), 
+                                  Path('assets/textures/walls/green_texture.PNG'), 
+                                  Path('assets/textures/walls/red_texture.PNG'), 
+                                  Path('assets/textures/walls/white_bricks_2.png'), 
+                                  Path('assets/textures/walls/brown_texture.PNG'), 
+                                  Path('assets/textures/walls/white-wall-textures.jpg'), 
+                                  Path('assets/textures/walls/Bricks067_1K-JPG_Color.jpg'), 
+                                  Path('assets/textures/walls/surface-yellow-solid-rough-stained.jpg'), 
+                                  Path('assets/textures/walls/white_bricks.png'), 
+                                  Path('assets/textures/walls/grey_texture.PNG'), 
+                                  Path('assets/textures/walls/red_bricks.png'), 
+                                  Path('assets/textures/walls/front-view-horizontal-white-copy-space-wall.jpg'), 
+                                  Path('assets/textures/walls/yellow_texture.png'), 
+                                  Path('assets/textures/walls/white_bricks_old.png'), 
+                                  Path('assets/textures/walls/yellow-plaster.png'), 
+                                  Path('assets/textures/walls/Bricks058_1K-JPG_Color.jpg'), 
+                                  Path('assets/textures/walls/option1.png')]
+                    
+                    if "PickToBasket" in str(self.env):
+                        walls_paths = walls_3060
+                    else:
+                        walls_paths = walls_v100
+                    fixture_config['texture'] = str(walls_paths[wall_texture_id].resolve())
                 elif fixture_config["type"] == "floor":
-                    fixture_config['texture'] = str(list(Path('assets/textures/floors').iterdir())[floor_texture_id].resolve())
+                    #fixture_config['texture'] = str(list(Path('assets/textures/floors').iterdir())[floor_texture_id].resolve())
+                    floors_v100 = [Path('assets/textures/floors/gray-cement-wall.jpg'), 
+                                   Path('assets/textures/floors/144696-13370247.png'), 
+                                   Path('assets/textures/floors/dark_wood_planks.png'), 
+                                   Path('assets/textures/floors/diamond_tiles_bak.png'), 
+                                   Path('assets/textures/floors/05f75518-7b70-4098-8983-aca459f33ddb.png'), 
+                                   Path('assets/textures/floors/orange_square_tiles.png'), 
+                                   Path('assets/textures/floors/grey-felt-texture.jpg'), 
+                                   Path('assets/textures/floors/bamboo.png'), 
+                                   Path('assets/textures/floors/light_wood_planks_2.png'), 
+                                   Path('assets/textures/floors/light_wood_planks_long.png'), 
+                                   Path('assets/textures/floors/grunge-wall-texture.jpg'), 
+                                   Path('assets/textures/floors/black-stucco-wall.jpg'), 
+                                   Path('assets/textures/floors/light_wood_parquet.png'), 
+                                   Path('assets/textures/floors/old-grunge-concrete.jpg'), 
+                                   Path('assets/textures/floors/wood_planks.png'), 
+                                   Path('assets/textures/floors/Hc518c5e6640145c5934d4b92f7e1c840Q.png'), 
+                                   Path('assets/textures/floors/wood_planks_2.png'), 
+                                   Path('assets/textures/floors/41c3dbec-db54-4417-bb76-f51a4349943e.png'), 
+                                   Path('assets/textures/floors/sq4.jpg'), 
+                                   Path('assets/textures/floors/wood_planks_3.png'), 
+                                   Path('assets/textures/floors/concrete.png'), 
+                                   Path('assets/textures/floors/144696-13369113.jpg'), 
+                                   Path('assets/textures/floors/diamond_tiles.png'), 
+                                   Path('assets/textures/floors/gray_wood_planks.png'), 
+                                   Path('assets/textures/floors/Concrete007_1K-JPG_Color.jpg'), 
+                                   Path('assets/textures/floors/checkers.png')]
+                    
+                    floors_3060 = [Path('assets/textures/floors/checkers.png'), 
+                                   Path('assets/textures/floors/grey-felt-texture.jpg'), 
+                                   Path('assets/textures/floors/sq4.jpg'), 
+                                   Path('assets/textures/floors/light_wood_parquet.png'), 
+                                   Path('assets/textures/floors/light_wood_planks_2.png'), 
+                                   Path('assets/textures/floors/light_wood_planks_long.png'), 
+                                   Path('assets/textures/floors/wood_planks_3.png'), 
+                                   Path('assets/textures/floors/old-grunge-concrete.jpg'), 
+                                   Path('assets/textures/floors/41c3dbec-db54-4417-bb76-f51a4349943e.png'), 
+                                   Path('assets/textures/floors/orange_square_tiles.png'), 
+                                   Path('assets/textures/floors/grunge-wall-texture.jpg'), 
+                                   Path('assets/textures/floors/144696-13370247.png'), 
+                                   Path('assets/textures/floors/gray_wood_planks.png'), 
+                                   Path('assets/textures/floors/wood_planks.png'), 
+                                   Path('assets/textures/floors/diamond_tiles_bak.png'), 
+                                   Path('assets/textures/floors/gray-cement-wall.jpg'), 
+                                   Path('assets/textures/floors/144696-13369113.jpg'), 
+                                   Path('assets/textures/floors/Concrete007_1K-JPG_Color.jpg'), 
+                                   Path('assets/textures/floors/Hc518c5e6640145c5934d4b92f7e1c840Q.png'), 
+                                   Path('assets/textures/floors/concrete.png'), 
+                                   Path('assets/textures/floors/dark_wood_planks.png'), 
+                                   Path('assets/textures/floors/05f75518-7b70-4098-8983-aca459f33ddb.png'), 
+                                   Path('assets/textures/floors/wood_planks_2.png'), 
+                                   Path('assets/textures/floors/bamboo.png'), 
+                                   Path('assets/textures/floors/black-stucco-wall.jpg'), 
+                                   Path('assets/textures/floors/diamond_tiles.png')]
+                    
+                    if "PickToBasket" in str(self.env):
+                        floors_paths = floors_3060
+                    else:
+                        floors_paths = floors_v100
+                    fixture_config['texture'] = str(floors_paths[floor_texture_id].resolve())
 
                 # set fixture type
                 if fixture_config["type"] not in FIXTURES:
@@ -384,7 +484,44 @@ class DarkstoreSceneContinuous(DarkstoreScene):
                 # modify type to ceiling
                 if fixture_config['name'] == "ceiling_room":
                     fixture_config['type'] = Ceiling
-                    fixture_config['texture'] = str(list(Path('assets/textures/ceilings').iterdir())[ceiling_texture_id].resolve())
+                    #fixture_config['texture'] = str(list(Path('assets/textures/ceilings').iterdir())[ceiling_texture_id].resolve())
+                    ceilings_v100 = [Path('assets/textures/ceilings/MPA_SkyBlue-e1720596032435.jpg'), 
+                                     Path('assets/textures/ceilings/most-popular-suspended-nd-fissured-surf-ceiling-tiles-595mm-x-595mm-full-box.-629-p.jpg'), 
+                                     Path('assets/textures/ceilings/147.jpg'), 
+                                     Path('assets/textures/ceilings/OC1Y9B0.jpg'), 
+                                     Path('assets/textures/ceilings/Tiles071_1K-PNG_Color.png'), 
+                                     Path('assets/textures/ceilings/1672880537_grizly-club-p-tekstura-armstrong-28.jpg'), 
+                                     Path('assets/textures/ceilings/1626709619_7-kartinkin-com-p-armstrong-tekstura-besshovnaya-krasivo-7.png'), 
+                                     Path('assets/textures/ceilings/SQUARE-BK-1.png'), 
+                                     Path('assets/textures/ceilings/texturecan-plastic-0003-plane-1200.jpg'), 
+                                     Path('assets/textures/ceilings/background-wall-concept-with-copy-space.jpg'), 
+                                     Path('assets/textures/ceilings/blacktile.jpeg'), 
+                                     Path('assets/textures/ceilings/textur-gas-kvas-com-8qct-p-teksturi-potolochnaya-plitka-16.jpg'), 
+                                     Path('assets/textures/ceilings/old-squared-white-texture.jpg'), 
+                                     Path('assets/textures/ceilings/ec9fef5dfb43670b7da13a18b4b4a23c.jpg'), 
+                                     Path('assets/textures/ceilings/ceilume-southland-2x2-latte-ceiling-tiles_face_540.jpg')]
+                    
+                    ceilings_3060 = [Path('assets/textures/ceilings/texturecan-plastic-0003-plane-1200.jpg'), 
+                                     Path('assets/textures/ceilings/ceilume-southland-2x2-latte-ceiling-tiles_face_540.jpg'), 
+                                     Path('assets/textures/ceilings/ec9fef5dfb43670b7da13a18b4b4a23c.jpg'), 
+                                     Path('assets/textures/ceilings/blacktile.jpeg'), 
+                                     Path('assets/textures/ceilings/textur-gas-kvas-com-8qct-p-teksturi-potolochnaya-plitka-16.jpg'), 
+                                     Path('assets/textures/ceilings/1626709619_7-kartinkin-com-p-armstrong-tekstura-besshovnaya-krasivo-7.png'), 
+                                     Path('assets/textures/ceilings/SQUARE-BK-1.png'), 
+                                     Path('assets/textures/ceilings/OC1Y9B0.jpg'), 
+                                     Path('assets/textures/ceilings/1672880537_grizly-club-p-tekstura-armstrong-28.jpg'), 
+                                     Path('assets/textures/ceilings/old-squared-white-texture.jpg'), 
+                                     Path('assets/textures/ceilings/Tiles071_1K-PNG_Color.png'), 
+                                     Path('assets/textures/ceilings/background-wall-concept-with-copy-space.jpg'), 
+                                     Path('assets/textures/ceilings/MPA_SkyBlue-e1720596032435.jpg'), 
+                                     Path('assets/textures/ceilings/most-popular-suspended-nd-fissured-surf-ceiling-tiles-595mm-x-595mm-full-box.-629-p.jpg'), 
+                                     Path('assets/textures/ceilings/147.jpg')]
+                    
+                    if "PickToBasket" in str(self.env):
+                        ceilings_paths = ceilings_3060
+                    else:
+                        ceilings_paths = ceilings_v100
+                    fixture_config['texture'] = str(ceilings_paths[ceiling_texture_id].resolve())
 
                 # pre-processing for fixture size
                 size = fixture_config.get("size", None)
