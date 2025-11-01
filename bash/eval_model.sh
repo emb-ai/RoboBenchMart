@@ -34,7 +34,7 @@ RUN_TS=$(date +%Y%m%d_%H%M%S)
 SUBDIR_PREFIX="${MODEL}_"
 SUBDIR_SUFFIX="_${RUN_TS}"
 
-NUM_TRAJ=1
+NUM_TRAJ=30
 
 NET_PARAMS="--host=localhost --port=8000"
 EVAL_PARAMS_BOARD="--max-horizon 750 --num-traj ${NUM_TRAJ} --save-video"
