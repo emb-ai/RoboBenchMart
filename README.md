@@ -129,12 +129,25 @@ Follow the [official installation instructions](https://github.com/octo-models/o
 Launch the Octo server (within the Octo environment):
 
 ```bash
-python scripts/octo_server.py --finetuned-path <PATH_TO_OCTO_WEIGHTS>
+python scripts/octo_server_mp.py --model-path <PATH_TO_OCTO_WEIGHTS>
 ```
 
 #### Pi0
 
-WIP
+Follow [original installation](https://github.com/Physical-Intelligence/openpi) instructions to set up environment with Pi0.
+
+Apply a small patch to the Pi0 repository to add RoboBenchMart:
+```
+git apply path_to_robobenchmart/scripts/add_rbm.patch
+```
+
+Launch Pi0 (or Pi05) server (inside the Pi0 repository):
+
+```bash
+XLA_PYTHON_CLIENT_MEM_FRACTION=0.6 uv run scripts/serve_policy.py policy:checkpoint --policy.config=pi0_eval_rbm --policy.dir=<PATH_TO_Pi0_CHECKPOINT>
+XLA_PYTHON_CLIENT_MEM_FRACTION=0.6 uv run scripts/serve_policy.py policy:checkpoint --policy.config=pi05_eval_rbm --policy.dir=<PATH_TO_Pi05_CHECKPOINT>
+```
+
 
 ### Evaluation on Test Scenes (Unseen Layouts and Item Arrangements)
 
@@ -178,12 +191,18 @@ Choose a large seed (>1000) to ensure the robot's starting position differs from
 To run evaluations on seen, unseen, and out-of-distribution items (for Octo):
 
 ```bash
-bash bash/eval_octo.sh
+bash bash/eval_model.sh --model octo
 ```
 
-For Pi0:
+For Pi0/Pi05:
 
-WIP
+```bash
+bash bash/eval_model.sh --model pi0
+```
+
+```bash
+bash bash/eval_model.sh --model pi05
+```
 
 ### Evaluation on Composite Tasks
 
