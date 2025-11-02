@@ -49,69 +49,69 @@ EVAL_PARAMS_BASKET="--max-horizon 600 --num-traj ${NUM_TRAJ} --save-video"
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_duff \
---json-path motion_planning_info/move_from_board_to_board_duff_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_duff/demos/motionplanning/move_from_board_to_board_duff_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}board_duff_train${SUBDIR_SUFFIX} $EVAL_PARAMS_BOARD
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_nestle \
---json-path motion_planning_info/move_from_board_to_board_nestle_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_nestle/demos/motionplanning/move_from_board_to_board_nestle_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}board_nestle_train${SUBDIR_SUFFIX} $EVAL_PARAMS_BOARD
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_vanish \
---json-path motion_planning_info/move_from_board_to_board_vanish_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_vanish/demos/motionplanning/move_from_board_to_board_vanish_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}board_vanish_train${SUBDIR_SUFFIX} $EVAL_PARAMS_BOARD
 # =========================================================
 # open fridge
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/open_fridge/ \
---json-path motion_planning_info/open_fridge_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/open_fridge/demos/motionplanning/open_fridge_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}open_fridge_train${SUBDIR_SUFFIX} $EVAL_PARAMS_FRIDGE
 # =========================================================
 # close fridge
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/close_fridge/ \
---json-path motion_planning_info/close_fridge_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/close_fridge/demos/motionplanning/close_fridge_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}close_fridge_train${SUBDIR_SUFFIX} $EVAL_PARAMS_FRIDGE
 # =========================================================
 # open showcase
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/open_showcase/ \
---json-path motion_planning_info/open_showcase_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/open_showcase/demos/motionplanning/open_showcase_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}open_showcase_train${SUBDIR_SUFFIX} $EVAL_PARAMS_SHOWC
 # =========================================================
 # close showcase
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/close_showcase/ \
---json-path motion_planning_info/close_showcase_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/close_showcase/demos/motionplanning/close_showcase_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}close_showcase_train${SUBDIR_SUFFIX} $EVAL_PARAMS_SHOWC
 # =========================================================
 # pick from floor
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_from_floor/ \
---json-path motion_planning_info/pick_from_floor_beans_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_beans_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}floor_beans_train${SUBDIR_SUFFIX} $EVAL_PARAMS_FLOOR
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_from_floor/ \
---json-path motion_planning_info/pick_from_floor_slam_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_slam_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}floor_slam_train${SUBDIR_SUFFIX} $EVAL_PARAMS_FLOOR
 # =========================================================
 # pick to basket
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path motion_planning_info/pick_to_basket_fanta_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_fanta_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}basket_fanta_train${SUBDIR_SUFFIX} $EVAL_PARAMS_BASKET
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path motion_planning_info/pick_to_basket_nivea_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_nivea_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}basket_nivea_train${SUBDIR_SUFFIX} $EVAL_PARAMS_BASKET
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path motion_planning_info/pick_to_basket_stars_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_stars_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --eval-subdir ${SUBDIR_PREFIX}basket_stars_train${SUBDIR_SUFFIX} $EVAL_PARAMS_BASKET
 
 #ROBO (train seeds, but randomize robot init pose)
@@ -120,69 +120,69 @@ python "$EVAL_SCRIPT" $NET_PARAMS \
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_duff \
---json-path motion_planning_info/move_from_board_to_board_duff_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_duff/demos/motionplanning/move_from_board_to_board_duff_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}board_duff_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_BOARD
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_nestle \
---json-path motion_planning_info/move_from_board_to_board_nestle_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_nestle/demos/motionplanning/move_from_board_to_board_nestle_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}board_nestle_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_BOARD
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/move_from_board_to_board_vanish \
---json-path motion_planning_info/move_from_board_to_board_vanish_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/move_from_board_to_board_vanish/demos/motionplanning/move_from_board_to_board_vanish_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}board_vanish_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_BOARD
 # =========================================================
 # open fridge
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/open_fridge/ \
---json-path motion_planning_info/open_fridge_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/open_fridge/demos/motionplanning/open_fridge_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}open_fridge_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_FRIDGE
 # =========================================================
 # close fridge
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/close_fridge/ \
---json-path motion_planning_info/close_fridge_248traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/close_fridge/demos/motionplanning/close_fridge_250traj_4workers.rgbd.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}close_fridge_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_FRIDGE
 # =========================================================
 # open showcase
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/open_showcase/ \
---json-path motion_planning_info/open_showcase_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/open_showcase/demos/motionplanning/open_showcase_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}open_showcase_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_SHOWC
 # =========================================================
 # close showcase
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/close_showcase/ \
---json-path motion_planning_info/close_showcase_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/close_showcase/demos/motionplanning/close_showcase_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}close_showcase_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_SHOWC
 # =========================================================
 # pick from floor
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_from_floor/ \
---json-path motion_planning_info/pick_from_floor_beans_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_beans_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}floor_beans_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_FLOOR
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_from_floor/ \
---json-path motion_planning_info/pick_from_floor_slam_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_from_floor/demos/motionplanning/pick_from_floor_slam_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}floor_slam_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_FLOOR
 # =========================================================
 # pick to basket
 # =========================================================
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path motion_planning_info/pick_to_basket_fanta_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_fanta_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}basket_fanta_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_BASKET
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path motion_planning_info/pick_to_basket_nivea_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_nivea_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}basket_nivea_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_BASKET
 python "$EVAL_SCRIPT" $NET_PARAMS \
 --scene-dir demo_envs/pick_to_basket \
---json-path motion_planning_info/pick_to_basket_stars_248traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
+--json-path demo_envs/pick_to_basket/demos/motionplanning/pick_to_basket_stars_250traj_4workers.rgb.pd_joint_pos.physx_cpu.json \
 --robot-init-pose-start-seed 10000 --eval-subdir ${SUBDIR_PREFIX}basket_stars_robo${SUBDIR_SUFFIX} $EVAL_PARAMS_BASKET
 
 
