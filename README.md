@@ -221,7 +221,7 @@ python scripts/eval_policy_composite_client.py --env-id PickNiveaFantaEnv --scen
 To run full evaluation on composite tasks (for Octo):
 
 ```bash
-bash bash/eval_octo_composite_tasks.py
+bash bash/eval_octo_composite_tasks.sh
 ```
 
 For Pi0:
