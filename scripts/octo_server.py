@@ -18,9 +18,9 @@ from octo.utils.train_callbacks import supply_rng
 
 def preprocess_raw_obs(raw_obs):
     new_obs = {}
-    new_obs['image_primary'] = raw_obs['observation/left_base_camera_link']
-    new_obs['image_secondary'] = raw_obs['observation/right_base_camera_link']
-    new_obs['image_wrist'] = raw_obs['observation/fetch_hand']
+    new_obs['image_primary'] = raw_obs['observation/image']
+    new_obs['image_secondary'] = raw_obs['observation/extra_image']
+    new_obs['image_wrist'] = raw_obs['observation/wrist_image']
     return new_obs
 
 class HistoryBuffer:
@@ -88,8 +88,8 @@ class Policy:
 
 
 def main(args):
-    octo_model = OctoModel.load_pretrained(args.finetuned_path)
-    policy = Policy(octo_model)
+    octo_model = OctoModel.load_pretrained(args.model_path)
+    policy = Policy(octo_model, horizon=50, history=1, exec_horizon=50)
 
     server = WebsocketPolicyServer(
         policy=policy,
@@ -104,7 +104,7 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser()
     # parser.add_argument("-e", "--env-id", type=str, default="PickToCartEnv", help=f"Environment to run motion planning solver on. Available options are {list(MP_SOLUTIONS.keys())}")
 
-    parser.add_argument("--finetuned-path", type=str)
+    parser.add_argument("--model-path", type=str)
    
     parser.add_argument("--host", type=str, default='localhost')
     parser.add_argument("--port", type=int, default=8000)
