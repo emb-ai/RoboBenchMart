@@ -129,7 +129,7 @@ Follow the [official installation instructions](https://github.com/octo-models/o
 Launch the Octo server (within the Octo environment):
 
 ```bash
-python scripts/octo_server_mp.py --model-path <PATH_TO_OCTO_WEIGHTS>
+python scripts/octo_server.py --model-path <PATH_TO_OCTO_WEIGHTS>
 ```
 
 #### Pi0
@@ -149,7 +149,8 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=0.6 uv run scripts/serve_policy.py policy:checkpo
 ```
 
 
-### Evaluation on Test Scenes (Unseen Layouts and Item Arrangements)
+### Evaluation Example
+##### Test Scenes (Unseen Layouts and Item Arrangements)
 
 Generate test scenes (not needed if you have already downloaded **demo data**, as they are included):
 
@@ -171,7 +172,7 @@ We recommend using different subdirectories (via `--eval-subdir`) for different 
 Evaluation on tasks with **out-of-distribution target items** is done similarly, with the appropriate environment ID (`-e`) and scene directory (`--scene-dir`).
 See the item distribution [here](docs/tasks/README.md).
 
-### Evaluation on Training Scenes (Seen Layouts and Arrangements)
+##### Training Scenes (Seen Layouts and Arrangements)
 
 To reproduce training environments for evaluation, you must specify the exact seeds used during trajectory collection (motion planning).
 These seeds are stored in JSON files included in the **demo data** from [HuggingFace](https://huggingface.co/datasets/emb-ai/RoboBenchMart_demo_envs).  
@@ -221,12 +222,18 @@ python scripts/eval_policy_composite_client.py --env-id PickNiveaFantaEnv --scen
 To run full evaluation on composite tasks (for Octo):
 
 ```bash
-bash bash/eval_octo_composite_tasks.sh
+bash bash/eval_model_composite_tasks.sh --model octo
 ```
 
-For Pi0:
+For Pi0/Pi05:
 
-WIP
+```bash
+bash bash/eval_model_composite_tasks.sh --model pi0
+```
+
+```bash
+bash bash/eval_model_composite_tasks.sh --model pi05
+```
 
 ## Training Dataset Generation
 
