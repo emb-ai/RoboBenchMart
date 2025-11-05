@@ -257,6 +257,8 @@ Next, replay all trajectories to obtain visual observations:
 bash bash/replay.sh
 ```
 
+To convert data to RLDS format, refer to the [RLDS builder repository](https://github.com/emb-ai/DsynthAtomicTasks_rlds_builder).
+
 ## Training Dataset Generation
 
 ### From Demo Data
