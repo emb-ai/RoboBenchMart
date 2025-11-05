@@ -120,6 +120,14 @@ For more details, see the [task documentation](docs/tasks/README.md).
 
 ## Model Inference
 
+### Finetuned Models
+
+| Model | Description | Weights Downloading |
+| ------- | -------------------------- | --------------------|
+| Octo | [Octo-base](https://huggingface.co/emb-ai/RoboBenchMart_octo) finetuned with 1 history image and 50 action horizon | `hf download emb-ai/RoboBenchMart_octo --repo-type model --local-dir models/octo`
+| $\pi_0$ | Finetuned [$\pi_0$](https://huggingface.co/emb-ai/RoboBenchMart_pi0) | `hf download emb-ai/RoboBenchMart_pi0 --repo-type model --local-dir models/pi0` 
+| $\pi_{0.5}$ | Finetuned [$\pi_{0.5}$](https://huggingface.co/emb-ai/RoboBenchMart_pi05) | `hf download emb-ai/RoboBenchMart_pi05 --repo-type model --local-dir models/pi05` 
+
 ### Start Model Server
 
 #### Octo
