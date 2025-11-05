@@ -125,8 +125,8 @@ For more details, see the [task documentation](docs/tasks/README.md).
 | Model | Description | Weights Downloading |
 | ------- | -------------------------- | --------------------|
 | Octo | [Octo-base](https://huggingface.co/emb-ai/RoboBenchMart_octo) finetuned with 1 history image and 50 action horizon | `hf download emb-ai/RoboBenchMart_octo --repo-type model --local-dir models/octo`
-| $\pi_0$ | Finetuned [$\pi_0$](https://huggingface.co/emb-ai/RoboBenchMart_pi0) | `hf download emb-ai/RoboBenchMart_pi0 --repo-type model --local-dir models/pi0` 
-| $\pi_{0.5}$ | Finetuned [$\pi_{0.5}$](https://huggingface.co/emb-ai/RoboBenchMart_pi05) | `hf download emb-ai/RoboBenchMart_pi05 --repo-type model --local-dir models/pi05` 
+| $\pi_0$ | [Finetuned](https://huggingface.co/emb-ai/RoboBenchMart_pi0) $\pi_0$ | `hf download emb-ai/RoboBenchMart_pi0 --repo-type model --local-dir models/pi0` 
+| $\pi_{0.5}$ | [Finetuned](https://huggingface.co/emb-ai/RoboBenchMart_pi05) $\pi_{0.5}$ | `hf download emb-ai/RoboBenchMart_pi05 --repo-type model --local-dir models/pi05` 
 
 ### Start Model Server
 
@@ -241,6 +241,20 @@ bash bash/eval_model_composite_tasks.sh --model pi0
 
 ```bash
 bash bash/eval_model_composite_tasks.sh --model pi05
+```
+
+## Training Data
+
+You can download raw h5 trajectories (~50Gb) collected via motion planning:
+
+```bash
+hf download emb-ai/RoboBenchMart_demo_envs_mp --repo-type dataset --local-dir demo_envs
+```
+
+Next, replay all trajectories to obtain visual observations:
+
+```bash
+bash bash/replay.sh
 ```
 
 ## Training Dataset Generation
