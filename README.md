@@ -120,6 +120,14 @@ For more details, see the [task documentation](docs/tasks/README.md).
 
 ## Model Inference
 
+### Finetuned Models
+
+| Model | Description | Weights Downloading |
+| ------- | -------------------------- | --------------------|
+| Octo | [Octo-base](https://huggingface.co/emb-ai/RoboBenchMart_octo) finetuned with 1 history image and 50 action horizon | `hf download emb-ai/RoboBenchMart_octo --repo-type model --local-dir models/octo`
+| $\pi_0$ | [Finetuned](https://huggingface.co/emb-ai/RoboBenchMart_pi0) $\pi_0$ | `hf download emb-ai/RoboBenchMart_pi0 --repo-type model --local-dir models/pi0` 
+| $\pi_{0.5}$ | [Finetuned](https://huggingface.co/emb-ai/RoboBenchMart_pi05) $\pi_{0.5}$ | `hf download emb-ai/RoboBenchMart_pi05 --repo-type model --local-dir models/pi05` 
+
 ### Start Model Server
 
 #### Octo
@@ -129,14 +137,28 @@ Follow the [official installation instructions](https://github.com/octo-models/o
 Launch the Octo server (within the Octo environment):
 
 ```bash
-python scripts/octo_server.py --finetuned-path <PATH_TO_OCTO_WEIGHTS>
+python scripts/octo_server.py --model-path <PATH_TO_OCTO_WEIGHTS>
 ```
 
 #### Pi0
 
-WIP
+Follow [original installation](https://github.com/Physical-Intelligence/openpi) instructions to set up environment with Pi0.
 
-### Evaluation on Test Scenes (Unseen Layouts and Item Arrangements)
+Apply a small patch to the Pi0 repository to add RoboBenchMart:
+```
+git apply path_to_robobenchmart/scripts/add_rbm.patch
+```
+
+Launch Pi0 (or Pi05) server (inside the Pi0 repository):
+
+```bash
+XLA_PYTHON_CLIENT_MEM_FRACTION=0.6 uv run scripts/serve_policy.py policy:checkpoint --policy.config=pi0_eval_rbm --policy.dir=<PATH_TO_Pi0_CHECKPOINT>
+XLA_PYTHON_CLIENT_MEM_FRACTION=0.6 uv run scripts/serve_policy.py policy:checkpoint --policy.config=pi05_eval_rbm --policy.dir=<PATH_TO_Pi05_CHECKPOINT>
+```
+
+
+### Evaluation Example
+##### Test Scenes (Unseen Layouts and Item Arrangements)
 
 Generate test scenes (not needed if you have already downloaded **demo data**, as they are included):
 
@@ -158,7 +180,7 @@ We recommend using different subdirectories (via `--eval-subdir`) for different 
 Evaluation on tasks with **out-of-distribution target items** is done similarly, with the appropriate environment ID (`-e`) and scene directory (`--scene-dir`).
 See the item distribution [here](docs/tasks/README.md).
 
-### Evaluation on Training Scenes (Seen Layouts and Arrangements)
+##### Training Scenes (Seen Layouts and Arrangements)
 
 To reproduce training environments for evaluation, you must specify the exact seeds used during trajectory collection (motion planning).
 These seeds are stored in JSON files included in the **demo data** from [HuggingFace](https://huggingface.co/datasets/emb-ai/RoboBenchMart_demo_envs).  
@@ -178,12 +200,18 @@ Choose a large seed (>1000) to ensure the robot's starting position differs from
 To run evaluations on seen, unseen, and out-of-distribution items (for Octo):
 
 ```bash
-bash bash/eval_octo.sh
+bash bash/eval_model.sh --model octo
 ```
 
-For Pi0:
+For Pi0/Pi05:
 
-WIP
+```bash
+bash bash/eval_model.sh --model pi0
+```
+
+```bash
+bash bash/eval_model.sh --model pi05
+```
 
 ### Evaluation on Composite Tasks
 
@@ -202,12 +230,34 @@ python scripts/eval_policy_composite_client.py --env-id PickNiveaFantaEnv --scen
 To run full evaluation on composite tasks (for Octo):
 
 ```bash
-bash bash/eval_octo_composite_tasks.py
+bash bash/eval_model_composite_tasks.sh --model octo
 ```
 
-For Pi0:
+For Pi0/Pi05:
 
-WIP
+```bash
+bash bash/eval_model_composite_tasks.sh --model pi0
+```
+
+```bash
+bash bash/eval_model_composite_tasks.sh --model pi05
+```
+
+## Training Data
+
+You can download raw h5 trajectories (~50Gb) collected via motion planning:
+
+```bash
+hf download emb-ai/RoboBenchMart_demo_envs_mp --repo-type dataset --local-dir demo_envs
+```
+
+Next, replay all trajectories to obtain visual observations:
+
+```bash
+bash bash/replay.sh
+```
+
+To convert data to RLDS format, refer to the [RLDS builder repository](https://github.com/emb-ai/DsynthAtomicTasks_rlds_builder).
 
 ## Training Dataset Generation
 

@@ -1,0 +1,165 @@
+diff --git a/src/openpi/policies/robobenchmart_policy.py b/src/openpi/policies/robobenchmart_policy.py
+new file mode 100644
+index 0000000..0ebd650
+--- /dev/null
++++ b/src/openpi/policies/robobenchmart_policy.py
+@@ -0,0 +1,75 @@
++import dataclasses
++
++import einops
++import numpy as np
++
++from openpi import transforms
++from openpi.models import model as _model
++
++
++def make_robobenchmart_example() -> dict:
++    """Creates a random input example for the RoboBenchMart policy."""
++    return {
++        "observation/state": np.random.rand(15),
++        "observation/image": np.random.randint(256, size=(256, 256, 3), dtype=np.uint8),
++        "observation/wrist_image": np.random.randint(256, size=(256, 256, 3), dtype=np.uint8),
++        "observation/extra_image": np.random.randint(256, size=(256, 256, 3), dtype=np.uint8),
++        "prompt": "do something",
++    }
++
++
++def _parse_image(image) -> np.ndarray:
++    image = np.asarray(image)
++    if np.issubdtype(image.dtype, np.floating):
++        image = (255 * image).astype(np.uint8)
++    if image.shape[0] == 3:
++        image = einops.rearrange(image, "c h w -> h w c")
++    return image
++
++
++@dataclasses.dataclass(frozen=True)
++class RBMInputs(transforms.DataTransformFn):
++    """
++    This class is used to convert inputs to the model to the expected format. It is used for both training and inference.
++    """
++
++    model_type: _model.ModelType
++
++    def __call__(self, data: dict) -> dict:
++        base_image = _parse_image(data["observation/image"])
++        wrist_image = _parse_image(data["observation/wrist_image"])
++        extra_image = _parse_image(data["observation/extra_image"])
++
++        inputs = {
++            "state": data["observation/state"],
++            "image": {
++                "base_0_rgb": base_image,
++                "left_wrist_0_rgb": wrist_image,
++                "right_wrist_0_rgb": extra_image,
++            },
++            "image_mask": {
++                "base_0_rgb": np.True_,
++                "left_wrist_0_rgb": np.True_,
++                "right_wrist_0_rgb": np.True_,
++            },
++        }
++
++        if "actions" in data:
++            inputs["actions"] = data["actions"]
++
++        if "prompt" in data:
++            inputs["prompt"] = data["prompt"]
++
++        return inputs
++
++
++@dataclasses.dataclass(frozen=True)
++class RBMOutputs(transforms.DataTransformFn):
++    """
++    This class is used to convert outputs from the model back the the dataset specific format. It is
++    used for inference only.
++    """
++
++    def __call__(self, data: dict) -> dict:
++        return {"actions": np.asarray(data["actions"][:, :13])}
++1
+\ No newline at end of file
+diff --git a/src/openpi/training/config.py b/src/openpi/training/config.py
+index a59cd1c..bde1074 100644
+--- a/src/openpi/training/config.py
++++ b/src/openpi/training/config.py
+@@ -20,6 +20,7 @@ import openpi.models.tokenizer as _tokenizer
+ import openpi.policies.aloha_policy as aloha_policy
+ import openpi.policies.droid_policy as droid_policy
+ import openpi.policies.libero_policy as libero_policy
++import openpi.policies.robobenchmart_policy as robobenchmart_policy
+ import openpi.shared.download as _download
+ import openpi.shared.normalize as _normalize
+ import openpi.training.droid_rlds_dataset as droid_rlds_dataset
+@@ -277,6 +278,41 @@ class LeRobotAlohaDataConfig(DataConfigFactory):
+         )
+ 
+ 
++@dataclasses.dataclass(frozen=True)
++class LeRobotRBMDataConfig(DataConfigFactory):
++    extra_delta_transform: bool = False
++
++    @override
++    def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
++        repack_transform = _transforms.Group(
++            inputs=[
++                _transforms.RepackTransform(
++                    {
++                        "observation/image": "image",
++                        "observation/wrist_image": "wrist_image",
++                        "observation/extra_image": "extra_image",
++                        "observation/state": "state",
++                        "actions": "actions",
++                        "prompt": "prompt",
++                    }
++                )
++            ]
++        )
++
++        data_transforms = _transforms.Group(
++            inputs=[robobenchmart_policy.RBMInputs(model_type=model_config.model_type)],
++            outputs=[robobenchmart_policy.RBMOutputs()],
++        )
++
++        model_transforms = ModelTransformFactory()(model_config)
++
++        return dataclasses.replace(
++            self.create_base_config(assets_dirs, model_config),
++            repack_transforms=repack_transform,
++            data_transforms=data_transforms,
++            model_transforms=model_transforms,
++        )
++
+ @dataclasses.dataclass(frozen=True)
+ class LeRobotLiberoDataConfig(DataConfigFactory):
+     """
+@@ -922,6 +958,28 @@ _CONFIGS = [
+         num_train_steps=20_000,
+     ),
+     #
++    # RoboBenchMart configs.
++    #
++    TrainConfig(
++        name="pi0_eval_rbm",
++        model=pi0_config.Pi0Config(),
++        data=LeRobotRBMDataConfig(
++            repo_id="rbm_dataset",
++            base_config=DataConfig(
++                prompt_from_task=True,
++            ),
++        ),
++    ),
++    TrainConfig(
++        name="pi05_eval_rbm",
++        model=pi0_config.Pi0Config(pi05=True, discrete_state_input=False),
++        data=LeRobotRBMDataConfig(
++            repo_id="rbm_dataset",
++            base_config=DataConfig(prompt_from_task=True),
++            extra_delta_transform=False,
++        ),
++    ),
++    #
+     # Debugging configs.
+     #
+     TrainConfig(

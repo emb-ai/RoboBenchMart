@@ -35,9 +35,9 @@ def prepare_obs(obs_raw, language_instruction, time_step):
     right_base_camera_link = obs_raw['sensor_data']['right_base_camera_link']['rgb'][0].cpu().numpy()
     state = obs_raw['agent']['qpos'][0].cpu().numpy()
     observation = {
-        "observation/left_base_camera_link": left_base_camera_link,
-        "observation/right_base_camera_link": right_base_camera_link,
-        "observation/fetch_hand": fetch_hand,
+        "observation/image": left_base_camera_link,
+        "observation/extra_image": right_base_camera_link,
+        "observation/wrist_image": fetch_hand,
         "observation/state": state,
         "prompt": language_instruction,
         "time_step": time_step
@@ -91,7 +91,7 @@ def main(args) -> str:
     sensor_configs=scenes_data['env_info']['env_kwargs']['sensor_configs'] if json_path is not None else None
     render_mode=scenes_data['env_info']['env_kwargs']['render_mode'] if json_path is not None else 'rgb_array'
     enable_shadow=scenes_data['env_info']['env_kwargs']['enable_shadow'] if json_path is not None else True
-    obs_mode=scenes_data['env_info']['env_kwargs']['obs_mode'] if json_path is not None else 'rgb'
+    obs_mode='rgb' #scenes_data['env_info']['env_kwargs']['obs_mode'] if json_path is not None else 'rgb'
     
     if json_path is None and args.env_id is None:
         raise AttributeError("Either --env-id or --json-path must be specified")
@@ -145,6 +145,8 @@ def main(args) -> str:
 
     reset_options={'reconfigure': True}
 
+    successfull_episodes = []
+
     for traj_idx in range(args.num_traj):
         if json_path is not None:
             seed = scenes_data['episodes'][traj_idx]['episode_seed']
@@ -166,6 +168,9 @@ def main(args) -> str:
             actions = client.infer(obs_prepared)["actions"]
 
             for action in actions:
+                action = action.astype(np.float32)
+                action[8] = 0
+                action[9] = 0
                 obs, reward, done, trunc, info = env.step(action)
                 i += 1
 
@@ -179,6 +184,8 @@ def main(args) -> str:
                 break
         
         success = info["success"][0].item()
+        if success:
+            successfull_episodes.append(seed)
         elapsed_steps = info["elapsed_steps"][0].item()
         solution_episode_lengths.append(elapsed_steps)
 
@@ -186,7 +193,7 @@ def main(args) -> str:
 
         env.flush_trajectory()
         if args.save_video:
-            env.flush_video()
+            env.flush_video(str(seed))
         pbar.update(1)
         pbar.set_postfix(
             dict(
@@ -197,6 +204,7 @@ def main(args) -> str:
             )
         )
 
+    print("Results:", successfull_episodes, len(successfull_episodes),  len(successfull_episodes)/len(successes))
     env.close()
     return output_h5_path
 
