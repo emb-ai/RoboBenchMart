@@ -41,6 +41,11 @@ python -m mani_skill.examples.demo_random_action
 
 ### Downloading Assets
 
+Download RoboCasa Assets:
+```bash
+python -m mani_skill.utils.download_asset RoboCasa
+```
+
 Download assets from [HuggingFace](https://huggingface.co/datasets/emb-ai/RoboBenchMart_assets):
 
 ```bash
