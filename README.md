@@ -1,6 +1,7 @@
 # RoboBenchMart
 
 [![Page](https://img.shields.io/badge/Project-Page-blue)](https://emb-ai.github.io/robobenchmart-project)
+[![arXiv](https://img.shields.io/badge/arXiv-2511.10276-b31b1b.svg)](https://arxiv.org/abs/2511.10276)
 
 This repository contains code for data generation and robotic policy evaluation in the **RoboBenchMart** benchmark.
 We present the `dsynth` (Darkstore Synthesizer) package, which includes specialized [ManiSkill](https://github.com/haosulab/ManiSkill) environments for retail setups, a scene generation algorithm, motion planning solvers for data collection, and scripts for policy evaluation.
