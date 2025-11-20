@@ -208,7 +208,7 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
         self.product_displaced = False
         self.products_initial_poses = {}
         for p, a in self.actors['products'].items():
-            item_id = 'products_hierarchy.' + re.sub(r"\[ENV#\d\]_", "", p).split(':')[0]
+            item_id = 'products_hierarchy.' + re.sub(r"\[ENV#\d+\]_", "", p).split(':')[0]
             asset_name = self.assets_lib[item_id].asset_name
             if exclude_items_names is not None:
                 if asset_name in exclude_items_names:
