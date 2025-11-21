@@ -176,20 +176,16 @@ class DarkstoreScene(RoboCasaSceneBuilder):
             lamp = self.env.assets_lib['fixtures.lamp'].ms_build_actor(f'[ENV#{scene_idx}]_lamp_{n}', self.scene, pose=pose, scene_idxs=[scene_idx])
             self.env.actors["fixtures"]["lamps"][f'lamp_{n}'] = lamp
     
-    def _load_lighting(self, scene_idx, lamps_coords, height, intensity=10, light_type="area"):
-        # TODO: compute intensity based on the scene?
-        """Loads lighting into the scene. Called by `self._reconfigure`. If not overriden will set some simple default lighting"""
-
+    def _load_lighting(self, scene_idx, lamps_coords, height, intensity=10, light_type="spot"):
         shadow = self.env.enable_shadow
-        self.env.scene.set_ambient_light([0.3, 0.3, 0.3])
-        self.scene.add_directional_light(
-            [1, 1, -1], [1, 1, 1], shadow=shadow, shadow_scale=5, shadow_map_size=2048
-        )
-        self.scene.add_directional_light([0, 0, -1], [1, 1, 1])
+
+        # disable shadows when gui is used with many parallel scenes
+        shadow = shadow and not self.scene.parallel_in_single_scene 
 
         lamp_size = self.env.assets_lib['fixtures.lamp'].extents[0]
+        lamp_height = self.env.assets_lib['fixtures.lamp'].extents[2]
+        height -= lamp_height
         for x, y in lamps_coords:
-            # I have no idea what inner_fov and outer_fov mean :/
             if light_type == "spot":
                 self.scene.add_spot_light([x, y, height],
                                         [0, 0, -1],
@@ -203,7 +199,10 @@ class DarkstoreScene(RoboCasaSceneBuilder):
                                         color=[intensity, intensity, intensity],
                                         shadow=shadow)
             elif light_type == "area":
-                self.scene.add_area_light_for_ray_tracing(sapien.Pose([x, y, height], [np.cos(np.pi/4), 0, np.sin(np.pi/4), 0]), [intensity, intensity, intensity], lamp_size, lamp_size) # square light area pointing down
+                self.scene.add_area_light_for_ray_tracing(sapien.Pose([x, y, height], [np.cos(np.pi/4), 0, np.sin(np.pi/4), 0]), 
+                                                          [intensity, intensity, intensity], 
+                                                          lamp_size, lamp_size,
+                                                          scene_idxs=[scene_idx]) # square light area pointing down
             else:
                 raise Exception("Unknown light type. Must be spot, point or area")
 
