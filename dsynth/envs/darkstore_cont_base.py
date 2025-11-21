@@ -173,7 +173,7 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
             self.language_instructions.append(f'do nothing')
 
     def update_human_camera(self):
-        eye = []
+        src = []
         target = []
         for scene_idx in range(self.num_envs):
             active_shelf_name = self.active_shelves[scene_idx][0]
@@ -187,13 +187,13 @@ class DarkstoreContinuousBaseEnv(DarkstoreCellBaseEnv):
             view_center = shelf_center - 0.3 * perp_direction
             view_center = view_center + [0, 0, 0.2]
 
-            camera_center = shelf_center - 2 * direction_to_shelf + 1.5 * perp_direction
+            camera_center = shelf_center - 2.5 * direction_to_shelf + 2 * perp_direction
             camera_center = camera_center + [0., 0., 2.]
             target.append(view_center)
-            eye.append(camera_center)
-        eye = torch.tensor(eye).float()
+            src.append(camera_center)
+        src = torch.tensor(src).float()
         target = torch.tensor(target).float()
-        pose = sapien_utils.look_at(eye, target)
+        pose = sapien_utils.look_at(src, target)
         self._custom_human_render_camera_configs["render_camera"] = {
             "uid": "render_camera",
             "pose": list(pose.raw_pose[0].cpu().numpy()), # https://github.com/haosulab/ManiSkill/issues/1317
