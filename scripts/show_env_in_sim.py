@@ -32,6 +32,11 @@ def parse_args():
                         const='default',
                         nargs='?',
                         choices=['rt', 'rt-fast', 'rt-med', 'default', 'minimal'],)
+    parser.add_argument('--sensor_shader',
+                        default='minimal',
+                        const='minimal',
+                        nargs='?',
+                        choices=['rt', 'rt-fast', 'rt-med', 'default', 'minimal'],)
     parser.add_argument('--gui',
                         action='store_true',
                         default=False)
@@ -55,6 +60,7 @@ def main(args):
                    num_envs=args.num_envs, 
                    viewer_camera_configs={'shader_pack': args.shader}, 
                     human_render_camera_configs={'shader_pack': args.shader},
+                    sensor_configs={'shader_pack': args.sensor_shader},
                    render_mode="human" if gui else "rgb_array", 
                 #    render_mode="rgb_array", 
                    control_mode=None,
@@ -66,7 +72,7 @@ def main(args):
                    )
 
     new_traj_name = time.strftime("%Y%m%d_%H%M%S")
-    video_path = scene_dir / f"./videos_seed={args.seed}_shader={args.shader}"
+    video_path = scene_dir / f"./videos_seed={args.seed}_shader={args.shader}_sensor_shader={args.sensor_shader}"
     env = RecordEpisode(
         env,
         output_dir=video_path,
