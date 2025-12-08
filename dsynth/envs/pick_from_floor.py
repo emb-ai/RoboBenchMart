@@ -8,7 +8,7 @@ from mani_skill.utils import common, sapien_utils
 from mani_skill.sensors.camera import CameraConfig
 from mani_skill.utils.building import actors
 from mani_skill.utils.registration import register_env
-from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
+
 from mani_skill.utils.structs.pose import Pose
 
 from dsynth.envs.darkstore_cell_base import DarkstoreCellBaseEnv

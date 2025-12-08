@@ -23,7 +23,7 @@ from dsynth.assets.asset import load_assets_lib
 from dsynth.scene_gen.utils import flatten_dict
 from mani_skill.utils.structs.pose import Pose
 from mani_skill.utils.building import actors
-from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
+
 from dsynth.envs.darkstore_cont_base import DarkstoreContinuousBaseEnv
 
 from dsynth.envs.pick_to_basket import *

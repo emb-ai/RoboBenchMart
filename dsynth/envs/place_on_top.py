@@ -7,7 +7,7 @@ from mani_skill.sensors.camera import CameraConfig
 from mani_skill.utils.building import actors
 from mani_skill.utils.registration import register_env
 from dsynth.envs.darkstore_cell_base import DarkstoreCellBaseEnv
-from mani_skill.examples.motionplanning.panda.utils import get_actor_obb
+
 import copy
 
 LANGUAGE_INSTRUCTION = 'pick a milk from the shelf and put it on the cart'
