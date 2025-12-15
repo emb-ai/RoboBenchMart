@@ -29,7 +29,7 @@ For troubleshooting, see the [ManiSkill installation guide](https://maniskill.re
 ### Installation from GitHub
 
 ```bash
-git clone https://gitlab.2a2i.org/cv/robo/darkstore-synthesizer
+git clone https://github.com/emb-ai/RoboBenchMart
 cd darkstore-synthesizer
 conda create -n dsynth python=3.10
 conda activate dsynth
