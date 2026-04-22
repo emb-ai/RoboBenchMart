@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="RoboBenchMart: Benchmarking Robots in Retail Environment">
+  <meta name="keywords" content="etail robotics, store environment simulation, mobile manipulation, simulation benchmark">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoboBenchMart: Benchmarking Robots in Retail Environment</title>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <!-- <link rel="icon" href="./static/images/icon.png"> -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        macros: {
+          RR: "{\\bf R}",
+          bold: ["{\\bf #1}", 1],
+          indep: "{\\perp \\!\\!\\! \\perp}",
+        },
+        tags: 'ams',
+      },
+      svg: {
+        fontCache: 'global'
+      },
+    };
+  </script>
+  
+  <!-- load MathJax -->
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">RoboBenchMart: Benchmarking Robots in Retail Environment</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?hl=en&user=XWKhjF4AAAAJ">
+                Konstantin Soshin</a><sup>*</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?hl=en&user=GAS_EXwAAAAJ">Alexander Krapukhin</a><sup>*</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=HdGySuoAAAAJ&hl=en">Andrei Spiridonov</a><sup>*</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?hl=en&user=IUkFdpUAAAAJ">Denis Shepelev</a><sup>+</sup>,
+            </span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              Gregorii Bukhtuev</a><sup></sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=q0lIfCEAAAAJ&hl=en">Andrey Kuznetsov</a><sup>&Dagger;</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?hl=en&user=MuPLmJsAAAAJ">Vlad Shakhuro</a><sup>&dagger;</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <!-- <span class="author-block"><sup>1</sup>FusionBrain Lab, Robotics Group</span> -->
+            <span class="author-block">FusionBrain Lab, Robotics Group</span>
+            <!-- <span class="author-block"><sup>2</sup>Lomonosov Moscow State University,</span> -->
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>*</sup>Equal contribution,</span>
+            <span class="author-block"><sup>+</sup>Conceptual and technical leader,</span>
+            <span class="author-block"><sup>&dagger;</sup>Team leader,</span>
+            <span class="author-block"><sup>&Dagger;</sup>Lab leader</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2511.10276"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2511.10276"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <!-- <span class="link-block">
+                <a href="https://www.youtube.com/watch?v=???"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/emb-ai/RoboBenchMart"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div style="width: 100%; margin: 0 auto;">
+        <img src="./static/images/teaser3.png"
+                 width="100%"/>
+      </div>
+
+      <h2 class="subtitle has-text-centered">
+        RoboBenchMart in action — the Fetch robot operates in a realistic, cluttered retail environment
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          Most existing robotic manipulation benchmarks focus on simplified tabletop scenarios, typically involving a stationary robotic arm interacting with various objects on a flat surface.
+          To address this limitation, we introduce RoboBenchMart, a more challenging and realistic benchmark designed for dark store environments, where robots must perform complex manipulation tasks with diverse grocery items. 
+          This setting presents significant challenges, including dense object clutter and varied spatial configurations — with items positioned at different heights, depths, and in close proximity. 
+          By targeting the retail domain, our benchmark addresses a setting with strong potential for near-term automation impact.
+          We demonstrate that current state-of-the-art generalist models struggle to solve even common retail tasks.
+          To support further research, we release the RoboBenchMart suite, which includes a procedural store layout generator, a trajectory generation pipeline, evaluation tools and fine-tuned baseline models.
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+    <!-- Paper video. -->
+    <!-- <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h3 class="title is-3">Robotics Simulation for Retail</h3>
+
+        <div class="content has-text-justified">
+          <p>
+            Real-world evaluation is also difficult to standardize, often requiring human resets and suffering from environment variability.
+            As a result, simulation-based benchmarks have become popular for their reproducibility and ease of use.
+          </p>
+          <p>  
+            Existing benchmarks mostly focus on <b>household tasks</b>.
+            However, retail and logistics scenarios — such as shelf picking or order packing — remain underexplored.
+            Dedicated benchmarks for these domains are needed to advance robotic capabilities in retail environments.
+          </p>
+          <p> 
+            RoboBenchMart addresses limitations of prior works by providing code to <b>generate diverse store layouts and robotic trajectories</b>, <b>enabling the training and benchmarking of robotic policies in retail environments</b>.
+          </p>
+
+          <div style="width: 90%; margin: 0 auto; text-align: center;">
+            <img src="./static/images/compare_benches.png"
+                     width="100%"/>
+            <div class="content has-text-centered">
+              Comparing proposed robotics retail benchmark with other benchmarks and datasets
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br/>
+
+
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h3 class="title is-3">Contributions</h3>
+        <div class="content has-text-justified">
+          <ul>
+            <li> <b>Store Plan Generator</b>  an open procedural pipeline for generating realistic and diverse store layouts and product arrangements.
+              It enables scalable creation of retail environments for training and evaluating robotic policies.
+            </li>
+            <li> <b>Store Trajectories Sampler</b> a pipeline that automatically collects trajectories for common retail tasks using motion planning and reinforcement learning methods.
+              Moreover, we release a dataset of synthetic trajectories generated for the Fetch robot embodiment.
+            </li>
+            <li> <b>Store Robotics Benchmark</b> the first open benchmark dedicated to evaluating robotic policies in retail environments. 
+              Using our benchmark, we demonstrate that current state-of-the-art models struggle to complete typical retail tasks.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <br/>
+        
+
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h3 class="title is-3">Store Plan Generator</h3>
+
+        <div class="content has-text-justified">
+            We simulate dark-store environments as warehouse-style spaces filled with shelving and refrigeration units in diverse, randomized layouts.
+            To support domain randomization, we vary wall, floor, and ceiling textures and use multiple fixture designs. 
+            Product items are then placed on shelves in realistic, slightly perturbed poses to mimic natural variability.
+
+            <!-- <div style="width: 80%; margin: 0 auto; text-align: center;">
+              <img src="./static/images/data_collection.png"
+                        width="100%"/>
+              <div class="content has-text-centered">
+                Data collection pipeline.  
+              </div>
+            </div> -->
+        </div>
+
+        <div class="content has-text-justified">
+          <b>Fixture Arrangement.</b>
+          We seed a rectangular floor plan with pallets, boxes, and freezers. 
+          Rejection sampling guarantees collision-free initial placement.
+          Next, we compute a smooth <b>tensor field</b> from store boundaries and fixture polygons.
+          This field encodes local “flow” directions that naturally align aisles and corridors.
+          Shelving is then placed in two passes—horizontal first, vertical second—following the local field direction. 
+          Every placement enforces clearance and minimum passage widths for navigation.
+          A small probabilistic skip adds variety between scenes. 
+          The result is a clean, navigable layout that still looks different from run to run.
+          <figure style="margin:10px" aria-labelledby="set-caption">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/tf.png" style="width:100%;height:auto;display:block">
+                <figcaption style="text-align:center;margin-top:6px">Sampled tensor field</figcaption>
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/layout_sceme.png" style="width:100%;height:auto;display:block">
+                <figcaption style="text-align:center;margin-top:6px">Resulted fixture layout</figcaption>
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/layout_render.png" style="width:100%;height:auto;display:block">
+                <figcaption style="text-align:center;margin-top:6px">Generated store</figcaption>
+              </figure>
+            </div>
+
+            <figcaption id="set-caption" style="text-align:center">
+              Examples of generated store with fixtures arranged by our pipeline
+            </figcaption>
+          </figure>
+
+        </div>
+
+        <div class="content has-text-justified">
+          <b>Product Arrangement.</b>
+          We use scene_synthesizer to detect shelf surfaces suitable for item placement. 
+          Items are placed on a grid with slight pose jitters for realism.
+          The module supports vertical stacking to match common retail patterns.
+          It can also leave front-edge gaps via a Poisson process to mimic partial depletion over time.
+          
+          <figure style="margin:10px" aria-labelledby="set-caption">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/day0_.png" style="width:100%;height:auto;display:block">
+                <figcaption style="text-align:center;margin-top:6px">1st day</figcaption>
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/day1_.png" style="width:100%;height:auto;display:block">
+                <figcaption style="text-align:center;margin-top:6px">2nd day</figcaption>
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/day3_.png" style="width:100%;height:auto;display:block">
+                <figcaption style="text-align:center;margin-top:6px">4th day</figcaption>
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/day7_.png" style="width:100%;height:auto;display:block">
+                <figcaption style="text-align:center;margin-top:6px">8th day</figcaption>
+              </figure>
+            </div>
+
+            <figcaption id="set-caption" style="text-align:center">
+              Example of product arrangement and shelf depletion over time produced by our simulator
+            </figcaption>
+          </figure>
+
+          <figure style="margin:10px" aria-labelledby="set-caption">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/01_canned_quick_cof_.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/02_sweet_crackers_cook_wood_.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/06_juice_milk_yog_.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/03_rice_sauce_cereal_froz_chips_.png" style="width:100%;height:auto;display:block">
+              </figure>
+            </div>
+
+            <figcaption id="set-caption" style="text-align:center">
+              Examples of collected product assets
+            </figcaption>
+          </figure>
+
+        </div>
+
+      <div class="content has-text-justified">
+          <b>Assets & Textures.</b>
+          Our asset set includes 3 shelf models, 2 refrigerator models, and 370 product items across 21 categories. 
+          We also use 26 floor, 17 wall, and 15 ceiling textures for visual diversity.
+          All assets are normalized for orientation and scale using retail reference dimensions. 
+          This keeps proportions realistic across scenes.
+          To maintain performance with hundreds of items, we run an automatic mesh-simplification pipeline (QuadriFlow, Marching Cubes, and shape-aware approximations via the Blender API). 
+          From Pareto candidates, we pick meshes that minimize geometry error while maximizing triangle reduction.
+          All curated and optimized assets are released publicly.
+          
+          
+
+          <figure style="margin:10px" aria-labelledby="set-caption">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/textures/g.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/textures/i.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/textures/j.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/textures/l.png" style="width:100%;height:auto;display:block">
+              </figure>
+            </div>
+
+            <figcaption id="set-caption" style="text-align:center">
+              Examples of ceiling, wall, and floor textures used in our store generation pipeline, illustrating just a subset of possible
+variations
+            </figcaption>
+          </figure>
+          
+          <figure style="margin:10px" aria-labelledby="set-caption">
+            <div style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/03_asset_simplification.png" style="display:block;margin:0 auto;height:80%;width:auto;max-width:100%;object-fit:contain">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/03_asset_simplification_2.png" style="display:block;margin:0 auto;height:80%;width:auto;max-width:100%;object-fit:contain">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/03_asset_simplification_3.png" style="display:block;margin:0 auto;height:80%;width:auto;max-width:100%;object-fit:contain">
+              </figure>
+            </div>
+
+            <figcaption id="set-caption" style="text-align:center">
+              Example of different geometry approximations for assets (original
+on the left). Numbers above indicate face count for each mesh
+            </figcaption>
+          </figure>
+
+        </div>
+
+      </div>
+    </div>
+
+    <br/>
+    
+
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h3 class="title is-3">Store Trajectories Sampler</h3>
+
+        <div class="content has-text-justified">
+        We generate training trajectories for dark-store tasks using two sources: motion planning and reinforcement learning (RL). 
+        The resulting demos are suitable for imitation learning pre-training or fine-tuning.
+        </div>
+        
+        <div class="content has-text-justified">
+        <b>Motion Planning.</b>
+        For each task, we define randomized anchor poses (start, intermediates, goal) to diversify demonstrations. 
+        The planner solves each segment between anchors in sequence.
+        When the arm only moves, we attempt a fast screw motion (no obstacle awareness) and validate for collisions. 
+        If invalid, we fall back to RRT-Connect with obstacle checks.
+        If both fail, we reset the scene and resample.
+        When mobile base motion is needed, we use task-specific safety-aware heuristics to route the base and execute the arm locally.
+        Result: feasible trajectories in ~60% of attempts across tasks.
+        </div>
+        <div class="content has-text-justified">
+        <b>Reinforcement Learning.</b>
+        We train per-task policies with privileged state and PPO, using hand-crafted rewards that balance target proximity, correct placement, and collision avoidance with shelf items.
+        Result: feasible trajectories in ~60% of rollouts across tasks, providing complementary demos to the planner for imitation learning.
+        </div>
+
+        <figure style="margin:10px" aria-labelledby="set-caption">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/mp1.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/mp2.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/mp3.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/mp4.png" style="width:100%;height:auto;display:block">
+              </figure>
+
+              <figure style="margin:0;flex:1 1 0">
+                <img src="./static/images/mp5.png" style="width:100%;height:auto;display:block">
+              </figure>
+            </div>
+
+            <figcaption id="set-caption" style="text-align:center">
+              Examples of heuristically generated anchor poses used in our motion planner
+            </figcaption>
+          </figure>
+
+        </div>
+    </div>
+
+    <br/>
+      
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h3 class="title is-3">Store Robotics Benchmark</h3>
+
+        <div class="content has-text-justified">
+        We evaluate state-of-the-art generalist policies in retail settings, fine-tuned on trajectories from our sampler.
+        The benchmark runs on ManiSkill3 for fast, realistic physics and ray-traced rendering.
+        We use the Fetch mobile manipulator: differential-drive base, 7-DOF arm, and a prismatic torso for vertical reach.
+        A parallel gripper enables reliable, generic grasping.
+        </div>
+        
+        <div class="content has-text-justified">
+        <b>Testing Scenarios.</b>
+        We probe generalization along robot start pose, textures, store layouts, shelf arrangements, and item novelty.
+        We report three tiers: In-Domain (start pose only), Unseen Scenes (start pose + textures + layouts), and Unseen Scenes & Items (plus OOD items from other tasks).
+        Harder settings with completely unseen items/shelf layouts are supported but excluded—current policies fail even earlier tiers.
+        </div>
+
+        <div class="content has-text-justified">
+        <b>Tasks.</b>
+        Each task uses a text instruction with target item/fixture names. 
+        We check goal achievement and penalize unwanted collisions or scene disturbance. <br>
+        Atomic tasks: pick to basket, pick from floor, from board to board, open fridge, close fridge. <br>
+        Composite tasks: pick {N} items; pick from fridge (open → pick → close).
+        </div>
+
+        <div class="content has-text-justified">
+        <b>Generalist Baselines & Data.</b>
+        We fine-tune Octo and π₀ with imitation learning on trajectories from our sampler. 
+        To keep compute modest, we use 248 trajectories per (task, item, fixture)—2,480 demos total.
+        To test cross-task generalization, we train on only 2–3 objects per task and keep shelves fully packed in train/test. Models are fine-tuned on atomic tasks; composites are executed as sequences of atomic instructions.
+        </div>
+
+        <div class="content has-text-justified">
+        <b>Evaluation results.</b>
+        We report mean success rate per task with 50 trials per (task, item, fixture) triplet.
+        Octo fails across scenarios. 
+        $\pi_{0}$ is modestly successful in-domain but degrades on Unseen Scenes and drops to near-zero in Unseen Scenes & Items.
+        $\pi_{0.5}$ performs significantly better and is the only model that achieves non-zero success rates in the Unseen Scenes & Items scenario, though it remains far from reliable.
+        Composite tasks are effectively zero for all models.
+
+        <figure style="margin:10px;flex:1 1 0">
+          <img src="./static/images/results.png" style="width:100%;height:auto;display:block">
+          <figcaption id="set-caption" style="text-align:center">
+          Average success rates (%) of generalist VLA models on atomic and composite retail tasks across different testing scenarios. 
+          Higher values indicate better performance. n/a indicate that scenario is not applicable for the task
+        </figcaption>
+        </figure>
+          
+        <br>
+        Results highlight <b>key limitations of existing generalist models</b>:
+        <b>fragility to minor scene changes</b> (e.g., layouts, textures, object placements), <b>poor generalization from limited demonstrations</b> to novel object-task combinations, and
+        <b>inadequate support for long-horizon, compositional execution</b>.
+        Our findings suggest that existing <b>pretrained models may be insufficient</b> for effective application in the retail domain, and that <b>targeted pretraining on retail-specific data may be necessary</b>.
+
+        </div>
+
+    </div>
+
+
+    <br/>
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{soshin2025robobenchmart,
+      title={RoboBenchMart: Benchmarking Robots in Retail Environment},
+      author={Soshin, Konstantin and Krapukhin, Alexander and Spiridonov, Andrei and Shepelev, Denis and Bukhtuev, Gregorii and Kuznetsov, Andrey and Shakhuro, Vlad},
+      journal={arXiv preprint arXiv:2511.10276},
+      year={2025}
+    }</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="https://arxiv.org/pdf/2511.10276">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/emb-ai/robotbenchmart-project">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
