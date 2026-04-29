@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="description"
         content="RoboBenchMart: Benchmarking Robots in Retail Environment">
-  <meta name="keywords" content="etail robotics, store environment simulation, mobile manipulation, simulation benchmark">
+  <meta name="keywords" content="retail robotics, store environment simulation, mobile manipulation, simulation benchmark">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RoboBenchMart: Benchmarking Robots in Retail Environment</title>
 
@@ -95,7 +95,7 @@
           </div>
           <div class="is-size-5 publication-authors">
             <span class="author-block">
-              Gregorii Bukhtuev</a><sup></sup>,
+              Gregorii Bukhtuev,
             </span>
             <span class="author-block">
               <a href="https://scholar.google.com/citations?user=q0lIfCEAAAAJ&hl=en">Andrey Kuznetsov</a><sup>&Dagger;</sup>,
@@ -299,7 +299,7 @@
           Every placement enforces clearance and minimum passage widths for navigation.
           A small probabilistic skip adds variety between scenes. 
           The result is a clean, navigable layout that still looks different from run to run.
-          <figure style="margin:10px" aria-labelledby="set-caption">
+          <figure style="margin:10px" aria-labelledby="fixture-layout-caption">
             <div style="display:flex;gap:12px;align-items:flex-start">
               <figure style="margin:0;flex:1 1 0">
                 <img src="./static/images/tf.png" style="width:100%;height:auto;display:block">
@@ -317,7 +317,7 @@
               </figure>
             </div>
 
-            <figcaption id="set-caption" style="text-align:center">
+            <figcaption id="fixture-layout-caption" style="text-align:center">
               Examples of generated store with fixtures arranged by our pipeline
             </figcaption>
           </figure>
@@ -331,7 +331,7 @@
           The module supports vertical stacking to match common retail patterns.
           It can also leave front-edge gaps via a Poisson process to mimic partial depletion over time.
           
-          <figure style="margin:10px" aria-labelledby="set-caption">
+          <figure style="margin:10px" aria-labelledby="shelf-depletion-caption">
             <div style="display:flex;gap:12px;align-items:flex-start">
               <figure style="margin:0;flex:1 1 0">
                 <img src="./static/images/day0_.png" style="width:100%;height:auto;display:block">
@@ -354,12 +354,12 @@
               </figure>
             </div>
 
-            <figcaption id="set-caption" style="text-align:center">
+            <figcaption id="shelf-depletion-caption" style="text-align:center">
               Example of product arrangement and shelf depletion over time produced by our simulator
             </figcaption>
           </figure>
 
-          <figure style="margin:10px" aria-labelledby="set-caption">
+          <figure style="margin:10px" aria-labelledby="product-assets-caption">
             <div style="display:flex;gap:12px;align-items:flex-start">
               <figure style="margin:0;flex:1 1 0">
                 <img src="./static/images/01_canned_quick_cof_.png" style="width:100%;height:auto;display:block">
@@ -378,7 +378,7 @@
               </figure>
             </div>
 
-            <figcaption id="set-caption" style="text-align:center">
+            <figcaption id="product-assets-caption" style="text-align:center">
               Examples of collected product assets
             </figcaption>
           </figure>
@@ -397,7 +397,7 @@
           
           
 
-          <figure style="margin:10px" aria-labelledby="set-caption">
+          <figure style="margin:10px" aria-labelledby="texture-examples-caption">
             <div style="display:flex;gap:12px;align-items:flex-start">
               <figure style="margin:0;flex:1 1 0">
                 <img src="./static/images/textures/g.png" style="width:100%;height:auto;display:block">
@@ -416,13 +416,13 @@
               </figure>
             </div>
 
-            <figcaption id="set-caption" style="text-align:center">
+            <figcaption id="texture-examples-caption" style="text-align:center">
               Examples of ceiling, wall, and floor textures used in our store generation pipeline, illustrating just a subset of possible
 variations
             </figcaption>
           </figure>
           
-          <figure style="margin:10px" aria-labelledby="set-caption">
+          <figure style="margin:10px" aria-labelledby="asset-simplification-caption">
             <div style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
               <figure style="margin:0;flex:1 1 0">
                 <img src="./static/images/03_asset_simplification.png" style="display:block;margin:0 auto;height:80%;width:auto;max-width:100%;object-fit:contain">
@@ -437,7 +437,7 @@ variations
               </figure>
             </div>
 
-            <figcaption id="set-caption" style="text-align:center">
+            <figcaption id="asset-simplification-caption" style="text-align:center">
               Example of different geometry approximations for assets (original
 on the left). Numbers above indicate face count for each mesh
             </figcaption>
@@ -476,7 +476,7 @@ on the left). Numbers above indicate face count for each mesh
         Result: feasible trajectories in ~60% of rollouts across tasks, providing complementary demos to the planner for imitation learning.
         </div>
 
-        <figure style="margin:10px" aria-labelledby="set-caption">
+        <figure style="margin:10px" aria-labelledby="motion-planning-caption">
             <div style="display:flex;gap:12px;align-items:flex-start">
               <figure style="margin:0;flex:1 1 0">
                 <img src="./static/images/mp1.png" style="width:100%;height:auto;display:block">
@@ -499,7 +499,7 @@ on the left). Numbers above indicate face count for each mesh
               </figure>
             </div>
 
-            <figcaption id="set-caption" style="text-align:center">
+            <figcaption id="motion-planning-caption" style="text-align:center">
               Examples of heuristically generated anchor poses used in our motion planner
             </figcaption>
           </figure>
@@ -550,9 +550,9 @@ on the left). Numbers above indicate face count for each mesh
         $\pi_{0.5}$ performs significantly better and is the only model that achieves non-zero success rates in the Unseen Scenes & Items scenario, though it remains far from reliable.
         Composite tasks are effectively zero for all models.
 
-        <figure style="margin:10px;flex:1 1 0">
+        <figure style="margin:10px;flex:1 1 0" aria-labelledby="evaluation-results-caption">
           <img src="./static/images/results.png" style="width:100%;height:auto;display:block">
-          <figcaption id="set-caption" style="text-align:center">
+          <figcaption id="evaluation-results-caption" style="text-align:center">
           Average success rates (%) of generalist VLA models on atomic and composite retail tasks across different testing scenarios. 
           Higher values indicate better performance. n/a indicate that scenario is not applicable for the task
         </figcaption>
@@ -605,7 +605,7 @@ on the left). Numbers above indicate face count for each mesh
           </p>
           <p>
             This means you are free to borrow the <a
-              href="https://github.com/emb-ai/robotbenchmart-project">source code</a> of this website,
+              href="https://github.com/emb-ai/RoboBenchMart/tree/page">source code</a> of this website,
             we just ask that you link back to this page in the footer.
           </p>
         </div>
