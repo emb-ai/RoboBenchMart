@@ -1,11 +1,13 @@
+from ast import Tuple
 import base64
 import inspect
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
 
 from dsynth.envs import DarkstoreContinuousBaseEnv
+
 
 def prepare_observations(env: DarkstoreContinuousBaseEnv) -> Dict[str, Any]:
     obs = env.base_env.get_obs()
@@ -13,7 +15,7 @@ def prepare_observations(env: DarkstoreContinuousBaseEnv) -> Dict[str, Any]:
     result = {}
     raw_images = []
     annotated_images = []
-
+    bboxes = {}
     cameras = ["left_base_camera_link", "fetch_hand", "right_base_camera_link"]
     for camera in cameras:
         camera_data = obs["sensor_data"][camera]
@@ -26,7 +28,8 @@ def prepare_observations(env: DarkstoreContinuousBaseEnv) -> Dict[str, Any]:
         )
         seg = cv2.resize(seg, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
 
-        annotated_image = annotate_image(image, seg, env)
+        annotated_image, camera_bboxes = annotate_image(image, seg, env)
+        bboxes[camera] = camera_bboxes
 
         result[camera] = {
             "image": image,
@@ -40,6 +43,7 @@ def prepare_observations(env: DarkstoreContinuousBaseEnv) -> Dict[str, Any]:
         "annotated_image": np.hstack(annotated_images),
     }
     result["scene_description"] = prepare_scene_description(env)
+    result["bboxes"] = bboxes
 
     return result
 
@@ -98,22 +102,25 @@ def get_products_description(env: DarkstoreContinuousBaseEnv) -> List[Dict[str, 
     return [
         {
             "product_id": product_id,
+            "item_id": item_id,
             "product_name": product_name_by_actor_name.get(actor.name),
         }
-        for product_id in extract_reachable_products(env)
+        for product_id, item_id in zip(*extract_reachable_products(env))
         if (actor := actor_by_product_id.get(product_id)) is not None
     ]
 
 
-def extract_reachable_products(env: DarkstoreContinuousBaseEnv) -> List[int]:
+def extract_reachable_products(env: DarkstoreContinuousBaseEnv) -> Tuple[List[int], List[int]]:
     products: List[int] = []
+    items_ids: List[int] = []
 
-    for product in env.unwrapped.actors["products"].values():
+    for items_id, product in env.unwrapped.actors["products"].items():
         if not product.name.endswith("0"):
             continue
         products.append(product.per_scene_id[0].item())
+        items_ids.append(items_id)
 
-    return products
+    return products, items_ids
 
 
 def build_bbox(segmentation: np.ndarray, product_id: int) -> Optional[List[int]]:
@@ -137,7 +144,7 @@ def build_bbox(segmentation: np.ndarray, product_id: int) -> Optional[List[int]]
 def annotate_image(
     image: np.ndarray, segmentation: np.ndarray, env: DarkstoreContinuousBaseEnv
 ) -> np.ndarray:
-    products = extract_reachable_products(env)
+    products, items_ids = extract_reachable_products(env)
     palette = build_palette(products)
     output = image.copy()
 
@@ -146,7 +153,9 @@ def annotate_image(
     font_thickness = 1
     bg_color = (255, 255, 255)
 
-    for product_id in products:
+    bboxes = dict()
+    
+    for item_id, product_id in zip(items_ids, products):
         bbox = build_bbox(segmentation, product_id)
         if bbox is None:
             continue
@@ -169,6 +178,9 @@ def annotate_image(
             bg_color,
             -1,
         )
+
+        bboxes[item_id] = bbox
+
         cv2.putText(
             output,
             label,
@@ -180,7 +192,7 @@ def annotate_image(
             lineType=cv2.LINE_AA,
         )
 
-    return output
+    return output, bboxes
 
 
 def build_palette(product_ids: List[int], seed: int = 42) -> np.ndarray:
