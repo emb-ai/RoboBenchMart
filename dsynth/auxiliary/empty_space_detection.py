@@ -45,6 +45,8 @@ def annotate_image_with_free_spaces(
     font_thickness = 1
     bg_color = (255, 255, 255)
 
+    bboxes = dict()
+
     for free_space_id in free_spaces:
         bbox = build_bbox(segmentation, free_space_id - 1000)
         if bbox is None:
@@ -68,6 +70,9 @@ def annotate_image_with_free_spaces(
             bg_color,
             -1,
         )
+
+        bboxes[free_space_id] = bbox
+
         cv2.putText(
             output,
             label,
@@ -79,7 +84,7 @@ def annotate_image_with_free_spaces(
             lineType=cv2.LINE_AA,
         )
 
-    return output
+    return output, bboxes
 
 def detect_free_spaces(env: DarkstoreContinuousBaseEnv) -> Dict[str, Any]:
     obs_wo_free = env.base_env.get_obs()
@@ -91,7 +96,7 @@ def detect_free_spaces(env: DarkstoreContinuousBaseEnv) -> Dict[str, Any]:
     result = {}
     raw_images = []
     annotated_images = []
-
+    bboxes = {}
     cameras = ["left_base_camera_link", "fetch_hand", "right_base_camera_link"]
     for camera in cameras:
         # camera_data = obs_wo_free["sensor_data"][camera]
@@ -104,8 +109,8 @@ def detect_free_spaces(env: DarkstoreContinuousBaseEnv) -> Dict[str, Any]:
         )
         seg = cv2.resize(seg, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
 
-        annotated_image = annotate_image_with_free_spaces(image, seg, env)
-
+        annotated_image, camera_bboxes = annotate_image_with_free_spaces(image, seg, env)
+        bboxes[camera] = camera_bboxes
         result[camera] = {
             "image": image,
             "annotated_image": annotated_image,
@@ -118,7 +123,7 @@ def detect_free_spaces(env: DarkstoreContinuousBaseEnv) -> Dict[str, Any]:
         "annotated_image": np.hstack(annotated_images),
     }
     result["spaces_description"] = get_free_spaces_description(env)
-
+    result["bboxes"] = bboxes
     destroy_free_spaces(env.base_env)
 
     return result
