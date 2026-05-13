@@ -11,3 +11,5 @@ from dsynth.envs.open_fridge import *
 from dsynth.envs.composite_tasks import *
 
 from dsynth.envs.pickcube_mptest import *
+
+from dsynth.envs.random_item_deletion import *
