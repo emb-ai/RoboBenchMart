@@ -224,10 +224,9 @@
             RoboBenchMart addresses limitations of prior works by providing code to <b>generate diverse store layouts and robotic trajectories</b>, <b>enabling the training and benchmarking of robotic policies in retail environments</b>.
           </p>
 
-          <figure class="benchmark-table-figure">
+          <figure class="benchmark-table-figure" aria-labelledby="benchmark-table-caption">
             <div class="benchmark-table-wrap">
               <table class="benchmark-table">
-                <caption>Comparing proposed robotics retail benchmark with other benchmarks and datasets</caption>
                 <thead>
                   <tr>
                     <th scope="col">Benchmark/<br>Dataset</th>
@@ -414,6 +413,9 @@
                 </tbody>
               </table>
             </div>
+            <figcaption id="benchmark-table-caption">
+              Comparing proposed robotics retail benchmark with other benchmarks and datasets
+            </figcaption>
           </figure>
         </div>
       </div>
@@ -874,6 +876,91 @@ on the left). Numbers above indicate face count for each mesh
           <figcaption id="evaluation-results-caption">
             Average success rates (%) of generalist VLA models on atomic and composite retail tasks across different testing scenarios.
             Higher values indicate better performance. n/a indicates that scenario is not applicable for the task.
+          </figcaption>
+        </figure>
+
+        <figure class="failure-table-figure" aria-labelledby="failure-rates-caption">
+          <div class="failure-table-wrap">
+            <table class="failure-table">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">task</th>
+                  <th scope="col">target</th>
+                  <th scope="col">move</th>
+                  <th scope="col">pregrasp</th>
+                  <th scope="col">grasp</th>
+                  <th scope="col">drop</th>
+                  <th scope="col">displace</th>
+                  <th scope="col">preplace</th>
+                  <th scope="col">place-coord</th>
+                  <th scope="col">place</th>
+                  <th scope="col">partial</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Octo</th>
+                  <td>7</td>
+                  <td class="failure-second">22</td>
+                  <td>8</td>
+                  <td>9</td>
+                  <td class="failure-highest">39</td>
+                  <td>2</td>
+                  <td>2</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>6</td>
+                  <td>3</td>
+                </tr>
+                <tr>
+                  <th scope="row">SmolVLA</th>
+                  <td>4</td>
+                  <td class="failure-second">29</td>
+                  <td class="failure-third">16</td>
+                  <td class="failure-highest">32</td>
+                  <td>17</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <th scope="row">&pi;<sub>0</sub></th>
+                  <td>0</td>
+                  <td class="failure-second">23</td>
+                  <td>1</td>
+                  <td>9</td>
+                  <td class="failure-highest">43</td>
+                  <td>5</td>
+                  <td>1</td>
+                  <td>2</td>
+                  <td>4</td>
+                  <td>5</td>
+                  <td>7</td>
+                </tr>
+                <tr>
+                  <th scope="row">&pi;<sub>0.5</sub></th>
+                  <td>0</td>
+                  <td class="failure-second">20</td>
+                  <td>1</td>
+                  <td>2</td>
+                  <td class="failure-highest">50</td>
+                  <td>4</td>
+                  <td>7</td>
+                  <td>0</td>
+                  <td>2</td>
+                  <td>9</td>
+                  <td>5</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption id="failure-rates-caption">
+            Rates of failures (%) for each VLA model. For each model, the highest failure rate is shown in <b>bold</b>,
+            the second highest is <u>underlined</u>, and the third highest is shown in <i>italic</i>.
           </figcaption>
         </figure>
           

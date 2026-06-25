@@ -321,7 +321,7 @@ body {
 .benchmark-table .benchmark-highlight th,
 .benchmark-table .benchmark-highlight td {
   background: rgba(11, 116, 107, 0.1);
-  border-bottom: 2px solid #1f2f32;
+  border-bottom: 0;
   font-weight: 700;
 }
 
@@ -463,14 +463,170 @@ body {
   text-align: center;
 }
 
-.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure),
-.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) {
+.failure-table-figure {
+  margin: 1.35rem auto 0;
+  width: 100%;
+}
+
+.failure-table-wrap {
+  overflow-x: auto;
+  border-top: 2px solid #1f2f32;
+  border-bottom: 2px solid #1f2f32;
+}
+
+.failure-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.2;
+  color: #18282a;
+  text-align: center;
+}
+
+.failure-table th,
+.failure-table td {
+  border: 0;
+  padding: 0.34rem 0.42rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.failure-table thead th {
+  border-bottom: 1px solid #1f2f32;
+  font-family: 'Castoro', serif;
+  font-size: 0.96rem;
+  font-weight: 400;
+}
+
+.failure-table tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fbfaf7;
+  font-family: 'Castoro', serif;
+  font-size: 0.96rem;
+  font-weight: 400;
+  text-align: left;
+}
+
+.failure-table tbody tr:hover th,
+.failure-table tbody tr:hover td {
+  background: rgba(11, 116, 107, 0.07);
+}
+
+.failure-table .failure-highest {
+  font-weight: 800;
+}
+
+.failure-table .failure-second {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 1px;
+}
+
+.failure-table .failure-third {
+  font-style: italic;
+}
+
+.failure-table-figure figcaption {
+  padding-top: 0.6rem;
+  color: #4d5c60;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.benchmark-table-figure,
+.success-table-figure,
+.failure-table-figure {
+  margin: 1.5rem auto 0;
+  width: 100%;
+}
+
+.benchmark-table-wrap,
+.success-table-wrap,
+.failure-table-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-top: 2px solid #1f2f32;
+  border-bottom: 2px solid #1f2f32;
+}
+
+.benchmark-table,
+.success-table,
+.failure-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Noto Sans', sans-serif;
+  line-height: 1.2;
+  color: #18282a;
+  text-align: center;
+}
+
+.benchmark-table th,
+.benchmark-table td,
+.success-table th,
+.success-table td,
+.failure-table th,
+.failure-table td {
+  border: 0;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.benchmark-table thead th,
+.success-table thead th,
+.failure-table thead th {
+  font-family: 'Castoro', serif;
+  font-weight: 400;
+}
+
+.benchmark-table tbody th,
+.success-table tbody th,
+.failure-table tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fbfaf7;
+  font-family: 'Castoro', serif;
+  font-weight: 400;
+}
+
+.benchmark-table tbody tr:hover th,
+.benchmark-table tbody tr:hover td,
+.success-table tbody tr:hover th,
+.success-table tbody tr:hover td,
+.failure-table tbody tr:hover th,
+.failure-table tbody tr:hover td {
+  background: rgba(11, 116, 107, 0.07);
+}
+
+.benchmark-table-figure figcaption,
+.success-table-figure figcaption,
+.failure-table-figure figcaption {
+  padding-top: 0.6rem;
+  color: #4d5c60;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.benchmark-table .mark-na,
+.success-table .mark-na {
+  color: #727272;
+  font-style: italic;
+}
+
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure),
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) {
   margin: 1.8rem auto !important;
   padding: 0;
 }
 
-.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div,
-.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div {
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) > div,
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) > div {
   padding: 0.7rem;
   border: 1px solid rgba(31, 48, 52, 0.1);
   border-radius: 12px;
@@ -478,20 +634,20 @@ body {
   box-shadow: 0 14px 34px rgba(31, 48, 52, 0.08);
 }
 
-.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) img,
-.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) img {
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) img,
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) img {
   border-radius: 8px;
 }
 
-.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) figcaption,
-.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) figcaption {
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) figcaption,
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) figcaption {
   color: #4d5c60;
   font-size: 0.88rem;
   line-height: 1.35;
 }
 
-.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > figcaption,
-.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > figcaption {
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) > figcaption,
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) > figcaption {
   max-width: 820px;
   margin: 0.7rem auto 0;
 }
@@ -635,8 +791,8 @@ body {
     max-width: none;
   }
 
-  .content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div,
-  .column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div {
+  .content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) > div,
+  .column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure):not(.failure-table-figure) > div {
     flex-direction: column;
     gap: 0.85rem !important;
   }
