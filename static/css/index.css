@@ -561,6 +561,8 @@ body {
 .asset-carousel-figure {
   margin-top: 1.25rem !important;
   margin-bottom: 1.25rem !important;
+  width: 70%;
+  max-width: 70%;
 }
 
 .asset-carousel-figure > div {
