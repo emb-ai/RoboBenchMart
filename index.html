@@ -592,19 +592,23 @@ variations
             </figcaption>
           </figure>
           
-          <figure style="margin:10px" aria-labelledby="asset-simplification-caption">
-            <div style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
-              <figure style="margin:0;flex:1 1 0">
-                <img src="./static/images/03_asset_simplification.png" style="display:block;margin:0 auto;height:80%;width:auto;max-width:100%;object-fit:contain">
-              </figure>
+          <figure class="asset-carousel-figure" aria-labelledby="asset-simplification-caption">
+            <div class="motion-carousel asset-carousel" data-current-slide="0" data-autoplay-delay="3000">
+              <button class="motion-carousel-button motion-carousel-prev" type="button" aria-label="Previous asset simplification example">
+                <i class="fas fa-chevron-left"></i>
+              </button>
 
-              <figure style="margin:0;flex:1 1 0">
-                <img src="./static/images/03_asset_simplification_2.png" style="display:block;margin:0 auto;height:80%;width:auto;max-width:100%;object-fit:contain">
-              </figure>
+              <div class="motion-carousel-slides">
+                <img class="motion-carousel-slide is-active" src="./static/images/03_asset_simplification.png" alt="Asset simplification example 1">
+                <img class="motion-carousel-slide" src="./static/images/03_asset_simplification_2.png" alt="Asset simplification example 2">
+                <img class="motion-carousel-slide" src="./static/images/03_asset_simplification_3.png" alt="Asset simplification example 3">
+              </div>
 
-              <figure style="margin:0;flex:1 1 0">
-                <img src="./static/images/03_asset_simplification_3.png" style="display:block;margin:0 auto;height:80%;width:auto;max-width:100%;object-fit:contain">
-              </figure>
+              <button class="motion-carousel-button motion-carousel-next" type="button" aria-label="Next asset simplification example">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+
+              <div class="motion-carousel-counter" aria-live="polite">1 / 3</div>
             </div>
 
             <figcaption id="asset-simplification-caption" style="text-align:center">

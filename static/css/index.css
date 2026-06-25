@@ -552,6 +552,28 @@ body {
   display: block !important;
 }
 
+.asset-carousel .motion-carousel-slides {
+  aspect-ratio: 2.6 / 1;
+  background: #fff;
+}
+
+.asset-carousel-figure {
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.asset-carousel-figure > div {
+  padding: 0.45rem !important;
+}
+
+.asset-carousel-figure > figcaption {
+  margin-top: 0.45rem !important;
+}
+
+.asset-carousel .motion-carousel-slide {
+  object-fit: contain;
+}
+
 .motion-carousel-button {
   position: absolute;
   top: 50%;

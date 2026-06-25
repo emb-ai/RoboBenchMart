@@ -78,7 +78,7 @@ $(document).ready(function() {
       var slides = carousel.find('.motion-carousel-slide');
       var counter = carousel.find('.motion-carousel-counter');
       var currentSlide = 0;
-      var autoplayDelay = 1000;
+      var autoplayDelay = Number(carousel.data('autoplay-delay')) || 1000;
       var autoplayTimer = null;
 
       function showMotionSlide(index) {
