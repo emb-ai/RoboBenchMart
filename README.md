@@ -6,7 +6,7 @@ If you find RoboBenchMart useful for your work please cite:
 ```
 @article{soshin2025robobenchmart,
   title={RoboBenchMart: Benchmarking Robots in Retail Environment},
-  author={Soshin, Konstantin and Krapukhin, Alexander and Spiridonov, Andrei and Shepelev, Denis and Bukhtuev, Gregorii and Kuznetsov, Andrey and Shakhuro, Vlad},
+  author={Soshin, Konstantin and Krapukhin, Alexander and Spiridonov, Andrei and Bukhtuev, Gregorii and Kuznetsov, Andrey and Shakhuro, Vlad and Shepelev, Denis},
   journal={arXiv preprint arXiv:2511.10276},
   year={2025}
 }
