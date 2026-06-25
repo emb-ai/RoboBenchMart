@@ -714,13 +714,11 @@ on the left). Numbers above indicate face count for each mesh
 
         <div class="content has-text-justified">
         <b>Evaluation results.</b>
-        We report mean success rate per task with 50 trials per (task, item, fixture) triplet.
-        Octo fails across scenarios. 
-        $\pi_{0}$ is modestly successful in-domain but degrades on Unseen Scenes and drops to near-zero in Unseen Scenes & Items.
-        $\pi_{0.5}$ performs significantly better and is the only model that achieves non-zero success rates in the Unseen Scenes & Items scenario, though it remains far from reliable.
-        Composite tasks are effectively zero for all models.
+        We evaluate atomic and composite tasks using mean success rate per task, estimated from 100 trials per (task, item, fixture) triplet.
+        The evaluation covers progressively harder settings: In-Domain trials, Unseen Scenes with new layouts and visual variation, and Unseen Scenes & Items with out-of-distribution objects.
+        To explain low success rates, we also annotate failed episodes by the earliest primary failure in the manipulation pipeline, covering grounding, navigation, grasping, placement, and partial fridge-door articulation errors.
 
-        <figure class="success-table-figure" aria-labelledby="evaluation-results-caption">
+        <figure class="success-table-figure" id="success-rates" aria-labelledby="evaluation-results-caption">
           <div class="success-table-wrap">
             <table class="success-table">
               <thead>
@@ -879,7 +877,15 @@ on the left). Numbers above indicate face count for each mesh
           </figcaption>
         </figure>
 
-        <figure class="failure-table-figure" aria-labelledby="failure-rates-caption">
+        <p>
+          The <a href="#success-rates">success-rate table</a> shows that current generalist VLA models struggle even with basic retail tasks.
+          SmolVLA performs poorly across all scenarios and succeeds only on the simplest fridge-opening and fridge-closing tasks, which may reflect its more limited pretraining data.
+          Octo and $\pi_{0}$ reach moderate performance in the In-Domain setting, but their success rates degrade sharply on Unseen Scenes and collapse in Unseen Scenes & Items.
+          $\pi_{0.5}$ performs best and is the only model with non-zero success in Unseen Scenes & Items, although its performance is still far from reliable.
+          All models achieve zero success on composite tasks, suggesting limited ability to execute multi-step instructions and generalize across task stages.
+        </p>
+
+        <figure class="failure-table-figure" id="failure-rates" aria-labelledby="failure-rates-caption">
           <div class="failure-table-wrap">
             <table class="failure-table">
               <thead>
@@ -963,12 +969,20 @@ on the left). Numbers above indicate face count for each mesh
             the second highest is <u>underlined</u>, and the third highest is shown in <i>italic</i>.
           </figcaption>
         </figure>
+
+        <p>
+          The <a href="#failure-rates">failure-rate table</a> highlights two main bottlenecks.
+          Octo, $\pi_{0}$, and $\pi_{0.5}$ fail predominantly at the grasp stage, indicating that precise shelf-level interaction remains difficult even when the correct region is reached.
+          SmolVLA most often fails earlier, during pregrasp positioning.
+          Also SmolVLA and Octo shows movement-related failures when approaching target fixtures.
+          Target grounding is another common issue across models, showing that selecting the instructed product in cluttered shelves is still unreliable.
+        </p>
           
-        <br>
-        Results highlight <b>key limitations of existing generalist models</b>:
-        <b>fragility to minor scene changes</b> (e.g., layouts, textures, object placements), <b>poor generalization from limited demonstrations</b> to novel object-task combinations, and
-        <b>inadequate support for long-horizon, compositional execution</b>.
-        Our findings suggest that existing <b>pretrained models may be insufficient</b> for effective application in the retail domain, and that <b>targeted pretraining on retail-specific data may be necessary</b>.
+        <p>
+          Overall, these results highlight three limitations of current generalist models:
+          fragility to minor scene changes such as layouts, textures, and object placements; poor generalization from limited demonstrations to novel object-task combinations; and insufficient reliability for shelf-level grasping and compositional execution.
+          This suggests that existing pretrained models may be insufficient for effective adaptation in retail environments without more targeted retail-specific pretraining.
+        </p>
 
         </div>
 
