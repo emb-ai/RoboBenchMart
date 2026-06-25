@@ -626,12 +626,9 @@ on the left). Numbers above indicate face count for each mesh
         <h3 class="title is-3">Store Trajectories Sampler</h3>
 
         <div class="content has-text-justified">
-        We generate training trajectories for dark-store tasks using two sources: motion planning and reinforcement learning (RL). 
+        We generate training trajectories for dark-store tasks using motion planning. 
         The resulting demos are suitable for imitation learning pre-training or fine-tuning.
-        </div>
-        
-        <div class="content has-text-justified">
-        <b>Motion Planning.</b>
+
         For each task, we define randomized anchor poses (start, intermediates, goal) to diversify demonstrations. 
         The planner solves each segment between anchors in sequence.
         When the arm only moves, we attempt a fast screw motion (no obstacle awareness) and validate for collisions. 
@@ -639,11 +636,6 @@ on the left). Numbers above indicate face count for each mesh
         If both fail, we reset the scene and resample.
         When mobile base motion is needed, we use task-specific safety-aware heuristics to route the base and execute the arm locally.
         Result: feasible trajectories in ~60% of attempts across tasks.
-        </div>
-        <div class="content has-text-justified">
-        <b>Reinforcement Learning.</b>
-        We train per-task policies with privileged state and PPO, using hand-crafted rewards that balance target proximity, correct placement, and collision avoidance with shelf items.
-        Result: feasible trajectories in ~60% of rollouts across tasks, providing complementary demos to the planner for imitation learning.
         </div>
 
         <figure style="margin:10px" aria-labelledby="motion-planning-caption">

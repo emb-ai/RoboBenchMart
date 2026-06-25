@@ -462,6 +462,47 @@ body {
   text-align: center;
 }
 
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure),
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) {
+  margin: 1.8rem auto !important;
+  padding: 0;
+}
+
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div,
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div {
+  padding: 0.7rem;
+  border: 1px solid rgba(31, 48, 52, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 14px 34px rgba(31, 48, 52, 0.08);
+}
+
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) img,
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) img {
+  border-radius: 8px;
+}
+
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) figcaption,
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) figcaption {
+  color: #4d5c60;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > figcaption,
+.column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > figcaption {
+  max-width: 820px;
+  margin: 0.7rem auto 0;
+}
+
+@media screen and (max-width: 768px) {
+  .content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div,
+  .column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div {
+    flex-direction: column;
+    gap: 0.85rem !important;
+  }
+}
+
 .publication-body img {
 }
 
