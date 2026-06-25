@@ -73,45 +73,43 @@
 </nav>
 
 
-<section class="hero">
+<section class="hero publication-hero">
   <div class="hero-body">
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column has-text-centered">
           <h1 class="title is-1 publication-title">RoboBenchMart: Benchmarking Robots in Retail Environment</h1>
-          <div class="is-size-5 publication-authors">
+          <div class="is-size-5 publication-authors publication-author-list">
             <span class="author-block">
               <a href="https://scholar.google.com/citations?hl=en&user=XWKhjF4AAAAJ">
-                Konstantin Soshin</a><sup>*</sup>,
+                Konstantin Soshin</a><sup>*</sup>
             </span>
             <span class="author-block">
-              <a href="https://scholar.google.com/citations?hl=en&user=GAS_EXwAAAAJ">Alexander Krapukhin</a><sup>*</sup>,
+              <a href="https://scholar.google.com/citations?hl=en&user=GAS_EXwAAAAJ">Alexander Krapukhin</a><sup>*</sup>
             </span>
             <span class="author-block">
-              <a href="https://scholar.google.com/citations?user=HdGySuoAAAAJ&hl=en">Andrei Spiridonov</a><sup>*</sup>,</span>
-            <span class="author-block">
-              Gregorii Bukhtuev,
-            </span>
-          </div>
-          <div class="is-size-5 publication-authors">
-            
-            <span class="author-block">
-              <a href="https://scholar.google.com/citations?user=q0lIfCEAAAAJ&hl=en">Andrey Kuznetsov</a><sup>&Dagger;</sup>,
+              <a href="https://scholar.google.com/citations?user=HdGySuoAAAAJ&hl=en">Andrei Spiridonov</a><sup>*</sup>
             </span>
             <span class="author-block">
-              <a href="https://scholar.google.com/citations?hl=en&user=MuPLmJsAAAAJ">Vlad Shakhuro</a><sup>&dagger;</sup>,
+              <a href="https://github.com/NThunder">Gregorii Bukhtuev</a><sup></sup>
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=q0lIfCEAAAAJ&hl=en">Andrey Kuznetsov</a><sup>&Dagger;</sup>
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?hl=en&user=MuPLmJsAAAAJ">Vlad Shakhuro</a><sup>&dagger;</sup>
             </span>
             <span class="author-block">
               <a href="https://scholar.google.com/citations?hl=en&user=IUkFdpUAAAAJ">Denis Shepelev</a><sup>+</sup>
             </span>
           </div>
 
-          <div class="is-size-5 publication-authors">
+          <div class="is-size-5 publication-authors publication-affiliation">
             <!-- <span class="author-block"><sup>1</sup>FusionBrain Lab, Robotics Group</span> -->
             <span class="author-block">FusionBrain Lab, Robotics Group</span>
             <!-- <span class="author-block"><sup>2</sup>Lomonosov Moscow State University,</span> -->
           </div>
-          <div class="is-size-5 publication-authors">
+          <div class="is-size-5 publication-authors publication-notes">
             <span class="author-block"><sup>*</sup>Equal contribution,</span>
             <span class="author-block"><sup>+</sup>Scientific and technical leader,</span>
             <span class="author-block"><sup>&dagger;</sup>Team leader,</span>
@@ -224,13 +222,197 @@
             RoboBenchMart addresses limitations of prior works by providing code to <b>generate diverse store layouts and robotic trajectories</b>, <b>enabling the training and benchmarking of robotic policies in retail environments</b>.
           </p>
 
-          <div style="width: 90%; margin: 0 auto; text-align: center;">
-            <img src="./static/images/compare_benches.png"
-                     width="100%"/>
-            <div class="content has-text-centered">
-              Comparing proposed robotics retail benchmark with other benchmarks and datasets
+          <figure class="benchmark-table-figure">
+            <div class="benchmark-table-wrap">
+              <table class="benchmark-table">
+                <caption>Comparing proposed robotics retail benchmark with other benchmarks and datasets</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Benchmark/<br>Dataset</th>
+                    <th scope="col">Published<br>in</th>
+                    <th scope="col">Retail<br>Domain</th>
+                    <th scope="col">Scene<br>Generation</th>
+                    <th scope="col">Arrangement<br>Generation</th>
+                    <th scope="col">Release<br>3D Assets</th>
+                    <th scope="col">Trajectories<br>Generation</th>
+                    <th scope="col">Tasks<br>Diversity</th>
+                    <th scope="col">Atomic<br>Tasks</th>
+                    <th scope="col">Composite<br>Tasks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">ALFRED</th>
+                    <td>CVPR'20</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">RLBench</th>
+                    <td>RA-L'19</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">RoboCasa</th>
+                    <td>RSS'24</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">CALVIN</th>
+                    <td>RA-L'22</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-na">n/a</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">LIBERO</th>
+                    <td>NeurIPS'23</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">VLABench</th>
+                    <td>arXiv'24</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">BEHAVIOR-1K</th>
+                    <td>CoRL'22</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">ManiSkill-HUB</th>
+                    <td>ICLR'25</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                  <tr class="benchmark-group-start">
+                    <th scope="row">RP2K</th>
+                    <td>arXiv'20</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">SKU110K</th>
+                    <td>CVPR'19</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">StandardSim</th>
+                    <td>ICIAP'22</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">IPA-3D1K</th>
+                    <td>IROS'23</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-no">&#10007;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">FetchBot</th>
+                    <td>arXiv'25</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-no">&#10007;</td>
+                  </tr>
+                  <tr class="benchmark-highlight benchmark-group-start">
+                    <th scope="row">RoboBenchMart</th>
+                    <td></td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                    <td class="mark-yes">&#10003;</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
+          </figure>
         </div>
       </div>
     </div>
