@@ -187,12 +187,14 @@
       <div class="column is-four-fifths">
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
-          Most existing robotic manipulation benchmarks focus on simplified tabletop scenarios, typically involving a stationary robotic arm interacting with various objects on a flat surface.
-          To address this limitation, we introduce RoboBenchMart, a more challenging and realistic benchmark designed for dark store environments, where robots must perform complex manipulation tasks with diverse grocery items. 
-          This setting presents significant challenges, including dense object clutter and varied spatial configurations — with items positioned at different heights, depths, and in close proximity. 
-          By targeting the retail domain, our benchmark addresses a setting with strong potential for near-term automation impact.
-          We demonstrate that current state-of-the-art generalist models struggle to solve even common retail tasks.
-          To support further research, we release the RoboBenchMart suite, which includes a procedural store layout generator, a trajectory generation pipeline, evaluation tools and fine-tuned baseline models.
+          Most existing robotic manipulation benchmarks focus on tabletop or household scenarios. 
+          While these setups have driven impressive progress, it remains unclear whether generalist VLAs that excel there can truly generalize to domains with different geometry, semantics, and workflows. 
+          We introduce RoboBenchMart, an open-source simulated benchmark targeting retail dark-store environments, where a mobile manipulator must perform complex manipulation tasks with diverse grocery items. 
+          This setting presents significant challenges, including dense object clutter and varied spatial configurations, with items positioned at different heights, depths, and in close proximity.
+          By targeting on the retail domain, our benchmark addresses a setting with strong potential for near-term automation impact.
+          Using generated trajectories, we model a standard, realistic fine-tuning setup for current generalist VLAs and evaluate several state-of-the-art models.
+          We find that they still struggle even on common retail tasks, indicating that these models are not yet truly general across domains.
+          To support further research, we release the RoboBenchMart suite, which includes a procedural store layout generator, a trajectory generation pipeline, evaluation tools, and fine-tuned baseline models.
         </div>
       </div>
     </div>
