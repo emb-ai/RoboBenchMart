@@ -720,12 +720,163 @@ on the left). Numbers above indicate face count for each mesh
         $\pi_{0.5}$ performs significantly better and is the only model that achieves non-zero success rates in the Unseen Scenes & Items scenario, though it remains far from reliable.
         Composite tasks are effectively zero for all models.
 
-        <figure style="margin:10px;flex:1 1 0" aria-labelledby="evaluation-results-caption">
-          <img src="./static/images/results.png" style="width:100%;height:auto;display:block">
-          <figcaption id="evaluation-results-caption" style="text-align:center">
-          Average success rates (%) of generalist VLA models on atomic and composite retail tasks across different testing scenarios. 
-          Higher values indicate better performance. n/a indicate that scenario is not applicable for the task
-        </figcaption>
+        <figure class="success-table-figure" aria-labelledby="evaluation-results-caption">
+          <div class="success-table-wrap">
+            <table class="success-table">
+              <thead>
+                <tr>
+                  <th scope="col" rowspan="2">Model</th>
+                  <th scope="col" rowspan="2">Param. (#)</th>
+                  <th scope="col" rowspan="2">Testing<br>scenario</th>
+                  <th scope="colgroup" colspan="5">Atomic Tasks</th>
+                  <th scope="colgroup" colspan="2">Composite Tasks</th>
+                </tr>
+                <tr>
+                  <th scope="col">Pick to<br>basket</th>
+                  <th scope="col">Pick from<br>floor</th>
+                  <th scope="col">From board<br>to board</th>
+                  <th scope="col">Open<br>fridge</th>
+                  <th scope="col">Close<br>fridge</th>
+                  <th scope="col">Pick 3<br>items</th>
+                  <th scope="col">Pick from<br>fridge</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="rowgroup" rowspan="3">Octo</th>
+                  <td rowspan="3">93M</td>
+                  <td class="scenario-cell">In-Domain</td>
+                  <td>21</td>
+                  <td>1</td>
+                  <td>21</td>
+                  <td>27</td>
+                  <td>45</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td class="scenario-cell">Unseen Scenes</td>
+                  <td>2</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>23</td>
+                  <td>26</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td class="scenario-cell">Unseen Scenes &amp; Items</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td class="mark-na">n/a</td>
+                  <td class="mark-na">n/a</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr class="success-group-start">
+                  <th scope="rowgroup" rowspan="3">SmolVLA</th>
+                  <td rowspan="3">450M</td>
+                  <td class="scenario-cell">In-Domain</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>10</td>
+                  <td>13</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td class="scenario-cell">Unseen Scenes</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>13</td>
+                  <td>13</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td class="scenario-cell">Unseen Scenes &amp; Items</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td class="mark-na">n/a</td>
+                  <td class="mark-na">n/a</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr class="success-group-start">
+                  <th scope="rowgroup" rowspan="3">&pi;<sub>0</sub></th>
+                  <td rowspan="3">3.3B</td>
+                  <td class="scenario-cell">In-Domain</td>
+                  <td>14</td>
+                  <td>21</td>
+                  <td>19</td>
+                  <td>61</td>
+                  <td>95</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td class="scenario-cell">Unseen Scenes</td>
+                  <td>1</td>
+                  <td>6</td>
+                  <td>3</td>
+                  <td>44</td>
+                  <td>85</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td class="scenario-cell">Unseen Scenes &amp; Items</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>0</td>
+                  <td class="mark-na">n/a</td>
+                  <td class="mark-na">n/a</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr class="success-group-start">
+                  <th scope="rowgroup" rowspan="3">&pi;<sub>0.5</sub></th>
+                  <td rowspan="3">3.3B</td>
+                  <td class="scenario-cell">In-Domain</td>
+                  <td>55</td>
+                  <td>21</td>
+                  <td>56</td>
+                  <td>56</td>
+                  <td>91</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td class="scenario-cell">Unseen Scenes</td>
+                  <td>31</td>
+                  <td>4</td>
+                  <td>27</td>
+                  <td>49</td>
+                  <td>78</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td class="scenario-cell">Unseen Scenes &amp; Items</td>
+                  <td>5</td>
+                  <td>3</td>
+                  <td>21</td>
+                  <td class="mark-na">n/a</td>
+                  <td class="mark-na">n/a</td>
+                  <td>0</td>
+                  <td>0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption id="evaluation-results-caption">
+            Average success rates (%) of generalist VLA models on atomic and composite retail tasks across different testing scenarios.
+            Higher values indicate better performance. n/a indicates that scenario is not applicable for the task.
+          </figcaption>
         </figure>
           
         <br>
