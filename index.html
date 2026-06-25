@@ -625,46 +625,46 @@ on the left). Numbers above indicate face count for each mesh
       <div class="column is-full-width">
         <h3 class="title is-3">Store Trajectories Sampler</h3>
 
-        <div class="content has-text-justified">
-        We generate training trajectories for dark-store tasks using motion planning. 
-        The resulting demos are suitable for imitation learning pre-training or fine-tuning.
+        <div class="trajectory-sampler-layout">
+          <div class="content has-text-justified">
+          We generate training trajectories for dark-store tasks using motion planning. 
+          The resulting demos are suitable for imitation learning pre-training or fine-tuning.
 
-        For each task, we define randomized anchor poses (start, intermediates, goal) to diversify demonstrations. 
-        The planner solves each segment between anchors in sequence.
-        When the arm only moves, we attempt a fast screw motion (no obstacle awareness) and validate for collisions. 
-        If invalid, we fall back to RRT-Connect with obstacle checks.
-        If both fail, we reset the scene and resample.
-        When mobile base motion is needed, we use task-specific safety-aware heuristics to route the base and execute the arm locally.
-        Result: feasible trajectories in ~60% of attempts across tasks.
-        </div>
+          For each task, we define randomized anchor poses (start, intermediates, goal) to diversify demonstrations. 
+          The planner solves each segment between anchors in sequence.
+          When the arm only moves, we attempt a fast screw motion (no obstacle awareness) and validate for collisions. 
+          If invalid, we fall back to RRT-Connect with obstacle checks.
+          If both fail, we reset the scene and resample.
+          When mobile base motion is needed, we use task-specific safety-aware heuristics to route the base and execute the arm locally.
+          Result: feasible trajectories in ~60% of attempts across tasks.
+          </div>
 
-        <figure style="margin:10px" aria-labelledby="motion-planning-caption">
-            <div style="display:flex;gap:12px;align-items:flex-start">
-              <figure style="margin:0;flex:1 1 0">
-                <img src="./static/images/mp1.png" style="width:100%;height:auto;display:block">
-              </figure>
+          <figure class="motion-carousel-figure" aria-labelledby="motion-planning-caption">
+            <div class="motion-carousel" data-current-slide="0">
+              <button class="motion-carousel-button motion-carousel-prev" type="button" aria-label="Previous anchor pose">
+                <i class="fas fa-chevron-left"></i>
+              </button>
 
-              <figure style="margin:0;flex:1 1 0">
-                <img src="./static/images/mp2.png" style="width:100%;height:auto;display:block">
-              </figure>
+              <div class="motion-carousel-slides">
+                <img class="motion-carousel-slide is-active" src="./static/images/mp1.png" alt="Anchor pose example 1">
+                <img class="motion-carousel-slide" src="./static/images/mp2.png" alt="Anchor pose example 2">
+                <img class="motion-carousel-slide" src="./static/images/mp3.png" alt="Anchor pose example 3">
+                <img class="motion-carousel-slide" src="./static/images/mp4.png" alt="Anchor pose example 4">
+                <img class="motion-carousel-slide" src="./static/images/mp5.png" alt="Anchor pose example 5">
+              </div>
 
-              <figure style="margin:0;flex:1 1 0">
-                <img src="./static/images/mp3.png" style="width:100%;height:auto;display:block">
-              </figure>
+              <button class="motion-carousel-button motion-carousel-next" type="button" aria-label="Next anchor pose">
+                <i class="fas fa-chevron-right"></i>
+              </button>
 
-              <figure style="margin:0;flex:1 1 0">
-                <img src="./static/images/mp4.png" style="width:100%;height:auto;display:block">
-              </figure>
-
-              <figure style="margin:0;flex:1 1 0">
-                <img src="./static/images/mp5.png" style="width:100%;height:auto;display:block">
-              </figure>
+              <div class="motion-carousel-counter" aria-live="polite">1 / 5</div>
             </div>
 
             <figcaption id="motion-planning-caption" style="text-align:center">
               Examples of heuristically generated anchor poses used in our motion planner
             </figcaption>
           </figure>
+        </div>
 
         </div>
     </div>

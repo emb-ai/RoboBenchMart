@@ -73,6 +73,41 @@ $(document).ready(function() {
     setInterpolationImage(0);
     $('#interpolation-slider').prop('max', NUM_INTERP_FRAMES - 1);
 
+    $('.motion-carousel').each(function() {
+      var carousel = $(this);
+      var slides = carousel.find('.motion-carousel-slide');
+      var counter = carousel.find('.motion-carousel-counter');
+      var currentSlide = 0;
+      var autoplayDelay = 1000;
+      var autoplayTimer = null;
+
+      function showMotionSlide(index) {
+        currentSlide = (index + slides.length) % slides.length;
+        slides.removeClass('is-active').eq(currentSlide).addClass('is-active');
+        counter.text((currentSlide + 1) + ' / ' + slides.length);
+      }
+
+      function startMotionAutoplay() {
+        clearInterval(autoplayTimer);
+        autoplayTimer = setInterval(function() {
+          showMotionSlide(currentSlide + 1);
+        }, autoplayDelay);
+      }
+
+      carousel.find('.motion-carousel-prev').on('click', function() {
+        showMotionSlide(currentSlide - 1);
+        startMotionAutoplay();
+      });
+
+      carousel.find('.motion-carousel-next').on('click', function() {
+        showMotionSlide(currentSlide + 1);
+        startMotionAutoplay();
+      });
+
+      showMotionSlide(currentSlide);
+      startMotionAutoplay();
+    });
+
     bulmaSlider.attach();
 
 })

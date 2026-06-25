@@ -495,11 +495,143 @@ body {
   margin: 0.7rem auto 0;
 }
 
+.trajectory-sampler-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.75rem;
+  align-items: start;
+  margin-top: 0.2rem;
+}
+
+.trajectory-sampler-layout .motion-carousel-figure {
+  align-self: start;
+  justify-self: end;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 !important;
+}
+
+.trajectory-sampler-layout .motion-carousel-figure > div {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.trajectory-sampler-layout .content {
+  margin-bottom: 0;
+}
+
+.trajectory-sampler-layout .motion-carousel-figure > figcaption {
+  max-width: 360px !important;
+  margin-top: 0.45rem !important;
+  font-size: 0.82rem !important;
+  line-height: 1.25 !important;
+}
+
+.motion-carousel {
+  position: relative;
+  align-self: start;
+}
+
+.motion-carousel-slides {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  aspect-ratio: 4 / 3;
+}
+
+.motion-carousel-slide {
+  display: none !important;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.motion-carousel-slide.is-active {
+  display: block !important;
+}
+
+.motion-carousel-button {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(31, 48, 52, 0.14);
+  border-radius: 50%;
+  color: #18282a;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 10px 22px rgba(31, 48, 52, 0.16);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.motion-carousel-button:hover {
+  background: #fff;
+  box-shadow: 0 14px 26px rgba(31, 48, 52, 0.2);
+  transform: translateY(-50%) scale(1.04);
+}
+
+.motion-carousel-prev {
+  left: 0.65rem;
+}
+
+.motion-carousel-next {
+  right: 0.65rem;
+}
+
+.motion-carousel-counter {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  z-index: 2;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  color: #18282a;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 18px rgba(31, 48, 52, 0.12);
+  font-family: 'Google Sans', 'Noto Sans', sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
 @media screen and (max-width: 768px) {
+  .trajectory-sampler-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .trajectory-sampler-layout .motion-carousel-figure {
+    justify-self: stretch;
+    max-width: none;
+  }
+
   .content figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div,
   .column figure[aria-labelledby]:not(.benchmark-table-figure):not(.success-table-figure) > div {
     flex-direction: column;
     gap: 0.85rem !important;
+  }
+
+  .motion-carousel-button {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .motion-carousel-prev {
+    left: 0.6rem;
+  }
+
+  .motion-carousel-next {
+    right: 0.6rem;
+  }
+
+  .motion-carousel-counter {
+    right: 0.6rem;
+    bottom: 0.6rem;
   }
 }
 
