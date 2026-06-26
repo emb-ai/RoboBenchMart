@@ -545,9 +545,21 @@ body {
   width: 100%;
 }
 
+.content .benchmark-table-figure,
+.content .success-table-figure,
+.content .failure-table-figure,
+.column .benchmark-table-figure,
+.column .success-table-figure,
+.column .failure-table-figure {
+  margin: 1.5rem 0 0 !important;
+  max-width: 100%;
+}
+
 .benchmark-table-wrap,
 .success-table-wrap,
 .failure-table-wrap {
+  max-width: 100%;
+  box-sizing: border-box;
   overflow-x: auto;
   overflow-y: hidden;
   border-top: 2px solid #1f2f32;
